@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aud.lol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #06060e;
+      color: #e2e2ea;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.25rem 5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      filter: blur(100px);
+      opacity: 0.2;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap {
+      position: relative; z-index: 1;
+      width: 100%;
+      display: flex; flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── PROFILE CARD ── */
+    .profile-card {
+      width: 100%;
+      border-radius: 20px;
+      padding: 2rem 1.75rem 1.75rem;
+      display: flex; flex-direction: column; align-items: center;
+      transform-style: preserve-3d;
+      transition: transform 0.08s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* avatar */
+    .avatar { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); display: block; }
+    .avatar-initials {
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; border: 2px solid rgba(255,255,255,0.15);
+    }
+    .avatar-wrap { margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.5s 0s forwards; }
+
+    .profile-name {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #fff;
+      margin-bottom: 0.35rem; opacity: 0; animation: fadeUp 0.5s 0.1s forwards;
+    }
+    .profile-bio {
+      font-size: 0.88rem; color: rgba(255,255,255,0.5);
+      text-align: center; line-height: 1.6; margin-bottom: 0.5rem;
+      opacity: 0; animation: fadeUp 0.5s 0.2s forwards;
+    }
+    .profile-views {
+      font-size: 0.7rem; color: rgba(255,255,255,0.3);
+      margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 5px;
+      opacity: 0; animation: fadeUp 0.5s 0.25s forwards;
+    }
+    .views-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .profile-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0.28rem 0.85rem; border-radius: 99px;
+      font-size: 0.7rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.5s 0.3s forwards;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── SOCIAL LINKS (inside card) ── */
+    .links-inside {
+      width: 100%;
+      display: flex; flex-direction: column; gap: 0.55rem;
+    }
+    .link-btn {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.88rem; font-weight: 500;
+      display: flex; align-items: center;
+      gap: 11px; padding: 0.8rem 1.1rem;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s, color 0.2s;
+      opacity: 0; animation: fadeUp 0.5s forwards;
+    }
+    .link-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px); color: #fff;
+    }
+    /* custom image icon */
+    .link-img-icon {
+      flex-shrink: 0;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    /* emoji/text icon fallback */
+    .link-emoji-icon { font-size: 1.05rem; flex-shrink: 0; line-height: 1; }
+    .link-label { flex: 1; }
+    .link-arrow { color: rgba(255,255,255,0.22); font-size: 0.78rem; }
+
+    /* ── MUSIC PLAYER (below card) ── */
+    .music-player {
+      width: 100%;
+      border-radius: 14px;
+      padding: 0.9rem 1.1rem;
+      display: flex; align-items: center; gap: 12px;
+      opacity: 0; animation: fadeUp 0.5s 0.7s forwards;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .music-player:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
+    .music-art { border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .music-art-placeholder {
+      border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; background: rgba(255,255,255,0.06);
+    }
+    .music-info { flex: 1; min-width: 0; }
+    .music-title { font-size: 0.85rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .music-artist { font-size: 0.75rem; color: rgba(255,255,255,0.38); margin-top: 2px; }
+    .music-progress { margin-top: 6px; height: 3px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .music-bar { height: 100%; border-radius: 99px; width: 0%; transition: width 0.5s linear; }
+    .music-play {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: none;
+      color: #fff; font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+    }
+    .music-play:hover { background: rgba(255,255,255,0.2); }
+    .music-time { font-size: 0.68rem; color: rgba(255,255,255,0.3); min-width: 32px; text-align: right; }
+
+    .page-footer {
+      margin-top: 1.5rem; font-size: 0.75rem;
+      color: rgba(255,255,255,0.18);
+      opacity: 0; animation: fadeUp 0.5s 1.2s forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+/* ================================================================
+   CONFIG — edit everything here
+   ================================================================ */
+const CONFIG = {
+
+  /* YOUR INFO */
+  name:       "Jarrah",
+  bio:        "Just a guy on the internet.",
+  avatarUrl:  "",         /* direct image URL, or "" for initials */
+  initials:   "J",
+  avatarSize: 86,         /* px */
+
+  /* BADGE */
+  badge:      "aud.lol",
+  badgeColor: "#7c5cfc",
+
+  /* ACCENT / ORB */
+  accentColor: "#7c5cfc",
+
+  /* CARD WIDTH */
+  cardWidth: 460,         /* px */
+
+  /* PROFILE CARD STYLE */
+  card: {
+    gradientFrom:  "#1a0533",
+    gradientTo:    "#0a0a1a",
+    gradientAngle: 135,
+    opacity:       1,           /* 0.0 – 1.0 */
+    borderColor:   "#7c5cfc",
+    borderOpacity: 0.3,         /* 0.0 – 1.0 */
+    borderWidth:   1,           /* px */
+    borderRadius:  20,          /* px */
+  },
+
+  /* PROFILE VIEWS */
+  showViews: true,
+
+  /* PARALLAX TILT */
+  tilt: true,
+
+  /* SOCIAL LINKS (inside the card)
+     enabled:   true / false
+     iconUrl:   paste a direct image URL for a custom icon, or "" to use iconEmoji
+     iconEmoji: emoji shown when no iconUrl
+     iconSize:  icon image size in px
+     accent:    true = highlighted border colour                       */
+  links: [
+    {
+      enabled:   true,
+      iconUrl:   "",            /* e.g. "https://cdn.example.com/roblox.png" */
+      iconEmoji: "🎮",
+      iconSize:  24,
+      label:     "Roblox",
+      url:       "https://roblox.com",
+      accent:    false,
+    },
+    {
+      enabled:   true,
+      iconUrl:   "",
+      iconEmoji: "💬",
+      iconSize:  24,
+      label:     "Discord",
+      url:       "https://discord.com",
+      accent:    false,
+    },
+    {
+      enabled:   true,
+      iconUrl:   "",
+      iconEmoji: "🐦",
+      iconSize:  24,
+      label:     "Twitter / X",
+      url:       "https://twitter.com",
+      accent:    false,
+    },
+    {
+      enabled:   true,
+      iconUrl:   "",
+      iconEmoji: "📸",
+      iconSize:  24,
+      label:     "Instagram",
+      url:       "https://instagram.com",
+      accent:    false,
+    },
+    {
+      enabled:   false,
+      iconUrl:   "",
+      iconEmoji: "▶️",
+      iconSize:  24,
+      label:     "YouTube",
+      url:       "https://youtube.com",
+      accent:    false,
+    },
+    {
+      enabled:   true,
+      iconUrl:   "",
+      iconEmoji: "📧",
+      iconSize:  24,
+      label:     "Email me",
+      url:       "mailto:hello@aud.lol",
+      accent:    true,
+    },
+  ],
+
+  /* MUSIC PLAYER (sits below the card) */
+  music: {
+    enabled:  true,
+    url:      "",             /* direct .mp3 URL */
+    title:    "Song Title",
+    artist:   "Artist Name",
+    art:      "",             /* album art image URL or "" */
+    artEmoji: "🎵",
+    artSize:  44,             /* px */
+  },
+
+  /* FOOTER */
+  footerText: "aud.lol",
+};
+/* ================================================================
+   END CONFIG
+   ================================================================ */
+</script>
+
+<div class="orb" id="orb"></div>
+
+<div class="wrap" id="wrap">
+
+  <!-- TILT CONTAINER (card + music move together) -->
+  <div id="tilt-wrap" style="width:100%;display:flex;flex-direction:column;gap:0.75rem;transform-style:preserve-3d;perspective:900px;will-change:transform">
+
+  <!-- CARD -->
+  <div class="profile-card" id="profile-card">
+
+    <div class="avatar-wrap" id="avatar-wrap"></div>
+    <p class="profile-name" id="profile-name"></p>
+    <p class="profile-bio"  id="profile-bio"></p>
+    <div class="profile-views" id="profile-views" style="display:none">
+      <div class="views-dot"></div><span id="views-count"></span>
+    </div>
+    <div class="profile-badge" id="profile-badge" style="display:none">
+      <div class="badge-dot" id="badge-dot"></div><span id="badge-text"></span>
+    </div>
+
+    <!-- links live inside the card -->
+    <div class="links-inside" id="links"></div>
+
+  </div>
+
+  <!-- MUSIC (below card, inside tilt) -->
+  <div id="music-wrap" style="width:100%"></div>
+
+  </div><!-- end tilt-wrap -->
+
+  <p class="page-footer" id="page-footer"></p>
+</div>
+
+<script>
+  function hexToRgba(hex, alpha) {
+    hex = hex.replace('#','');
+    if (hex.length === 3) hex = hex.split('').map(x=>x+x).join('');
+    const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  /* orb */
+  document.getElementById('orb').style.background = CONFIG.accentColor;
+
+  /* wrap width */
+  document.getElementById('wrap').style.maxWidth = CONFIG.cardWidth + 'px';
+
+  /* card */
+  const card = document.getElementById('profile-card');
+  const c = CONFIG.card;
+  card.style.background    = `linear-gradient(${c.gradientAngle}deg, ${c.gradientFrom}, ${c.gradientTo})`;
+  card.style.opacity       = c.opacity;
+  card.style.border        = `${c.borderWidth}px solid ${hexToRgba(c.borderColor, c.borderOpacity)}`;
+  card.style.borderRadius  = c.borderRadius + 'px';
+
+  /* avatar */
+  const sz = CONFIG.avatarSize;
+  const avatarWrap = document.getElementById('avatar-wrap');
+  avatarWrap.style.cssText += ';opacity:0;animation:fadeUp 0.5s 0s forwards';
+  if (CONFIG.avatarUrl) {
+    avatarWrap.innerHTML = `<img class="avatar" src="${CONFIG.avatarUrl}" style="width:${sz}px;height:${sz}px" />`;
+  } else {
+    avatarWrap.innerHTML = `<div class="avatar-initials" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*0.32)}px;background:${CONFIG.accentColor}22;color:${CONFIG.accentColor}">${CONFIG.initials}</div>`;
+  }
+
+  /* name & bio */
+  document.getElementById('profile-name').textContent = CONFIG.name;
+  document.getElementById('profile-bio').textContent  = CONFIG.bio;
+
+  /* views */
+  if (CONFIG.showViews) {
+    const viewsEl = document.getElementById('profile-views');
+    viewsEl.style.display = 'flex';
+    const key = 'aud_views_' + location.hostname;
+    let views = parseInt(localStorage.getItem(key)||'0') + 1;
+    localStorage.setItem(key, views);
+    document.getElementById('views-count').textContent = views.toLocaleString() + ' view' + (views!==1?'s':'');
+  }
+
+  /* badge */
+  if (CONFIG.badge) {
+    const badge = document.getElementById('profile-badge');
+    badge.style.display = 'inline-flex';
+    document.getElementById('badge-dot').style.background = CONFIG.badgeColor;
+    document.getElementById('badge-text').textContent = CONFIG.badge;
+  }
+
+  /* links */
+  const linksEl = document.getElementById('links');
+  CONFIG.links.filter(l => l.enabled).forEach((l, i) => {
+    const a = document.createElement('a');
+    a.className = 'link-btn';
+    a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+    a.style.animationDelay = (0.35 + i * 0.07) + 's';
+    if (l.accent) a.style.borderColor = hexToRgba(CONFIG.accentColor, 0.45);
+    const iconHtml = l.iconUrl
+      ? `<img class="link-img-icon" src="${l.iconUrl}" style="width:${l.iconSize}px;height:${l.iconSize}px" />`
+      : `<span class="link-emoji-icon">${l.iconEmoji}</span>`;
+    a.innerHTML = `${iconHtml}<span class="link-label">${l.label}</span><span class="link-arrow">↗</span>`;
+    linksEl.appendChild(a);
+  });
+
+  /* music */
+  const musicWrap = document.getElementById('music-wrap');
+  if (CONFIG.music.enabled) {
+    const m = CONFIG.music;
+    const artHtml = m.art
+      ? `<img class="music-art" src="${m.art}" style="width:${m.artSize}px;height:${m.artSize}px" />`
+      : `<div class="music-art-placeholder" style="width:${m.artSize}px;height:${m.artSize}px">${m.artEmoji}</div>`;
+    musicWrap.innerHTML = `
+      <div class="music-player" id="music-player" style="background:linear-gradient(${c.gradientAngle}deg,${c.gradientFrom},${c.gradientTo});border:${c.borderWidth}px solid ${hexToRgba(c.borderColor,c.borderOpacity)};padding:0.9rem 1.1rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.2s,border-color 0.2s;user-select:none;opacity:0;animation:fadeUp 0.5s 0.7s forwards">
+        ${artHtml}
+        <div class="music-info">
+          <div class="music-title">${m.title}</div>
+          <div class="music-artist">${m.artist}</div>
+          <div class="music-progress"><div class="music-bar" id="music-bar" style="background:${CONFIG.accentColor}"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="music-time" id="music-time">0:00</div>
+          <button class="music-play" id="music-play">▶</button>
+        </div>
+      </div>`;
+    if (m.url) {
+      const audio = new Audio(m.url);
+      const playBtn = document.getElementById('music-play');
+      const bar = document.getElementById('music-bar');
+      const timeEl = document.getElementById('music-time');
+      let playing = false;
+      function fmt(s){const mn=Math.floor(s/60),sc=Math.floor(s%60);return mn+':'+(sc<10?'0':'')+sc;}
+      audio.addEventListener('timeupdate',()=>{if(audio.duration){bar.style.width=(audio.currentTime/audio.duration*100)+'%';timeEl.textContent=fmt(audio.currentTime);}});
+      audio.addEventListener('ended',()=>{playing=false;playBtn.textContent='▶';bar.style.width='0%';});
+      document.getElementById('music-player').addEventListener('click',()=>{
+        playing?(audio.pause(),playBtn.textContent='▶'):(audio.play(),playBtn.textContent='⏸');
+        playing=!playing;
+      });
+    }
+  }
+
+  /* footer */
+  document.getElementById('page-footer').textContent = CONFIG.footerText;
+  document.title = CONFIG.name + ' — ' + CONFIG.footerText;
+
+  /* tilt + shine — smooth lerp */
+  if (CONFIG.tilt) {
+    const tiltWrap = document.getElementById('tilt-wrap');
+    tiltWrap.style.position = 'relative';
+
+    const shine = document.createElement('div');
+    shine.style.cssText = 'position:absolute;inset:0;border-radius:20px;pointer-events:none;opacity:0;z-index:10;';
+    tiltWrap.appendChild(shine);
+
+    let targetX = 0, targetY = 0, targetSX = 50, targetSY = 50;
+    let curX = 0, curY = 0, curSX = 50, curSY = 50;
+    let isHovered = false;
+    let raf = null;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function tick() {
+      curX  = lerp(curX,  targetX,  0.1);
+      curY  = lerp(curY,  targetY,  0.1);
+      curSX = lerp(curSX, targetSX, 0.1);
+      curSY = lerp(curSY, targetSY, 0.1);
+
+      const scale = isHovered ? 1.02 : 1;
+      tiltWrap.style.transform = `rotateY(${curX}deg) rotateX(${curY}deg) scale(${lerp(parseFloat(tiltWrap.dataset.scale||1), scale, 0.1)})`;
+      tiltWrap.dataset.scale = parseFloat(tiltWrap.dataset.scale||1) + (scale - parseFloat(tiltWrap.dataset.scale||1)) * 0.1;
+      tiltWrap.style.boxShadow = isHovered ? `${-curX*1.4}px ${curY*1.4}px 50px rgba(0,0,0,0.55)` : 'none';
+      shine.style.background = `radial-gradient(circle at ${curSX}% ${curSY}%, rgba(255,255,255,0.1) 0%, transparent 55%)`;
+      shine.style.opacity = isHovered ? '1' : '0';
+
+      const stillMoving =
+        Math.abs(curX - targetX) > 0.01 ||
+        Math.abs(curY - targetY) > 0.01 ||
+        Math.abs(curSX - targetSX) > 0.1 ||
+        Math.abs(curSY - targetSY) > 0.1;
+
+      raf = stillMoving ? requestAnimationFrame(tick) : null;
+    }
+
+    tiltWrap.addEventListener('mousemove', e => {
+      const r  = tiltWrap.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+      const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+      targetX  =  dx * 16;
+      targetY  = -dy * 16;
+      targetSX = (dx + 1) / 2 * 100;
+      targetSY = (dy + 1) / 2 * 100;
+      isHovered = true;
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+
+    tiltWrap.addEventListener('mouseleave', () => {
+      targetX = 0; targetY = 0;
+      targetSX = 50; targetSY = 50;
+      isHovered = false;
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+  }
+</script>
+</body>
+</html>
