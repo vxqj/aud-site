@@ -73,10 +73,43 @@
     }
     .avatar-wrap { margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.5s 0s forwards; }
 
-    .profile-name {
-      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #fff;
+    .profile-name-row {
+      display: flex; align-items: center; gap: 5px;
       margin-bottom: 0.35rem; opacity: 0; animation: fadeUp 0.5s 0.1s forwards;
     }
+    .profile-name {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #fff;
+      line-height: 1; white-space: nowrap;
+    }
+    .user-badge-wrap {
+      position: relative; display: inline-flex; align-items: center;
+    }
+    .user-badge-icon {
+      width: 18px; height: 18px; border-radius: 4px;
+      object-fit: cover; cursor: default; display: block;
+    }
+    .user-badge-emoji {
+      font-size: 16px; cursor: default; line-height: 1;
+      display: inline-flex; align-items: center;
+    }
+    .user-badge-tooltip {
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,30,0.97);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff; font-size: 0.7rem; font-weight: 500;
+      padding: 4px 9px; border-radius: 6px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s;
+      z-index: 99;
+    }
+    .user-badge-tooltip::after {
+      content: '';
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: rgba(20,20,30,0.97);
+    }
+    .user-badge-wrap:hover .user-badge-tooltip { opacity: 1; }
     .profile-bio {
       font-size: 0.88rem; color: rgba(255,255,255,0.5);
       text-align: center; line-height: 1.6; margin-bottom: 0.5rem;
@@ -223,6 +256,24 @@ const CONFIG = {
   /* PARALLAX TILT */
   tilt: true,
 
+  /* NAME BADGES — shown next to your name
+     iconUrl:   direct image URL, or "" to use emoji
+     emoji:     shown when no iconUrl
+     tooltip:   text shown on hover
+     enabled:   true / false
+     offsetX:   nudge left/right in px (negative = left, positive = right)
+     offsetY:   nudge up/down in px (negative = up, positive = down)       */
+  nameBadges: [
+    {
+      enabled:  true,
+      iconUrl:  "",
+      emoji:    "👑",
+      tooltip:  "Owner",
+      offsetX:  0,
+      offsetY:  0,
+    },
+  ],
+
   /* SOCIAL LINKS (inside the card)
      enabled:   true / false
      iconUrl:   paste a direct image URL for a custom icon, or "" to use iconEmoji
@@ -316,7 +367,10 @@ const CONFIG = {
   <div class="profile-card" id="profile-card">
 
     <div class="avatar-wrap" id="avatar-wrap"></div>
-    <p class="profile-name" id="profile-name"></p>
+    <div class="profile-name-row" id="profile-name-row">
+      <span class="profile-name" id="profile-name"></span>
+      <div id="name-badges" style="display:inline-flex;align-items:center;gap:3px;vertical-align:middle"></div>
+    </div>
     <p class="profile-bio"  id="profile-bio"></p>
     <div class="profile-views" id="profile-views" style="display:none">
       <div class="views-dot"></div><span id="views-count"></span>
@@ -373,6 +427,19 @@ const CONFIG = {
   /* name & bio */
   document.getElementById('profile-name').textContent = CONFIG.name;
   document.getElementById('profile-bio').textContent  = CONFIG.bio;
+
+  /* name badges */
+  const nameBadgesEl = document.getElementById('name-badges');
+  (CONFIG.nameBadges || []).filter(b => b.enabled).forEach(b => {
+    const wrap = document.createElement('div');
+    wrap.className = 'user-badge-wrap';
+    const iconHtml = b.iconUrl
+      ? `<img class="user-badge-icon" src="${b.iconUrl}" />`
+      : `<span class="user-badge-emoji">${b.emoji}</span>`;
+    wrap.innerHTML = `${iconHtml}<div class="user-badge-tooltip">${b.tooltip}</div>`;
+    wrap.style.transform = `translate(${b.offsetX||0}px, ${b.offsetY||0}px)`;
+    nameBadgesEl.appendChild(wrap);
+  });
 
   /* views */
   if (CONFIG.showViews) {
