@@ -424,7 +424,7 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
           <div class="stat-c"><div class="stat-lbl">Username</div><div class="stat-val" id="ov-user" style="font-size:18px;">—</div><div class="stat-sub" id="ov-url">aud.lol/—</div></div>
           <div class="stat-c"><div class="stat-lbl">Profile Views</div><div class="stat-val" id="ov-views">0</div><div class="stat-sub pos">Real views</div></div>
           <div class="stat-c"><div class="stat-lbl">Links</div><div class="stat-val" id="ov-links">0</div><div class="stat-sub">Added links</div></div>
-          <div class="stat-c"><div class="stat-lbl">Member Since</div><div class="stat-val" id="ov-since" style="font-size:15px;">—</div><div class="stat-sub">Join date</div></div>
+          <div class="stat-c"><div class="stat-lbl">Member Since</div><div class="stat-val" id="ov-since" style="font-size:15px;">—</div><div class="stat-sub" id="ov-uid">UID #—</div></div>
         </div>
         <div class="two">
           <div>
@@ -612,7 +612,13 @@ function showDash(){
   renderDash();
 }
 function showProfile(){
+  window.location.hash=currentProfile.username;
   document.getElementById('page-profile').style.display='block';
+  document.getElementById('prof-back-btn').onclick=()=>{
+    document.getElementById('page-profile').style.display='none';
+    window.location.hash='';
+    showDash();
+  };
   renderPublicProfile(currentProfile,currentLinks);
 }
 function hideProfile(){document.getElementById('page-profile').style.display='none';}
@@ -682,7 +688,7 @@ async function doLogout(){
 // ══ PROFILE LOAD ══
 async function loadProfile(){
   if(!currentUser)return;
-  const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  const {data}=await sb.from('profiles').select('*,uid').eq('id',currentUser.id).single();
   currentProfile=data;
   const {data:links}=await sb.from('links').select('*').eq('user_id',currentUser.id).order('position');
   currentLinks=links||[];
@@ -712,6 +718,7 @@ function renderDash(){
   document.getElementById('ov-views').textContent=p.views.toLocaleString();
   document.getElementById('ov-links').textContent=currentLinks.length;
   document.getElementById('ov-since').textContent=new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('ov-uid').textContent='UID #'+(p.uid||'—');
   renderProgress();
   renderConnections();
 }
@@ -827,14 +834,14 @@ async function saveCustomize(){
 // ══ LEADERBOARD ══
 async function renderLeaderboard(){
   document.getElementById('dash-lb').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>';
-  const{data}=await sb.from('profiles').select('username,display_name,views,accent_color').order('views',{ascending:false}).limit(20);
+  const{data}=await sb.from('profiles').select('username,display_name,views,accent_color,uid').order('views',{ascending:false}).limit(20);
   if(!data||!data.length){document.getElementById('dash-lb').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No profiles yet — be the first!</div>';return;}
   const medals=['🥇','🥈','🥉'];
   document.getElementById('dash-lb').innerHTML=data.map((u,i)=>`
     <div class="lb-row" style="${u.username===currentProfile?.username?'background:rgba(0,224,255,.04);':''}">
       <div class="lb-rank ${i===0?'g':i===1?'s':i===2?'b':''}">${medals[i]||'#'+(i+1)}</div>
       <div class="lb-av" style="background:${u.accent_color||'var(--accent)'}22;color:${u.accent_color||'var(--accent)'};">${u.display_name[0].toUpperCase()}</div>
-      <div class="lb-info"><div class="lb-name">${u.display_name}${u.username===currentProfile?.username?' (you)':''}</div><div class="lb-handle">aud.lol/${u.username}</div></div>
+      <div class="lb-info"><div class="lb-name" title="UID #${u.uid||'?'}" style="cursor:default;">${u.display_name}${u.username===currentProfile?.username?' (you)':''} <span style="font-size:10px;color:var(--muted);font-family:'Geist Mono',monospace;">#${u.uid||'?'}</span></div><div class="lb-handle">aud.lol/${u.username}</div></div>
       <div class="lb-views">${u.views.toLocaleString()}</div>
     </div>`).join('');
 }
@@ -848,7 +855,7 @@ function renderPublicProfile(p,links){
   const color=p.accent_color||'var(--accent)';
   document.getElementById('prof-body').innerHTML=`
     <div class="prof-avatar" style="border-color:${color};background:${color}22;color:${color};">${p.display_name[0].toUpperCase()}</div>
-    <div class="prof-name">${p.display_name}</div>
+    <div class="prof-name" style="display:flex;align-items:center;justify-content:center;gap:8px;">${p.display_name}<span class="uid-badge" title="UID #${p.uid||'?'}" style="font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;background:var(--card2);border:1px solid var(--border);padding:2px 8px;border-radius:999px;cursor:default;">#${p.uid||'?'}</span></div>
     <div class="prof-handle">aud.lol/${p.username}</div>
     ${p.bio?`<div class="prof-bio">${p.bio}</div>`:''}
     <div class="prof-badges">${unlockedBadges.map(b=>`<span style="background:${color}18;color:${color};font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;">${b.emoji} ${b.name}</span>`).join('')}</div>
@@ -876,14 +883,14 @@ async function loadLandingData(){
   document.getElementById('land-users').textContent=(count||0).toLocaleString();
   document.getElementById('land-views').textContent=totalViews.toLocaleString();
   // Leaderboard
-  const{data:top}=await sb.from('profiles').select('username,display_name,views,accent_color').order('views',{ascending:false}).limit(5);
+  const{data:top}=await sb.from('profiles').select('username,display_name,views,accent_color,uid').order('views',{ascending:false}).limit(5);
   if(!top||!top.length){document.getElementById('land-lb').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No profiles yet — be the first to sign up!</div>';return;}
   const medals=['🥇','🥈','🥉'];
   document.getElementById('land-lb').innerHTML=top.map((u,i)=>`
     <div class="lb-row">
       <div class="lb-rank ${i===0?'g':i===1?'s':i===2?'b':''}">${medals[i]||'#'+(i+1)}</div>
       <div class="lb-av" style="background:${u.accent_color||'#00e0ff'}22;color:${u.accent_color||'#00e0ff'};">${u.display_name[0].toUpperCase()}</div>
-      <div class="lb-info"><div class="lb-name">${u.display_name}</div><div class="lb-handle">aud.lol/${u.username}</div></div>
+      <div class="lb-info"><div class="lb-name">${u.display_name} <span style="font-size:10px;color:var(--muted);font-family:'Geist Mono',monospace;">#${u.uid||'?'}</span></div><div class="lb-handle">aud.lol/${u.username}</div></div>
       <div class="lb-views">${u.views.toLocaleString()}</div>
     </div>`).join('');
 }
@@ -969,15 +976,43 @@ function claimHero(){
 
 // ══ SESSION CHECK ══
 async function init(){
+  // Check if URL has a profile path e.g. ?u=username or #username
+  const params=new URLSearchParams(window.location.search);
+  const hashUser=window.location.hash.replace('#','');
+  const profileToLoad=params.get('u')||hashUser||null;
+
   const{data:{session}}=await sb.auth.getSession();
   if(session){
     currentUser=session.user;
     await loadProfile();
-    if(currentProfile)showDash();
-    else showLanding();
+    if(profileToLoad&&profileToLoad!==currentProfile?.username){
+      await viewOtherProfile(profileToLoad);
+    } else {
+      showDash();
+    }
   } else {
-    showLanding();
+    if(profileToLoad){
+      await viewOtherProfile(profileToLoad);
+    } else {
+      showLanding();
+    }
   }
+}
+
+async function viewOtherProfile(username){
+  const{data:prof}=await sb.from('profiles').select('*,uid').eq('username',username).single();
+  if(!prof){showLanding();showToast('Profile not found');return;}
+  const{data:links}=await sb.from('links').select('*').eq('user_id',prof.id).order('position');
+  // Increment views
+  await sb.rpc('increment_views',{profile_username:username});
+  hide(['page-landing','page-auth','page-dash']);
+  document.getElementById('page-profile').style.display='block';
+  document.getElementById('prof-back-btn').onclick=()=>{
+    document.getElementById('page-profile').style.display='none';
+    window.location.hash='';
+    if(currentUser)showDash();else showLanding();
+  };
+  renderPublicProfile(prof,links||[]);
 }
 
 init();
