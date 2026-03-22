@@ -527,22 +527,31 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
             <div class="card">
               <div class="card-t">Background</div>
               <div class="card-s">Set an image or video behind your card.</div>
-              <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <div style="display:flex;gap:8px;margin-bottom:16px;">
                 <div class="bg-type-opt active" data-type="color" onclick="selectBgType(this,'color')" style="flex:1;background:var(--subtle);border:2px solid var(--accent);border-radius:9px;padding:9px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;">None</div>
                 <div class="bg-type-opt" data-type="image" onclick="selectBgType(this,'image')" style="flex:1;background:var(--subtle);border:2px solid transparent;border-radius:9px;padding:9px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);">🖼 Image</div>
                 <div class="bg-type-opt" data-type="video" onclick="selectBgType(this,'video')" style="flex:1;background:var(--subtle);border:2px solid transparent;border-radius:9px;padding:9px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);">🎬 Video</div>
               </div>
-              <div id="bg-url-wrap" class="hidden">
-                <div class="field"><label id="bg-url-label">Image URL</label><input id="c-bg-url" type="text" placeholder="https://..." oninput="livePreviewCard()"></div>
+              <div id="bg-upload-wrap" class="hidden">
+                <input type="file" id="c-bg-file" style="display:none;" onchange="uploadBgFile(this)">
+                <div id="bg-upload-btn" onclick="document.getElementById('c-bg-file').click()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--subtle);border:2px dashed var(--border2);border-radius:10px;padding:20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .18s;">
+                  <span style="font-size:20px;">📁</span> Click to choose file
+                </div>
+                <div id="bg-upload-status" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:14px;"></div>
+                <input type="hidden" id="c-bg-url">
               </div>
             </div>
 
             <!-- AUDIO -->
             <div class="card">
               <div class="card-t">Background Audio</div>
-              <div class="card-s">Plays automatically when someone visits your page.</div>
-              <div class="field"><label>Audio file URL (.mp3, .ogg)</label><input id="c-audio-url" type="text" placeholder="https://...audio.mp3"></div>
-              <div style="font-size:11px;color:var(--muted);margin-top:-6px;">Tip: Upload to a file host like Catbox.moe or Dropbox and paste the direct link.</div>
+              <div class="card-s">Plays on loop when someone visits your page.</div>
+              <input type="file" id="c-audio-file" accept="audio/*" style="display:none;" onchange="uploadAudioFile(this)">
+              <div onclick="document.getElementById('c-audio-file').click()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--subtle);border:2px dashed var(--border2);border-radius:10px;padding:20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .18s;" id="audio-upload-btn">
+                <span style="font-size:20px;">🎵</span> Click to choose audio file
+              </div>
+              <div id="audio-upload-status" style="font-size:11px;color:var(--muted);margin-top:8px;min-height:14px;"></div>
+              <input type="hidden" id="c-audio-url">
             </div>
 
 
@@ -952,10 +961,12 @@ function selectBgType(el,type){
   selectedBgType=type;
   document.querySelectorAll('.bg-type-opt').forEach(e=>{e.style.borderColor='transparent';e.style.color='var(--muted)';});
   el.style.borderColor='var(--accent)';el.style.color='var(--text)';
-  const wrap=document.getElementById('bg-url-wrap');
-  const lbl=document.getElementById('bg-url-label');
+  const wrap=document.getElementById('bg-upload-wrap');
   if(type==='color'){wrap.classList.add('hidden');}
-  else{wrap.classList.remove('hidden');lbl.textContent=type==='image'?'Image URL':'Video URL';}
+  else{
+    wrap.classList.remove('hidden');
+    document.getElementById('c-bg-file').accept=type==='image'?'image/*':'video/*';
+  }
   livePreviewCard();
 }
 
@@ -964,10 +975,14 @@ function renderCustomize(){
   const p=currentProfile;
   if(p.accent_color)document.getElementById('c-accent').value=p.accent_color;
   if(p.card_color)document.getElementById('c-card').value=p.card_color;
-  const bgUrlEl=document.getElementById('c-bg-url'); if(bgUrlEl&&p.bg_url)bgUrlEl.value=p.bg_url;
+  const bgUrlEl=document.getElementById('c-bg-url'); if(bgUrlEl&&p.bg_url){bgUrlEl.value=p.bg_url;
+    const bgBtn=document.getElementById('bg-upload-btn');
+    if(bgBtn&&p.bg_url){bgBtn.innerHTML=`<span style="font-size:20px;">✅</span> Background set`;}}
   const opEl=document.getElementById('c-opacity');
   if(opEl){const pct=Math.round((p.card_opacity!=null?p.card_opacity:1)*100);opEl.value=pct;const opValEl=document.getElementById('opacity-val');if(opValEl)opValEl.textContent=pct+'%';}
-  const audioEl=document.getElementById('c-audio-url'); if(audioEl&&p.bg_audio_url)audioEl.value=p.bg_audio_url;
+  const audioEl=document.getElementById('c-audio-url'); if(audioEl&&p.bg_audio_url){audioEl.value=p.bg_audio_url;
+    const audBtn=document.getElementById('audio-upload-btn');
+    if(audBtn&&p.bg_audio_url){audBtn.innerHTML=`<span style="font-size:20px;">🎵</span> Audio set`;}}
   // Set card style
   if(p.card_style){
     selectedCardStyle=p.card_style;
@@ -1082,9 +1097,7 @@ function renderPublicProfile(p,links){
     bgMedia.innerHTML=`<div style="width:100%;height:100%;background:url('${p.bg_url}') center/cover;opacity:.6;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,.4);"></div>`;
   } else {
     const bgEl=document.getElementById('prof-bg');
-    if(bgEl) bgEl.innerHTML=`
-      <div class="prof-bg-orb" style="width:600px;height:600px;background:${color};top:-200px;right:-150px;"></div>
-      <div class="prof-bg-orb" style="width:500px;height:500px;background:#7c3aed;bottom:-150px;left:-100px;"></div>`;
+    if(bgEl) bgEl.innerHTML='';
   }
 
   // ── Audio ──
@@ -1136,6 +1149,47 @@ function hexToRgb(hex){
   if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
   const n=parseInt(hex,16);
   return `${(n>>16)&255},${(n>>8)&255},${n&255}`;
+}
+
+async function uploadBgFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const status=document.getElementById('bg-upload-status');
+  const btn=document.getElementById('bg-upload-btn');
+  status.style.color='var(--muted)';
+  status.textContent='Uploading…';
+  btn.style.opacity='.5';
+  const ext=file.name.split('.').pop();
+  const path=`${currentUser.id}/bg_${Date.now()}.${ext}`;
+  const{data,error}=await sb.storage.from('profiles').upload(path,file,{upsert:true});
+  btn.style.opacity='1';
+  if(error){status.style.color='var(--red)';status.textContent='Upload failed: '+error.message;return;}
+  const{data:{publicUrl}}=sb.storage.from('profiles').getPublicUrl(path);
+  document.getElementById('c-bg-url').value=publicUrl;
+  status.style.color='var(--green)';
+  status.textContent='✅ '+file.name+' uploaded!';
+  btn.innerHTML=`<span style="font-size:20px;">✅</span> ${file.name}`;
+  livePreviewCard();
+}
+
+async function uploadAudioFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const status=document.getElementById('audio-upload-status');
+  const btn=document.getElementById('audio-upload-btn');
+  status.style.color='var(--muted)';
+  status.textContent='Uploading…';
+  btn.style.opacity='.5';
+  const ext=file.name.split('.').pop();
+  const path=`${currentUser.id}/audio_${Date.now()}.${ext}`;
+  const{data,error}=await sb.storage.from('profiles').upload(path,file,{upsert:true});
+  btn.style.opacity='1';
+  if(error){status.style.color='var(--red)';status.textContent='Upload failed: '+error.message;return;}
+  const{data:{publicUrl}}=sb.storage.from('profiles').getPublicUrl(path);
+  document.getElementById('c-audio-url').value=publicUrl;
+  status.style.color='var(--green)';
+  status.textContent='✅ '+file.name+' uploaded!';
+  btn.innerHTML=`<span style="font-size:20px;">🎵</span> ${file.name} — ready`;
 }
 
 function shareProfile(){
