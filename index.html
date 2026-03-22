@@ -264,6 +264,21 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 .prof-link-txt{flex:1;font-size:14px;font-weight:600;}
 .prof-views{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);font-family:'Geist Mono',monospace;}
 
+/* PREVIEW PANEL */
+.preview-panel{width:280px;background:var(--sb);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
+.preview-header{padding:16px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.preview-header span{font-size:11px;color:var(--muted);font-weight:400;}
+.preview-body{flex:1;overflow-y:auto;padding:20px 16px;}
+.preview-body::-webkit-scrollbar{width:2px;}
+.preview-body::-webkit-scrollbar-thumb{background:var(--subtle);}
+.prev-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin:0 auto 10px;border:2px solid var(--accent);}
+.prev-name{font-size:16px;font-weight:800;text-align:center;}
+.prev-handle{font-size:11px;color:var(--muted);text-align:center;margin-top:2px;font-family:'Geist Mono',monospace;}
+.prev-bio{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6;}
+.prev-link{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:6px;font-size:12px;font-weight:600;}
+.prev-link-ic{font-size:14px;}
+.prev-badges{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:8px;margin-bottom:12px;}
+
 /* LOADING */
 .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -278,90 +293,53 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 </head>
 <body>
 
-<!-- ═══════════════ LANDING ═══════════════ -->
-<div id="page-landing">
-  <nav class="nav">
-    <div class="logo">aud<span>.lol</span></div>
-    <div class="nav-r">
-      <button class="btn btn-ghost" onclick="showAuth('signin')">Sign In</button>
-      <button class="btn btn-accent" onclick="showAuth('signup')">Get Started →</button>
-    </div>
-  </nav>
-  <div class="hero">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="hero-badge"><div class="dot"></div>Claim your free page</div>
-    <h1>Your link.<br><span class="c1">Your</span> <span class="c2">vibe.</span></h1>
-    <p class="hero-sub">One sleek page for all your socials, projects and links. Free forever.</p>
-    <div class="hero-cta">
-      <button class="btn btn-accent" onclick="showAuth('signup')">Claim your page →</button>
-      <button class="btn btn-ghost" onclick="showAuth('signin')">Sign in</button>
-    </div>
-    <div class="claim-wrap">
-      <span class="claim-pre">aud.lol/</span>
-      <input type="text" placeholder="yourname" id="claim-in">
-      <button class="claim-btn" onclick="claimHero()">Claim →</button>
-    </div>
-  </div>
-
-  <div class="stats-strip">
-    <div class="sstat"><div class="sstat-n" id="land-users">—</div><div class="sstat-l">Profiles created</div></div>
-    <div class="sstat"><div class="sstat-n" id="land-views">—</div><div class="sstat-l">Total profile views</div></div>
-    <div class="sstat"><div class="sstat-n">48</div><div class="sstat-l">Unique badges</div></div>
-    <div class="sstat"><div class="sstat-n">100%</div><div class="sstat-l">Free forever</div></div>
-  </div>
-
-  <div class="feats">
-    <div class="feat"><div class="feat-ic">⚡</div><div class="feat-t">Instant Setup</div><div class="feat-d">Live in under 60 seconds. No credit card needed.</div></div>
-    <div class="feat"><div class="feat-ic">🏆</div><div class="feat-t">Leaderboard</div><div class="feat-d">Climb ranks based on real profile views.</div></div>
-    <div class="feat"><div class="feat-ic">🎖️</div><div class="feat-t">Badges</div><div class="feat-d">Unlock exclusive badges as you grow.</div></div>
-    <div class="feat"><div class="feat-ic">🔗</div><div class="feat-t">All Your Links</div><div class="feat-d">Every social, portfolio and site in one place.</div></div>
-    <div class="feat"><div class="feat-ic">📊</div><div class="feat-t">Analytics</div><div class="feat-d">See real view counts on your profile.</div></div>
-    <div class="feat"><div class="feat-ic">🎨</div><div class="feat-t">Customise</div><div class="feat-d">Pick colours, fonts and themes. Make it yours.</div></div>
-  </div>
-
-  <div class="lb-sec">
-    <div class="sec-t">🏆 Top Profiles</div>
-    <div class="sec-s">Most viewed pages on aud.lol right now</div>
-    <div class="lb-wrap" id="land-lb"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading leaderboard…</div></div>
-  </div>
-
-  <footer>
-    <div class="foot-logo">aud<span>.lol</span></div>
-    <div class="foot-links">
-      <div class="foot-link">Terms</div>
-      <div class="foot-link">Privacy</div>
-      <div class="foot-link">Discord</div>
-    </div>
-    <div style="font-size:12px;color:var(--muted);">© 2026 aud.lol</div>
-  </footer>
-</div>
-
 <!-- ═══════════════ AUTH ═══════════════ -->
 <div id="page-auth" class="flex center">
   <div class="auth-orb1"></div>
   <div class="auth-orb2"></div>
   <div class="auth-box">
-    <div class="auth-back" onclick="showLanding()">← Back</div>
+    <div class="auth-back" onclick="showAuth('signin')">← Back</div>
     <div class="auth-logo">aud<span>.lol</span></div>
-    <div class="auth-desc" id="auth-desc">Welcome back.</div>
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('signin')">Sign In</div>
-      <div class="tab" onclick="switchTab('signup')">Sign Up</div>
-    </div>
-    <div id="f-signin">
-      <div class="field"><label>Email</label><input id="si-u" type="email" placeholder="you@email.com" autocomplete="email"></div>
+
+    <!-- SIGN IN -->
+    <div id="f-signin" class="hidden">
+      <div class="auth-desc" style="margin-bottom:20px;">Welcome back.</div>
+      <div class="field"><label>Username</label><input id="si-u" type="text" placeholder="yourname" autocomplete="username"></div>
       <div class="field"><label>Password</label><input id="si-p" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="auth-submit" id="si-btn" onclick="doSignIn()">Sign In</button>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">Don't have an account? <span style="color:var(--accent);cursor:pointer;" onclick="showSignupStep(1)">Sign up</span></div>
     </div>
-    <div id="f-signup" class="hidden">
-      <div class="field"><label>Username</label><input id="su-u" type="text" placeholder="yourname" autocomplete="username"></div>
+
+    <!-- SIGN UP STEP 1: username + display name -->
+    <div id="f-signup-1" class="hidden">
+      <div class="auth-desc" style="margin-bottom:6px;">Create your profile.</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Step 1 of 2</div>
+      <div class="field">
+        <label>Username</label>
+        <div style="display:flex;align-items:center;background:var(--subtle);border:1px solid var(--border);border-radius:8px;overflow:hidden;" id="u-wrap">
+          <span style="padding:11px 0 11px 13px;color:var(--muted);font-family:'Geist Mono',monospace;font-size:13px;white-space:nowrap;">aud.lol/</span>
+          <input id="su-u" type="text" placeholder="yourname" autocomplete="username" style="background:none;border:none;outline:none;padding:11px 13px 11px 2px;color:var(--text);font-size:14px;font-family:'Geist',sans-serif;flex:1;" oninput="checkUsername(this.value)">
+        </div>
+        <div id="u-check" style="font-size:11px;margin-top:5px;min-height:14px;"></div>
+      </div>
       <div class="field"><label>Display Name</label><input id="su-dn" type="text" placeholder="Your Name"></div>
-      <div class="field"><label>Email</label><input id="su-e" type="email" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="field"><label>Password</label><input id="su-p" type="password" placeholder="••••••••" autocomplete="new-password"></div>
-      <button class="auth-submit" id="su-btn" onclick="doSignUp()">Create Account</button>
-      <div class="auth-terms">By signing up you agree to our Terms of Service.</div>
+      <button class="auth-submit" onclick="goStep2()">Continue →</button>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">Already have an account? <span style="color:var(--accent);cursor:pointer;" onclick="showSignin()">Sign in</span></div>
     </div>
+
+    <!-- SIGN UP STEP 2: password -->
+    <div id="f-signup-2" class="hidden">
+      <div class="auth-desc" style="margin-bottom:6px;">Almost there!</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Step 2 of 2 — Create a password</div>
+      <div style="background:var(--subtle);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--accent);">aud.lol/</span><span id="step2-preview" style="font-weight:600;">—</span>
+      </div>
+      <div class="field"><label>Password</label><input id="su-p" type="password" placeholder="••••••••" autocomplete="new-password"></div>
+      <div class="field"><label>Confirm Password</label><input id="su-p2" type="password" placeholder="••••••••"></div>
+      <button class="auth-submit" id="su-btn" onclick="doSignUp()">Create Account 🚀</button>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted);">← <span style="cursor:pointer;color:var(--accent);" onclick="showSignupStep(1)">Back</span></div>
+    </div>
+
     <div class="errmsg" id="auth-err"></div>
   </div>
 </div>
@@ -370,7 +348,7 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 <div id="page-dash">
   <div class="dash-wrap">
     <div class="dsb">
-      <div class="dsb-logo" onclick="showLanding()">aud<span>.lol</span></div>
+      <div class="dsb-logo" onclick="showAuth('signup')">aud<span>.lol</span></div>
       <div class="dsb-nav">
         <div class="dsb-sec">Account</div>
         <div class="dsb-item active" id="nav-overview" onclick="showDPage('overview')">
@@ -545,6 +523,15 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
       </div>
 
     </div>
+
+    <!-- LIVE PREVIEW PANEL -->
+    <div class="preview-panel">
+      <div class="preview-header">Live Preview <span>Updates as you edit</span></div>
+      <div class="preview-body" id="preview-body">
+        <div style="text-align:center;color:var(--muted);font-size:12px;padding:20px 0;">Sign in to see preview</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -598,82 +585,126 @@ const BADGES=[
 function showLanding(){
   hide(['page-auth','page-dash','page-profile']);
   show('page-landing');
-  loadLandingData();
 }
 function showAuth(tab){
-  hide(['page-landing','page-dash','page-profile']);
+  hide(['page-dash','page-profile']);
   show('page-auth');
-  switchTab(tab);
+  document.getElementById('auth-err').textContent='';
+  if(tab==='signin') showSignin();
+  else showSignupStep(1);
+}
+function showSignin(){
+  ['f-signin','f-signup-1','f-signup-2'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('f-signin').classList.remove('hidden');
   document.getElementById('auth-err').textContent='';
 }
+function showSignupStep(n){
+  ['f-signin','f-signup-1','f-signup-2'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('f-signup-'+n).classList.remove('hidden');
+  document.getElementById('auth-err').textContent='';
+  if(n===2){
+    document.getElementById('step2-preview').textContent=document.getElementById('su-u').value||'—';
+  }
+}
+let usernameAvailable=false;
+async function checkUsername(val){
+  const el=document.getElementById('u-check');
+  const wrap=document.getElementById('u-wrap');
+  usernameAvailable=false;
+  if(!val){el.textContent='';return;}
+  if(val.length>16){el.style.color='var(--red)';el.textContent='Max 16 characters';return;}
+  if(!/^[a-z0-9_]+$/.test(val)){el.style.color='var(--red)';el.textContent='Only letters, numbers, underscores';return;}
+  el.style.color='var(--muted)';el.textContent='Checking…';
+  const{data}=await sb.from('profiles').select('id').eq('username',val).maybeSingle();
+  if(data){el.style.color='var(--red)';el.textContent='❌ Already taken';wrap.style.borderColor='var(--red)';}
+  else{el.style.color='var(--green)';el.textContent='✅ Available';wrap.style.borderColor='var(--green)';usernameAvailable=true;}
+}
+function goStep2(){
+  const u=document.getElementById('su-u').value.trim().toLowerCase();
+  const dn=document.getElementById('su-dn').value.trim();
+  const err=document.getElementById('auth-err');
+  if(!u){err.textContent='Username required.';return;}
+  if(u.length>16){err.textContent='Max 16 characters.';return;}
+  if(!/^[a-z0-9_]+$/.test(u)){err.textContent='Only letters, numbers, underscores.';return;}
+  if(!usernameAvailable){err.textContent='Check username availability first.';return;}
+  if(!dn){err.textContent='Display name required.';return;}
+  showSignupStep(2);
+}
 function showDash(){
-  hide(['page-landing','page-auth','page-profile']);
+  hide(['page-auth','page-profile']);
   document.getElementById('page-dash').style.display='block';
   renderDash();
 }
 function showProfile(){
-  window.location.hash=currentProfile.username;
+  if(!currentProfile){showToast("Profile not loaded yet");return;}
+  // Hide dashboard, show profile page
+  document.getElementById('page-dash').style.display='none';
   document.getElementById('page-profile').style.display='block';
+  window.location.hash=currentProfile.username;
   document.getElementById('prof-back-btn').onclick=()=>{
     document.getElementById('page-profile').style.display='none';
     window.location.hash='';
-    showDash();
+    document.getElementById('page-dash').style.display='block';
   };
   renderPublicProfile(currentProfile,currentLinks);
 }
-function hideProfile(){document.getElementById('page-profile').style.display='none';}
+function hideProfile(){
+  document.getElementById('page-profile').style.display='none';
+  document.getElementById('page-dash').style.display='block';
+  window.location.hash='';
+}
 
 function show(id){document.getElementById(id).style.display='flex';}
 function hide(ids){ids.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});}
 
 // ══ AUTH ══
 function switchTab(tab){
-  const si=tab==='signin';
-  document.getElementById('f-signin').classList.toggle('hidden',!si);
-  document.getElementById('f-signup').classList.toggle('hidden',si);
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&si)||(i===1&&!si)));
-  document.getElementById('auth-desc').textContent=si?'Welcome back.':'Create your aud.lol profile.';
-  document.getElementById('auth-err').textContent='';
+  if(tab==='signin') showSignin(); else showSignupStep(1);
 }
 
 async function doSignUp(){
   const u=document.getElementById('su-u').value.trim().toLowerCase();
   const dn=document.getElementById('su-dn').value.trim();
-  const e=document.getElementById('su-e').value.trim();
   const p=document.getElementById('su-p').value;
+  const p2=document.getElementById('su-p2').value;
   const err=document.getElementById('auth-err');
-  if(!u||u.length<1){err.textContent='Username is required.';return;}
-  if(u.length>16){err.textContent='Username must be 16 characters or less.';return;}
-  if(!/^[a-z0-9_]+$/.test(u)){err.textContent='Only letters, numbers and underscores.';return;}
-  if(!dn){err.textContent='Display name required.';return;}
-  if(!e){err.textContent='Email required.';return;}
   if(!p||p.length<6){err.textContent='Password must be at least 6 characters.';return;}
-  // Check username taken
-  const {data:existing}=await sb.from('profiles').select('id').eq('username',u).maybeSingle();
-  if(existing){err.textContent='That username is already taken. Try another.';return;}
+  if(p!==p2){err.textContent='Passwords do not match.';return;}
   const btn=document.getElementById('su-btn');
   btn.disabled=true;btn.innerHTML='<span class="loader"></span>';
-  const {data:authData,error:authErr}=await sb.auth.signUp({email:e,password:p});
-  if(authErr){err.textContent=authErr.message;btn.disabled=false;btn.textContent='Create Account';return;}
-  // Create profile
+  // Auto-generate email from username so user never needs to enter one
+  const fakeEmail=u+'@aud.lol';
+  const {data:authData,error:authErr}=await sb.auth.signUp({email:fakeEmail,password:p});
+  if(authErr){err.textContent=authErr.message;btn.disabled=false;btn.textContent='Create Account 🚀';return;}
   const {error:profErr}=await sb.from('profiles').insert({id:authData.user.id,username:u,display_name:dn,bio:'',views:0,accent_color:'#00e0ff'});
-  if(profErr){err.textContent=profErr.message;btn.disabled=false;btn.textContent='Create Account';return;}
+  if(profErr){err.textContent=profErr.message;btn.disabled=false;btn.textContent='Create Account 🚀';return;}
   currentUser=authData.user;
   await loadProfile();
   showDash();
-  btn.disabled=false;btn.textContent='Create Account';
+  btn.disabled=false;btn.textContent='Create Account 🚀';
 }
 
 async function doSignIn(){
-  const email=document.getElementById('si-u').value.trim();
+  const u=document.getElementById('si-u').value.trim().toLowerCase();
   const p=document.getElementById('si-p').value;
   const err=document.getElementById('auth-err');
-  if(!email||!p){err.textContent='Fill in all fields.';return;}
+  if(!u||!p){err.textContent='Fill in all fields.';return;}
   const btn=document.getElementById('si-btn');
   btn.disabled=true;btn.innerHTML='<span class="loader"></span>';
-  const {data,error}=await sb.auth.signInWithPassword({email,password:p});
-  if(error){err.textContent='Incorrect email or password.';btn.disabled=false;btn.textContent='Sign In';return;}
-  currentUser=data.user;
+  // Try username-based fake email first, then real email as fallback
+  const fakeEmail=u.includes('@')?u:u+'@aud.lol';
+  const {data,error}=await sb.auth.signInWithPassword({email:fakeEmail,password:p});
+  if(error){
+    // fallback: try as real email
+    if(u.includes('@')){
+      err.textContent='Incorrect username or password.';btn.disabled=false;btn.textContent='Sign In';return;
+    }
+    const {data:d2,error:e2}=await sb.auth.signInWithPassword({email:u,password:p});
+    if(e2){err.textContent='Incorrect username or password.';btn.disabled=false;btn.textContent='Sign In';return;}
+    currentUser=d2.user;
+  } else {
+    currentUser=data.user;
+  }
   await loadProfile();
   showDash();
   btn.disabled=false;btn.textContent='Sign In';
@@ -721,6 +752,30 @@ function renderDash(){
   document.getElementById('ov-uid').textContent='UID #'+(p.uid||'—');
   renderProgress();
   renderConnections();
+  renderPreview();
+}
+
+function renderPreview(){
+  if(!currentProfile)return;
+  const p=currentProfile;
+  const l=currentLinks;
+  const color=p.accent_color||'#00e0ff';
+  const ICONS={'twitter.com':'𝕏','x.com':'𝕏','instagram.com':'📸','youtube.com':'▶️','discord.gg':'💬','tiktok.com':'🎵','github.com':'🐙','twitch.tv':'💜','roblox.com':'🎮'};
+  function ic(url){for(const[k,v]of Object.entries(ICONS)){if(url.includes(k))return v;}return'🔗';}
+  const unlockedBadges=BADGES.filter(b=>b.req(p,l));
+  document.getElementById('preview-body').innerHTML=`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div class="prev-av" style="border-color:${color};background:${color}22;color:${color};">${(p.display_name||'?')[0].toUpperCase()}</div>
+      <div class="prev-name">${p.display_name||'—'}</div>
+      <div class="prev-handle">aud.lol/${p.username}</div>
+      ${p.bio?`<div class="prev-bio">${p.bio}</div>`:''}
+      ${unlockedBadges.length?`<div class="prev-badges">${unlockedBadges.slice(0,3).map(b=>`<span style="background:${color}18;color:${color};font-size:10px;padding:2px 8px;border-radius:999px;font-weight:600;">${b.emoji}</span>`).join('')}</div>`:''}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Your Links</div>
+    ${l.length?l.map(lk=>`<div class="prev-link"><div class="prev-link-ic">${ic(lk.url)}</div>${lk.title}</div>`).join(''):'<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">No links yet</div>'}
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-accent" style="width:100%;padding:10px;font-size:12px;" onclick="showProfile()">↗ View Full Page</button>
+    </div>`;
 }
 
 function renderProgress(){
@@ -807,14 +862,14 @@ async function addLink(){
   currentLinks.push(data);
   document.getElementById('li-title').value='';
   document.getElementById('li-url').value='';
-  renderLinks();renderProgress();renderDash();
+  renderLinks();renderProgress();renderDash();renderPreview();
   showToast('✅ Link added!');
 }
 
 async function deleteLink(id){
   await sb.from('links').delete().eq('id',id);
   currentLinks=currentLinks.filter(l=>l.id!==id);
-  renderLinks();renderProgress();renderDash();
+  renderLinks();renderProgress();renderDash();renderPreview();
   showToast('🗑 Link removed');
 }
 
@@ -828,7 +883,7 @@ async function saveCustomize(){
   await sb.from('profiles').update({accent_color:color}).eq('id',currentUser.id);
   currentProfile.accent_color=color;
   document.documentElement.style.setProperty('--accent',color);
-  showToast('🎨 Theme saved!');
+  renderPreview();showToast('🎨 Theme saved!');
 }
 
 // ══ LEADERBOARD ══
@@ -873,26 +928,6 @@ function renderPublicProfile(p,links){
 function shareProfile(){
   const url='https://aud.lol/'+currentProfile?.username;
   navigator.clipboard.writeText(url).then(()=>showToast('📋 Copied: '+url));
-}
-
-// ══ LANDING DATA ══
-async function loadLandingData(){
-  const{count}=await sb.from('profiles').select('*',{count:'exact',head:true});
-  const{data:views}=await sb.from('profiles').select('views');
-  const totalViews=views?.reduce((s,p)=>s+p.views,0)||0;
-  document.getElementById('land-users').textContent=(count||0).toLocaleString();
-  document.getElementById('land-views').textContent=totalViews.toLocaleString();
-  // Leaderboard
-  const{data:top}=await sb.from('profiles').select('username,display_name,views,accent_color,uid').order('views',{ascending:false}).limit(5);
-  if(!top||!top.length){document.getElementById('land-lb').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No profiles yet — be the first to sign up!</div>';return;}
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('land-lb').innerHTML=top.map((u,i)=>`
-    <div class="lb-row">
-      <div class="lb-rank ${i===0?'g':i===1?'s':i===2?'b':''}">${medals[i]||'#'+(i+1)}</div>
-      <div class="lb-av" style="background:${u.accent_color||'#00e0ff'}22;color:${u.accent_color||'#00e0ff'};">${(u.display_name||u.username||'?')[0].toUpperCase()}</div>
-      <div class="lb-info"><div class="lb-name">${u.display_name} <span style="font-size:10px;color:var(--muted);font-family:'Geist Mono',monospace;">#${u.uid||'?'}</span></div><div class="lb-handle">aud.lol/${u.username}</div></div>
-      <div class="lb-views">${u.views.toLocaleString()}</div>
-    </div>`).join('');
 }
 
 // ══ MODALS ══
@@ -942,7 +977,7 @@ async function confirmModal(){
   } else if(activeModal==='bio'){
     await sb.from('profiles').update({bio:val}).eq('id',currentUser.id);
     currentProfile.bio=val;
-    closeModal();renderDash();renderProgress();showToast('✅ Bio saved!');
+    closeModal();renderDash();renderProgress();renderPreview();showToast('✅ Bio saved!');
   } else if(activeModal==='password'){
     if(val.length<6){err.textContent='Min 6 characters.';return;}
     const{error}=await sb.auth.updateUser({password:val});
@@ -994,23 +1029,23 @@ async function init(){
     if(profileToLoad){
       await viewOtherProfile(profileToLoad);
     } else {
-      showLanding();
+      showAuth('signup');
     }
   }
 }
 
 async function viewOtherProfile(username){
   const{data:prof}=await sb.from('profiles').select('*,uid').eq('username',username).single();
-  if(!prof){showLanding();showToast('Profile not found');return;}
+  if(!prof){showAuth('signup');showToast('Profile not found');return;}
   const{data:links}=await sb.from('links').select('*').eq('user_id',prof.id).order('position');
   // Increment views
   await sb.rpc('increment_views',{profile_username:username});
-  hide(['page-landing','page-auth','page-dash']);
+  hide(['page-auth','page-dash']);
   document.getElementById('page-profile').style.display='block';
   document.getElementById('prof-back-btn').onclick=()=>{
     document.getElementById('page-profile').style.display='none';
     window.location.hash='';
-    if(currentUser)showDash();else showLanding();
+    if(currentUser)showDash();else showAuth('signup');
   };
   renderPublicProfile(prof,links||[]);
 }
