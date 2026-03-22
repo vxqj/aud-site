@@ -251,11 +251,6 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 
 /* PROFILE PUBLIC PAGE */
 #page-profile{display:none;min-height:100vh;}
-/* ── PARALLAX ── */
-.parallax-card{transform-style:preserve-3d;transition:transform .1s ease;will-change:transform;}
-.parallax-card *{transform:translateZ(0);}
-.parallax-inner{transform:translateZ(30px);transform-style:preserve-3d;}
-
 /* ── PROFILE PAGE ── */
 #page-profile{background:var(--bg);min-height:100vh;}
 .prof-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;position:relative;overflow:hidden;}
@@ -516,6 +511,10 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
               <div class="card-s">Colours and style of your card.</div>
               <div class="color-row"><label>Accent color</label><input type="color" id="c-accent" value="#00e0ff" oninput="livePreviewCard()"></div>
               <div class="color-row"><label>Card background</label><input type="color" id="c-card" value="#121220" oninput="livePreviewCard()"></div>
+              <div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Card opacity</label><span style="font-size:12px;font-weight:600;" id="opacity-val">100%</span></div>
+                <input type="range" id="c-opacity" min="10" max="100" value="100" step="1" style="width:100%;" oninput="document.getElementById('opacity-val').textContent=this.value+'%';livePreviewCard()">
+              </div>
               <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin:10px 0 8px;">Card Style</div>
               <div style="display:flex;gap:8px;" id="card-style-opts">
                 <div class="card-style-opt" data-style="default" onclick="selectCardStyle(this,'default')" style="flex:1;background:var(--subtle);border:2px solid var(--accent);border-radius:9px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;">Default</div>
@@ -546,18 +545,6 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
               <div style="font-size:11px;color:var(--muted);margin-top:-6px;">Tip: Upload to a file host like Catbox.moe or Dropbox and paste the direct link.</div>
             </div>
 
-            <!-- PARALLAX -->
-            <div class="card">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div>
-                  <div class="card-t">3D Parallax Effect ✨</div>
-                  <div class="card-s" style="margin-bottom:0;">Card tilts as you move your mouse over it.</div>
-                </div>
-                <div id="parallax-toggle" onclick="toggleParallax()" style="width:48px;height:26px;background:var(--subtle);border-radius:999px;cursor:pointer;position:relative;border:1px solid var(--border);transition:background .2s;flex-shrink:0;">
-                  <div id="parallax-knob" style="width:20px;height:20px;background:var(--muted);border-radius:50%;position:absolute;top:2px;left:3px;transition:all .2s;"></div>
-                </div>
-              </div>
-            </div>
 
             <button class="btn btn-accent" style="width:100%;padding:13px;font-size:14px;" onclick="saveCustomize()">💾 Save All Changes</button>
           </div>
@@ -617,7 +604,7 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
   <audio id="prof-audio" loop style="display:none;"></audio>
   <div class="prof-wrap" id="prof-wrap" style="position:relative;z-index:1;">
     <div class="prof-bg-blur" id="prof-bg"></div>
-    <div class="prof-card" id="prof-body" style="max-width:600px;width:100%;"></div>
+    <div class="prof-card" id="prof-body" style="max-width:660px;width:100%;"></div>
   </div>
 </div>
 
@@ -753,7 +740,7 @@ async function doSignUp(){
   const fakeEmail=u+'@aud.lol';
   const {data:authData,error:authErr}=await sb.auth.signUp({email:fakeEmail,password:p});
   if(authErr){err.textContent=authErr.message;btn.disabled=false;btn.textContent='Create Account 🚀';return;}
-  const {error:profErr}=await sb.from('profiles').insert({id:authData.user.id,username:u,display_name:dn,bio:'',views:0,accent_color:'#00e0ff',card_color:'#121220',card_style:'default',bg_type:'color',bg_url:'',bg_audio_url:'',enable_parallax:false,parallax_enabled:false});
+  const {error:profErr}=await sb.from('profiles').insert({id:authData.user.id,username:u,display_name:dn,bio:'',views:0,accent_color:'#00e0ff',card_color:'#121220',card_opacity:1,card_style:'default',bg_type:'color',bg_url:'',bg_audio_url:''});
   if(profErr){err.textContent=profErr.message;btn.disabled=false;btn.textContent='Create Account 🚀';return;}
   currentUser=authData.user;
   await loadProfile();
@@ -953,7 +940,6 @@ async function deleteLink(id){
 // ══ CUSTOMIZE ══
 let selectedCardStyle='default';
 let selectedBgType='color';
-let parallaxOn=false;
 
 function selectCardStyle(el,style){
   selectedCardStyle=style;
@@ -971,20 +957,15 @@ function selectBgType(el,type){
   else{wrap.classList.remove('hidden');lbl.textContent=type==='image'?'Image URL':'Video URL';}
   livePreviewCard();
 }
-function toggleParallax(){
-  parallaxOn=!parallaxOn;
-  const tog=document.getElementById('parallax-toggle');
-  const knob=document.getElementById('parallax-knob');
-  tog.style.background=parallaxOn?'var(--accent)':'var(--subtle)';
-  knob.style.left=parallaxOn?'25px':'3px';
-  knob.style.background=parallaxOn?'#000':'var(--muted)';
-}
+
 function renderCustomize(){
   if(!currentProfile)return;
   const p=currentProfile;
   if(p.accent_color)document.getElementById('c-accent').value=p.accent_color;
   if(p.card_color)document.getElementById('c-card').value=p.card_color;
   const bgUrlEl=document.getElementById('c-bg-url'); if(bgUrlEl&&p.bg_url)bgUrlEl.value=p.bg_url;
+  const opEl=document.getElementById('c-opacity');
+  if(opEl){const pct=Math.round((p.card_opacity!=null?p.card_opacity:1)*100);opEl.value=pct;const opValEl=document.getElementById('opacity-val');if(opValEl)opValEl.textContent=pct+'%';}
   const audioEl=document.getElementById('c-audio-url'); if(audioEl&&p.bg_audio_url)audioEl.value=p.bg_audio_url;
   // Set card style
   if(p.card_style){
@@ -1005,15 +986,7 @@ function renderCustomize(){
     });
     if(p.bg_type!=='color')document.getElementById('bg-url-wrap').classList.remove('hidden');
   }
-  // Set parallax
-  parallaxOn=!!(p.enable_parallax||p.parallax_enabled);
-  const tog=document.getElementById('parallax-toggle');
-  const knob=document.getElementById('parallax-knob');
-  if(tog&&knob){
-    tog.style.background=parallaxOn?'var(--accent)':'var(--subtle)';
-    knob.style.left=parallaxOn?'25px':'3px';
-    knob.style.background=parallaxOn?'#000':'var(--muted)';
-  }
+
   livePreviewCard();
 }
 function livePreviewCard(){
@@ -1022,6 +995,10 @@ function livePreviewCard(){
   if(!accentEl||!cardEl)return;
   const color=accentEl.value;
   const cardBg=cardEl.value;
+  const opacity=parseFloat(document.getElementById('c-opacity')?.value||100)/100;
+  const rgb=hexToRgb(cardBg);
+  const isGlassPrev=selectedCardStyle==='glass';
+  const cardBgFinal=isGlassPrev?`rgba(10,10,20,${(opacity*0.65).toFixed(2)})`:`rgba(${rgb},${opacity})`;
   const ICONS={'twitter.com':'𝕏','x.com':'𝕏','instagram.com':'📸','youtube.com':'▶️','discord.gg':'💬','tiktok.com':'🎵','github.com':'🐙','twitch.tv':'💜','roblox.com':'🎮'};
   function ic(url){for(const[k,v]of Object.entries(ICONS)){if(url.includes(k))return v;}return'🔗';}
   const p=currentProfile;const links=currentLinks;
@@ -1030,7 +1007,7 @@ function livePreviewCard(){
   const isMinimal=selectedCardStyle==='minimal';
   document.getElementById('cust-preview-body').innerHTML=`
     ${!isMinimal?`<div style="height:70px;background:linear-gradient(135deg,${color}88,${color}22);"></div>`:''}
-    <div style="background:${isGlass?'rgba(18,18,32,.7)':cardBg};padding:0 18px 20px;backdrop-filter:${isGlass?'blur(12px)':'none'};">
+    <div style="background:${cardBgFinal};padding:0 18px 20px;backdrop-filter:${isGlassPrev?'blur(12px)':'none'};">
       <div style="display:flex;justify-content:space-between;align-items:flex-end;">
         <div style="width:56px;height:56px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;border:3px solid ${cardBg};${!isMinimal?'margin-top:-28px;':''}">${(p.display_name||'?')[0].toUpperCase()}</div>
         <div style="font-size:10px;color:#55556e;font-family:'Geist Mono',monospace;padding-bottom:6px;">👁 ${p.views||0}</div>
@@ -1052,15 +1029,15 @@ async function saveCustomize(){
   const cardBg=document.getElementById('c-card').value;
   const bgUrl=(document.getElementById('c-bg-url')?.value||'').trim();
   const audioUrl=(document.getElementById('c-audio-url')?.value||'').trim();
+  const opacity=parseFloat((document.getElementById('c-opacity')?.value||100))/100;
   const updates={
     accent_color:color,
     card_color:cardBg,
+    card_opacity:opacity,
     card_style:selectedCardStyle,
     bg_type:selectedBgType,
     bg_url:bgUrl,
     bg_audio_url:audioUrl,
-    enable_parallax:parallaxOn,
-    parallax_enabled:parallaxOn
   };
   const {error:saveErr}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
   if(saveErr){showToast('❌ Save failed: '+saveErr.message);return;}
@@ -1123,68 +1100,41 @@ function renderPublicProfile(p,links){
     ?`background:rgba(10,10,20,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);`
     :`background:${cardBg};border:1px solid rgba(255,255,255,.06);`;
 
+  const cardOpacity=p.card_opacity!=null?p.card_opacity:1;
+  const cardBgRgb=hexToRgb(cardBg);
+  const cardBgFinal=isGlass?`rgba(10,10,20,${(cardOpacity*0.65).toFixed(2)})`:`rgba(${cardBgRgb},${cardOpacity})`;
+
   document.getElementById('prof-body').innerHTML=`
-    <div id="parallax-card" style="border-radius:20px;width:100%;transform-style:preserve-3d;">
-      <div style="${cardStyle}border-radius:20px;overflow:hidden;width:100%;">
-        ${!isMinimal?`<div style="height:100px;background:linear-gradient(135deg,${color}99,${color}22);position:relative;">
-          <div style="position:absolute;inset:0;background:url('${p.bg_url&&p.bg_type==='image'?p.bg_url:''}') center/cover;opacity:.3;"></div>
-        </div>`:''}
-        <div style="padding:0 24px 28px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-            <div style="width:80px;height:80px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;border:4px solid ${isGlass?'rgba(255,255,255,.1)':cardBg};${!isMinimal?'margin-top:-40px;':'margin-top:16px;'}flex-shrink:0;">${(p.display_name||'?')[0].toUpperCase()}</div>
-            <div style="font-size:12px;color:var(--muted);font-family:'Geist Mono',monospace;padding-bottom:${!isMinimal?'10':'0'}px;display:flex;align-items:center;gap:4px;">👁 ${(p.views||0).toLocaleString()}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;">
-            <div class="prof-name" style="font-size:20px;font-weight:800;">${p.display_name||p.username}
-              <div class="uid-tip">UID #${p.uid||'?'}</div>
-            </div>
-            ${unlockedBadges.map(b=>`<div class="prof-badge-ic" style="font-size:16px;">${b.emoji}<div class="badge-tip">${b.name}</div></div>`).join('')}
-          </div>
-          <div style="font-size:12px;color:var(--muted);font-family:'Geist Mono',monospace;margin-bottom:${p.bio?'10':'14'}px;">aud.lol/${p.username}</div>
-          ${p.bio?`<div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px;">${p.bio}</div>`:''}
-          ${links.length?`<div style="height:1px;background:rgba(255,255,255,.06);margin-bottom:14px;"></div>
-          ${links.map(l=>`<a class="prof-link" href="${l.url}" target="_blank" style="background:rgba(255,255,255,.04);">
-            <div class="prof-link-ic">${ic(l.url)}</div>
-            <div class="prof-link-txt">${l.title}</div>
-            <div class="prof-link-arr">→</div>
-          </a>`).join('')}`:''}
+    <div style="background:${cardBgFinal};border-radius:20px;overflow:hidden;width:100%;${isGlass?'backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);':'border:1px solid rgba(255,255,255,.06);'}">
+      <div style="padding:24px 28px 32px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div style="width:86px;height:86px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:3px solid ${color}44;flex-shrink:0;">${(p.display_name||'?')[0].toUpperCase()}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.35);font-family:'Geist Mono',monospace;display:flex;align-items:center;gap:4px;">👁 ${(p.views||0).toLocaleString()}</div>
         </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+          <div class="prof-name" style="font-size:21px;font-weight:800;">${p.display_name||p.username}
+            <div class="uid-tip">UID #${p.uid||'?'}</div>
+          </div>
+          ${unlockedBadges.map(b=>`<div class="prof-badge-ic" style="font-size:16px;">${b.emoji}<div class="badge-tip">${b.name}</div></div>`).join('')}
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,.35);font-family:'Geist Mono',monospace;margin-bottom:${p.bio?'12':'18'}px;">aud.lol/${p.username}</div>
+        ${p.bio?`<div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;margin-bottom:18px;">${p.bio}</div>`:''}
+        ${links.length?`<div style="height:1px;background:rgba(255,255,255,.06);margin-bottom:14px;"></div>
+        ${links.map(l=>`<a class="prof-link" href="${l.url}" target="_blank" style="background:rgba(255,255,255,.04);">
+          <div class="prof-link-ic">${ic(l.url)}</div>
+          <div class="prof-link-txt">${l.title}</div>
+          <div class="prof-link-arr">→</div>
+        </a>`).join('')}`:''}
       </div>
     </div>`;
-
-  // ── Parallax ──
-  if(p.enable_parallax||p.parallax_enabled){
-    initParallax();
-  }
 }
 
-function initParallax(){
-  const card=document.getElementById('parallax-card');
-  if(!card)return;
-  // Apply perspective on parent wrapper so transform works without clipping
-  const wrap=document.getElementById('prof-wrap');
-  if(wrap) wrap.style.perspective='1000px';
-  card.style.transition='transform .12s ease, box-shadow .12s ease';
-  card.style.willChange='transform';
-  card.style.transformStyle='preserve-3d';
 
-  card.addEventListener('mousemove',(e)=>{
-    const rect=card.getBoundingClientRect();
-    const x=e.clientX-rect.left;
-    const y=e.clientY-rect.top;
-    const dx=(x-rect.width/2)/(rect.width/2);
-    const dy=(y-rect.height/2)/(rect.height/2);
-    const tilt=15;
-    card.style.transform=`rotateY(${dx*tilt}deg) rotateX(${-dy*tilt}deg) scale(1.03)`;
-    card.style.boxShadow=`${-dx*24}px ${dy*24}px 60px rgba(0,0,0,.7), 0 0 40px ${card.querySelector('div')?.style.background||'rgba(0,224,255,.15)'}`;
-  });
-
-  card.addEventListener('mouseleave',()=>{
-    card.style.transition='transform .5s ease, box-shadow .5s ease';
-    card.style.transform='rotateY(0deg) rotateX(0deg) scale(1)';
-    card.style.boxShadow='none';
-    setTimeout(()=>{card.style.transition='transform .12s ease, box-shadow .12s ease';},500);
-  });
+function hexToRgb(hex){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  const n=parseInt(hex,16);
+  return `${(n>>16)&255},${(n>>8)&255},${n&255}`;
 }
 
 function shareProfile(){
