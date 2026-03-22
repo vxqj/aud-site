@@ -649,7 +649,7 @@ async function doSignUp(){
   if(!e){err.textContent='Email required.';return;}
   if(!p||p.length<6){err.textContent='Password must be at least 6 characters.';return;}
   // Check username taken
-  const {data:existing}=await sb.from('profiles').select('id').eq('username',u).single();
+  const {data:existing}=await sb.from('profiles').select('id').eq('username',u).maybeSingle();
   if(existing){err.textContent='That username is already taken. Try another.';return;}
   const btn=document.getElementById('su-btn');
   btn.disabled=true;btn.innerHTML='<span class="loader"></span>';
@@ -840,7 +840,7 @@ async function renderLeaderboard(){
   document.getElementById('dash-lb').innerHTML=data.map((u,i)=>`
     <div class="lb-row" style="${u.username===currentProfile?.username?'background:rgba(0,224,255,.04);':''}">
       <div class="lb-rank ${i===0?'g':i===1?'s':i===2?'b':''}">${medals[i]||'#'+(i+1)}</div>
-      <div class="lb-av" style="background:${u.accent_color||'var(--accent)'}22;color:${u.accent_color||'var(--accent)'};">${u.display_name[0].toUpperCase()}</div>
+      <div class="lb-av" style="background:${u.accent_color||'var(--accent)'}22;color:${u.accent_color||'var(--accent)'};">${(u.display_name||u.username||'?')[0].toUpperCase()}</div>
       <div class="lb-info"><div class="lb-name" title="UID #${u.uid||'?'}" style="cursor:default;">${u.display_name}${u.username===currentProfile?.username?' (you)':''} <span style="font-size:10px;color:var(--muted);font-family:'Geist Mono',monospace;">#${u.uid||'?'}</span></div><div class="lb-handle">aud.lol/${u.username}</div></div>
       <div class="lb-views">${u.views.toLocaleString()}</div>
     </div>`).join('');
@@ -889,7 +889,7 @@ async function loadLandingData(){
   document.getElementById('land-lb').innerHTML=top.map((u,i)=>`
     <div class="lb-row">
       <div class="lb-rank ${i===0?'g':i===1?'s':i===2?'b':''}">${medals[i]||'#'+(i+1)}</div>
-      <div class="lb-av" style="background:${u.accent_color||'#00e0ff'}22;color:${u.accent_color||'#00e0ff'};">${u.display_name[0].toUpperCase()}</div>
+      <div class="lb-av" style="background:${u.accent_color||'#00e0ff'}22;color:${u.accent_color||'#00e0ff'};">${(u.display_name||u.username||'?')[0].toUpperCase()}</div>
       <div class="lb-info"><div class="lb-name">${u.display_name} <span style="font-size:10px;color:var(--muted);font-family:'Geist Mono',monospace;">#${u.uid||'?'}</span></div><div class="lb-handle">aud.lol/${u.username}</div></div>
       <div class="lb-views">${u.views.toLocaleString()}</div>
     </div>`).join('');
