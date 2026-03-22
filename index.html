@@ -251,18 +251,32 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 
 /* PROFILE PUBLIC PAGE */
 #page-profile{display:none;min-height:100vh;}
-.prof-nav{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.prof-body{max-width:480px;margin:0 auto;padding:36px 16px;}
-.prof-avatar{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin:0 auto 13px;border:3px solid var(--accent);}
-.prof-name{font-size:21px;font-weight:800;text-align:center;}
-.prof-handle{font-size:13px;color:var(--muted);text-align:center;margin-top:2px;font-family:'Geist Mono',monospace;}
-.prof-bio{font-size:14px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.65;}
-.prof-badges{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:11px;}
-.prof-link{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px 16px;margin-bottom:9px;cursor:pointer;transition:all .18s;text-decoration:none;color:var(--text);}
-.prof-link:hover{border-color:var(--border2);background:var(--card2);transform:translateY(-1px);}
-.prof-link-ic{font-size:19px;}
-.prof-link-txt{flex:1;font-size:14px;font-weight:600;}
-.prof-views{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);font-family:'Geist Mono',monospace;}
+/* ── PROFILE PAGE ── */
+#page-profile{background:var(--bg);min-height:100vh;}
+.prof-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;position:relative;overflow:hidden;}
+.prof-bg-blur{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.prof-bg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18;}
+.prof-card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.prof-card-banner{height:90px;width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));position:relative;}
+.prof-card-body{padding:0 24px 28px;}
+.prof-avatar{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;border:3px solid var(--card);margin-top:-37px;margin-bottom:10px;position:relative;z-index:1;}
+.prof-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px;}
+.prof-name-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.prof-name{font-size:18px;font-weight:800;cursor:default;position:relative;}
+.prof-name:hover .uid-tip{display:block;}
+.uid-tip{display:none;position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;white-space:nowrap;z-index:10;}
+.prof-badge-ic{font-size:15px;cursor:default;position:relative;line-height:1;}
+.prof-badge-ic:hover .badge-tip{display:block;}
+.badge-tip{display:none;position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--text);white-space:nowrap;z-index:10;font-family:'Geist',sans-serif;}
+.prof-views-pill{font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;display:flex;align-items:center;gap:4px;}
+.prof-handle{font-size:12px;color:var(--muted);font-family:'Geist Mono',monospace;margin-bottom:8px;}
+.prof-bio{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.prof-divider{height:1px;background:var(--border);margin:14px 0;}
+.prof-link{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:7px;cursor:pointer;transition:all .18s;text-decoration:none;color:var(--text);}
+.prof-link:hover{border-color:var(--border2);transform:translateY(-1px);}
+.prof-link-ic{font-size:17px;width:24px;text-align:center;}
+.prof-link-txt{flex:1;font-size:13px;font-weight:600;}
+.prof-link-arr{font-size:12px;color:var(--muted);}
 
 /* PREVIEW PANEL */
 .preview-panel{width:280px;background:var(--sb);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
@@ -487,15 +501,38 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
       <!-- CUSTOMIZE -->
       <div class="dpage" id="dp-customize">
         <div class="dpage-t">Customise</div>
-        <div class="dpage-s">Personalise your public profile page.</div>
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-t">Accent Color</div>
-          <div class="card-s">The highlight colour shown on your profile.</div>
-          <div class="color-row">
-            <label>Accent color</label>
-            <input type="color" id="c-accent" value="#00e0ff" onchange="previewColor()">
+        <div class="dpage-s">Personalise how your profile card looks.</div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;">
+          <div>
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-t">Profile Card</div>
+              <div class="card-s">Customise your card's colours and style.</div>
+              <div class="color-row">
+                <label>Accent color</label>
+                <input type="color" id="c-accent" value="#00e0ff" oninput="livePreviewCard()">
+              </div>
+              <div class="color-row">
+                <label>Card background</label>
+                <input type="color" id="c-card" value="#121220" oninput="livePreviewCard()">
+              </div>
+              <div style="margin-top:8px;margin-bottom:14px;">
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;">Card Style</div>
+                <div style="display:flex;gap:8px;" id="card-style-opts">
+                  <div class="card-style-opt active" data-style="default" onclick="selectCardStyle(this,'default')" style="flex:1;background:var(--subtle);border:2px solid var(--accent);border-radius:9px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;">Default</div>
+                  <div class="card-style-opt" data-style="minimal" onclick="selectCardStyle(this,'minimal')" style="flex:1;background:var(--subtle);border:2px solid transparent;border-radius:9px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);">Minimal</div>
+                  <div class="card-style-opt" data-style="glass" onclick="selectCardStyle(this,'glass')" style="flex:1;background:var(--subtle);border:2px solid transparent;border-radius:9px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);">Glass</div>
+                </div>
+              </div>
+              <button class="btn btn-accent" style="width:100%;" onclick="saveCustomize()">Save Changes</button>
+            </div>
           </div>
-          <button class="btn btn-accent" onclick="saveCustomize()">Save</button>
+          <!-- CARD PREVIEW -->
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px;">Preview</div>
+            <div id="card-preview-wrap" style="border-radius:20px;overflow:hidden;border:1px solid var(--border);">
+              <div id="cust-preview-body"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -537,11 +574,13 @@ footer{padding:28px 48px;border-top:1px solid var(--border);display:flex;justify
 
 <!-- ═══════════════ PUBLIC PROFILE ═══════════════ -->
 <div id="page-profile">
-  <div class="prof-nav">
-    <div class="logo">aud<span>.lol</span></div>
-    <button class="btn btn-ghost" id="prof-back-btn" onclick="hideProfile()">← Back</button>
+  <div style="position:fixed;top:16px;left:16px;z-index:50;">
+    <button class="btn btn-ghost" id="prof-back-btn" onclick="hideProfile()" style="font-size:12px;padding:7px 14px;backdrop-filter:blur(8px);background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.1);">← Back</button>
   </div>
-  <div class="prof-body" id="prof-body"></div>
+  <div class="prof-wrap" id="prof-wrap">
+    <div class="prof-bg-blur" id="prof-bg"></div>
+    <div class="prof-card" id="prof-body"></div>
+  </div>
 </div>
 
 <!-- ═══════════════ MODAL ═══════════════ -->
@@ -874,16 +913,57 @@ async function deleteLink(id){
 }
 
 // ══ CUSTOMIZE ══
-function renderCustomize(){
-  if(currentProfile?.accent_color)document.getElementById('c-accent').value=currentProfile.accent_color;
+let selectedCardStyle='default';
+function selectCardStyle(el,style){
+  selectedCardStyle=style;
+  document.querySelectorAll('.card-style-opt').forEach(e=>{
+    e.style.borderColor='transparent';e.style.color='var(--muted)';
+  });
+  el.style.borderColor='var(--accent)';el.style.color='var(--text)';
+  livePreviewCard();
 }
-function previewColor(){document.documentElement.style.setProperty('--accent',document.getElementById('c-accent').value);}
+function renderCustomize(){
+  if(!currentProfile)return;
+  if(currentProfile.accent_color)document.getElementById('c-accent').value=currentProfile.accent_color;
+  if(currentProfile.card_color)document.getElementById('c-card').value=currentProfile.card_color;
+  livePreviewCard();
+}
+function livePreviewCard(){
+  const color=document.getElementById('c-accent').value;
+  const cardBg=document.getElementById('c-card').value;
+  const ICONS={'twitter.com':'𝕏','x.com':'𝕏','instagram.com':'📸','youtube.com':'▶️','discord.gg':'💬','tiktok.com':'🎵','github.com':'🐙','twitch.tv':'💜','roblox.com':'🎮'};
+  function ic(url){for(const[k,v]of Object.entries(ICONS)){if(url.includes(k))return v;}return'🔗';}
+  const p=currentProfile;const links=currentLinks;
+  const unlockedBadges=BADGES.filter(b=>b.req(p,links));
+  const isGlass=selectedCardStyle==='glass';
+  const isMinimal=selectedCardStyle==='minimal';
+  document.getElementById('cust-preview-body').innerHTML=`
+    ${!isMinimal?`<div style="height:70px;background:linear-gradient(135deg,${color}88,${color}22);"></div>`:''}
+    <div style="background:${isGlass?'rgba(18,18,32,.7)':cardBg};padding:0 18px 20px;backdrop-filter:${isGlass?'blur(12px)':'none'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+        <div style="width:56px;height:56px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;border:3px solid ${cardBg};${!isMinimal?'margin-top:-28px;':''}">${(p.display_name||'?')[0].toUpperCase()}</div>
+        <div style="font-size:10px;color:#55556e;font-family:'Geist Mono',monospace;padding-bottom:6px;">👁 ${p.views||0}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:6px;">
+        <div style="font-size:15px;font-weight:800;color:#eeeeff;">${p.display_name||p.username}</div>
+        ${unlockedBadges.slice(0,4).map(b=>`<span title="${b.name}" style="font-size:13px;cursor:default;">${b.emoji}</span>`).join('')}
+      </div>
+      <div style="font-size:11px;color:#55556e;font-family:'Geist Mono',monospace;margin-bottom:8px;">aud.lol/${p.username}</div>
+      ${p.bio?`<div style="font-size:12px;color:#55556e;line-height:1.5;margin-bottom:10px;">${p.bio}</div>`:''}
+      ${links.length?`<div style="height:1px;background:rgba(255,255,255,.06);margin:10px 0;"></div>
+      ${links.slice(0,3).map(l=>`<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px;margin-bottom:5px;font-size:12px;font-weight:600;color:#eeeeff;">
+        <span style="font-size:14px;">${ic(l.url)}</span>${l.title}<span style="margin-left:auto;font-size:11px;color:#55556e;">→</span>
+      </div>`).join('')}`:''}
+    </div>`;
+}
 async function saveCustomize(){
   const color=document.getElementById('c-accent').value;
-  await sb.from('profiles').update({accent_color:color}).eq('id',currentUser.id);
+  const cardBg=document.getElementById('c-card').value;
+  await sb.from('profiles').update({accent_color:color,card_color:cardBg}).eq('id',currentUser.id);
   currentProfile.accent_color=color;
+  currentProfile.card_color=cardBg;
   document.documentElement.style.setProperty('--accent',color);
-  renderPreview();showToast('🎨 Theme saved!');
+  renderPreview();showToast('🎨 Card saved!');
 }
 
 // ══ LEADERBOARD ══
@@ -906,23 +986,38 @@ function renderPublicProfile(p,links){
   if(!p)return;
   const ICONS={'twitter.com':'𝕏','x.com':'𝕏','instagram.com':'📸','youtube.com':'▶️','discord.gg':'💬','tiktok.com':'🎵','github.com':'🐙','twitch.tv':'💜','roblox.com':'🎮'};
   function ic(url){for(const[k,v]of Object.entries(ICONS)){if(url.includes(k))return v;}return'🔗';}
+  const color=p.accent_color||'#00e0ff';
+  const bg=p.bg_color||'#07070e';
   const unlockedBadges=BADGES.filter(b=>b.req(p,links));
-  const color=p.accent_color||'var(--accent)';
+  // Set page background orbs
+  const bgEl=document.getElementById('prof-bg');
+  if(bgEl) bgEl.innerHTML=`
+    <div class="prof-bg-orb" style="width:500px;height:500px;background:${color};top:-200px;right:-150px;"></div>
+    <div class="prof-bg-orb" style="width:400px;height:400px;background:${bg==='#07070e'?'#7c3aed':bg};bottom:-150px;left:-100px;"></div>`;
   document.getElementById('prof-body').innerHTML=`
-    <div class="prof-avatar" style="border-color:${color};background:${color}22;color:${color};">${p.display_name[0].toUpperCase()}</div>
-    <div class="prof-name" style="display:flex;align-items:center;justify-content:center;gap:8px;">${p.display_name}<span class="uid-badge" title="UID #${p.uid||'?'}" style="font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;background:var(--card2);border:1px solid var(--border);padding:2px 8px;border-radius:999px;cursor:default;">#${p.uid||'?'}</span></div>
-    <div class="prof-handle">aud.lol/${p.username}</div>
-    ${p.bio?`<div class="prof-bio">${p.bio}</div>`:''}
-    <div class="prof-badges">${unlockedBadges.map(b=>`<span style="background:${color}18;color:${color};font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;">${b.emoji} ${b.name}</span>`).join('')}</div>
-    <div style="margin-top:24px;">
+    <div class="prof-card-banner" style="background:linear-gradient(135deg,${color}88,${color}22);"></div>
+    <div class="prof-card-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+        <div class="prof-avatar" style="background:${color}22;color:${color};border-color:var(--card);">${(p.display_name||'?')[0].toUpperCase()}</div>
+        <div class="prof-views-pill" style="margin-bottom:10px;">👁 ${p.views||0}</div>
+      </div>
+      <div class="prof-top-row">
+        <div class="prof-name-wrap">
+          <div class="prof-name">${p.display_name||p.username}
+            <div class="uid-tip">UID #${p.uid||'?'}</div>
+          </div>
+          ${unlockedBadges.map(b=>`<div class="prof-badge-ic">${b.emoji}<div class="badge-tip">${b.name}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="prof-handle">aud.lol/${p.username}</div>
+      ${p.bio?`<div class="prof-bio">${p.bio}</div>`:''}
+      ${links.length?`<div class="prof-divider"></div>
       ${links.map(l=>`<a class="prof-link" href="${l.url}" target="_blank">
         <div class="prof-link-ic">${ic(l.url)}</div>
         <div class="prof-link-txt">${l.title}</div>
-        <div style="color:var(--muted);">→</div>
-      </a>`).join('')}
-      ${!links.length?'<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0;">No links yet.</div>':''}
-    </div>
-    ${p.show_views!==false?`<div class="prof-views">${p.views.toLocaleString()} views</div>`:''}`;
+        <div class="prof-link-arr">→</div>
+      </a>`).join('')}`:''}
+    </div>`;
 }
 
 function shareProfile(){
