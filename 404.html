@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>aud.lol</title>
+<script>
+  var path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+  if (path && path !== 'index.html' && path !== '404.html') {
+    window.location.replace('https://aud.lol/#' + path);
+  } else {
+    window.location.replace('https://aud.lol/');
+  }
+</script>
+</head>
+<body></body>
+</html>
