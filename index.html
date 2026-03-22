@@ -635,6 +635,7 @@ let currentLinks=[];
 let activeModal=null;
 
 const BADGES=[
+  {id:'owner',emoji:'👑',name:'Owner',desc:'Creator of aud.lol',req:p=>!!p.is_owner},
   {id:'early',emoji:'🌟',name:'Early Adopter',desc:'One of the first to join',req:p=>true},
   {id:'bio',emoji:'✍️',name:'Storyteller',desc:'Added a bio',req:p=>!!p.bio},
   {id:'views10',emoji:'👁',name:'10 Views',desc:'Get 10 profile views',req:p=>p.views>=10},
