@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>n.bio</title>
+<title>aud.lol</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
@@ -42,7 +42,14 @@ html, body {
   color: #fff;
   margin-bottom: 18px;
   line-height: 1;
+  min-height: 1.35rem;
 }
+.site-name::after {
+  content: "|";
+  animation: blink .7s step-end infinite;
+  margin-left: 1px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
 .meta-label {
   font-size: .78rem;
@@ -115,7 +122,7 @@ html, body {
 <audio id="audio" loop></audio>
 
 <div id="content">
-  <div class="site-name" id="site-name">netloop</div>
+  <div class="site-name" id="site-name">n.bio</div>
 
   <div class="meta-label" id="last-change-label">last change: <span id="last-change-date">26 April 2026</span></div>
   <div class="spacer"></div>
@@ -137,14 +144,14 @@ html, body {
 const C = {
 
   /* ── site info ── */
-  siteName:   "aud.lol",           /* shown top-left as the title */
+  siteName:   "n.bio",           /* shown top-left as the title */
   lastChange: "26 April 2026",   /* date string next to "last change:" */
 
   /* ── bio lines ── shown as small dim text under the date */
   lines: [
     "Python / GoLang",
     "nothing here is important.",
-    "if you're reading this, you're awesome.",
+    "if you're reading this, you're early.",
   ],
 
   /* ── discord ── set to "" to hide */
@@ -157,11 +164,11 @@ const C = {
   ],
 
   /* ── background falling words ── */
-  bgWords: ["netloop", "net", ":|"],  /* words that fall in the background */
+  bgWords: ["netloop", "lol", "n"],  /* words that fall in the background */
   wordCount: 28,                     /* how many words on screen at once */
   wordSpeed: [1.2, 2.8],             /* [min, max] fall speed in px/frame */
   wordSize:  [10, 32],               /* [min, max] font size in px */
-  wordSpin:  0.010,                  /* max rotation speed while falling */
+  wordSpin:  0.008,                  /* max rotation speed while falling */
   wordColor: "rgba(150,170,210,",      /* color prefix — opacity is added automatically */
 
   /* ── music ── paste a direct URL to an mp3/ogg, or set to "" to disable */
@@ -196,7 +203,40 @@ C.links.forEach(lk => {
   linksEl.appendChild(a);
 });
 
-/* ── click overlay + music ── */
+/* ── typewriter effect on site name ── */
+const nameEl = document.getElementById("site-name");
+const typeText = C.siteName;
+const typeDelay = 100;   /* ms per character while typing */
+const deleteDelay = 60;  /* ms per character while deleting */
+const pauseFull = 1800;  /* ms pause when fully typed */
+const pauseEmpty = 400;  /* ms pause when fully deleted */
+
+let typeIndex = 0;
+let deleting = false;
+
+function typeStep() {
+  if (!deleting) {
+    nameEl.textContent = typeText.slice(0, typeIndex + 1);
+    typeIndex++;
+    if (typeIndex === typeText.length) {
+      deleting = true;
+      setTimeout(typeStep, pauseFull);
+    } else {
+      setTimeout(typeStep, typeDelay);
+    }
+  } else {
+    nameEl.textContent = typeText.slice(0, typeIndex - 1);
+    typeIndex--;
+    if (typeIndex === 0) {
+      deleting = false;
+      setTimeout(typeStep, pauseEmpty);
+    } else {
+      setTimeout(typeStep, deleteDelay);
+    }
+  }
+}
+nameEl.textContent = "";
+setTimeout(typeStep, 500);
 const audio = document.getElementById("audio");
 const overlay = document.getElementById("overlay");
 
