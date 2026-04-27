@@ -68,27 +68,23 @@ html, body {
 .username-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   margin-bottom: 18px;
+  line-height: 1;
 }
+
+/* username with tooltip */
 .username {
   font-size: .78rem;
   color: rgba(255,255,255,.45);
   letter-spacing: .5px;
-}
-.crown-wrap {
   position: relative;
+  cursor: default;
   display: flex;
   align-items: center;
 }
-.crown-wrap svg {
-  width: 14px; height: 14px;
-  color: #fff;
-  cursor: default;
-  transition: transform .15s;
-}
-.crown-wrap:hover svg { transform: scale(1.2); }
-.crown-tooltip {
+.username:hover { color: rgba(255,255,255,.7); }
+.username .tip {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
@@ -105,8 +101,52 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity .15s, transform .15s;
+  z-index: 20;
 }
-.crown-wrap:hover .crown-tooltip {
+.username:hover .tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* badges */
+.badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: default;
+}
+.badge svg {
+  width: 14px;
+  height: 14px;
+  color: #fff;
+  transition: transform .15s;
+  display: block;
+}
+.badge:hover svg { transform: scale(1.2); }
+.badge .tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(10,10,10,.95);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  font-size: .62rem;
+  font-family: "Courier Prime", monospace;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s, transform .15s;
+  z-index: 20;
+}
+.badge:hover .tip {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
@@ -176,14 +216,30 @@ html, body {
 
 <div id="content">
   <div class="site-name" id="site-name"></div>
+
   <div class="username-row">
-    <span class="username">netloop</span>
-    <div class="crown-wrap">
+    <!-- username with UID tooltip -->
+    <span class="username">
+      netloop
+      <span class="tip">UID: -1</span>
+    </span>
+
+    <!-- owner crown badge -->
+    <div class="badge">
       <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
         <rect x="2" y="18" width="20" height="2" rx="1"/>
       </svg>
-      <div class="crown-tooltip">owner</div>
+      <span class="tip">owner</span>
+    </div>
+
+    <!-- developer { } badge -->
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H7a3 3 0 00-3 3v3a3 3 0 01-3 3 3 3 0 013 3v3a3 3 0 003 3h1"/>
+        <path d="M16 3h1a3 3 0 013 3v3a3 3 0 003 3 3 3 0 00-3 3v3a3 3 0 01-3 3h-1"/>
+      </svg>
+      <span class="tip">Developer</span>
     </div>
   </div>
 
@@ -292,11 +348,11 @@ const canvas  = document.getElementById("wordfield");
 const ctx     = canvas.getContext("2d");
 
 if (C.bgVideo.url) {
-  bgvideo.src     = C.bgVideo.url;
+  bgvideo.src            = C.bgVideo.url;
   bgvideo.style.display  = "block";
   bgvideo.style.opacity  = C.bgVideo.opacity;
   canvas.style.display   = "none";
-} 
+}
 
 
 /* ── overlay click ── */
