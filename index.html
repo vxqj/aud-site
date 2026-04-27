@@ -16,10 +16,20 @@ html, body {
   color: #fff;
 }
 
+#bgvideo {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
 #wordfield {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -37,7 +47,6 @@ html, body {
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .site-name {
@@ -73,9 +82,8 @@ html, body {
   align-items: center;
 }
 .crown-wrap svg {
-  width: 14px;
-  height: 14px;
-  color: #ffffff;
+  width: 14px; height: 14px;
+  color: #fff;
   cursor: default;
   transition: transform .15s;
 }
@@ -84,7 +92,7 @@ html, body {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(4px);
   background: rgba(10,10,10,.95);
   border: 1px solid rgba(255,255,255,.2);
   color: #fff;
@@ -97,7 +105,6 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity .15s, transform .15s;
-  transform: translateX(-50%) translateY(4px);
 }
 .crown-wrap:hover .crown-tooltip {
   opacity: 1;
@@ -110,18 +117,13 @@ html, body {
   color: #fff;
   margin-bottom: 4px;
 }
-
 .meta-line {
   font-size: .78rem;
   color: #fff;
   margin-bottom: 3px;
   line-height: 1.55;
 }
-
-.meta-line.dim {
-  color: rgba(255,255,255,.55);
-}
-
+.meta-line.dim { color: rgba(255,255,255,.55); }
 .spacer { height: 14px; }
 
 .link-item {
@@ -146,10 +148,7 @@ html, body {
   cursor: pointer;
   transition: opacity .6s ease;
 }
-#overlay.hide {
-  opacity: 0;
-  pointer-events: none;
-}
+#overlay.hide { opacity: 0; pointer-events: none; }
 #overlay-text {
   font-family: "Courier Prime", monospace;
   font-size: .85rem;
@@ -165,9 +164,9 @@ html, body {
 </head>
 <body>
 
+<video id="bgvideo" loop muted playsinline></video>
 <canvas id="wordfield"></canvas>
 <canvas id="trail"></canvas>
-<video id="bgvideo" loop muted playsinline style="display:none;position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;"></video>
 
 <div id="overlay">
   <span id="overlay-text">click me</span>
@@ -181,7 +180,6 @@ html, body {
     <span class="username">netloop</span>
     <div class="crown-wrap">
       <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <!-- 3-spike crown: left spike, centre spike, right spike, base -->
         <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
         <rect x="2" y="18" width="20" height="2" rx="1"/>
       </svg>
@@ -189,16 +187,15 @@ html, body {
     </div>
   </div>
 
-  <div class="meta-label">last change: <span id="last-change-date">26 April 2026</span></div>
+  <div class="meta-label">last change: <span id="last-change-date"></span></div>
   <div class="spacer"></div>
 
-  <div class="meta-line dim" id="line1">Python / GoLang</div>
-  <div class="meta-line dim" id="line2">nothing here is important.</div>
-  <div class="meta-line dim" id="line3">if you're reading this, you're early.</div>
-  <div class="meta-line" id="discord-line">discord: <span id="discord-val">netloop (355869591278452746)</span></div>
+  <div class="meta-line dim" id="line1"></div>
+  <div class="meta-line dim" id="line2"></div>
+  <div class="meta-line dim" id="line3"></div>
+  <div class="meta-line" id="discord-line" style="display:none">discord: <span id="discord-val"></span></div>
 
   <div class="spacer"></div>
-
   <div id="links-container"></div>
 </div>
 
@@ -208,33 +205,29 @@ html, body {
 ══════════════════════════ */
 const C = {
 
-  /* ── site info ── */
   siteName:   "aud.lol",
   lastChange: "26 April 2026",
 
-  /* ── bio lines ── */
   lines: [
     "Python / GoLang",
     "nothing here is important.",
     "if you're reading this, you're early.",
   ],
 
-  /* ── discord ── set to "" to hide */
   discord: "netloop (355869591278452746)",
 
-  /* ── links ── */
   links: [
     { label: "-> tiktok",  url: "https://tiktok.com/@meqe"      },
     { label: "-> discord", url: "https://discord.gg/ydjBdhSJm9" },
   ],
 
-  /* ── background video ── direct mp4 URL, "" to use falling words instead */
+  /* ── video background ── direct mp4 link, "" = use falling words ── */
   bgVideo: {
-    url:     "https://files.catbox.moe/4ep3ya.mp4",        /* e.g. "https://files.catbox.moe/abc123.mp4" */
-    opacity: 0.5,       /* 0.0 to 1.0 — dim the video so text is readable */
+    url:     "https://files.catbox.moe/4ep3ya.mp4",
+    opacity: 0.5,
   },
 
-  /* ── background falling words ── (ignored if bgVideo.url is set) ── */
+  /* ── falling words (only shown if bgVideo.url is empty) ── */
   bgWords:   ["netloop", "net", "</>"],
   wordCount: 28,
   wordSpeed: [1.2, 2.8],
@@ -242,77 +235,91 @@ const C = {
   wordSpin:  0.008,
   wordColor: "rgba(150,170,210,",
 
-  /* ── music ── */
+  /* ── music ── direct mp3 link, "" = no music ── */
   music: {
     url:    "",
     volume: 0.4,
   },
 
-  /* ── cursor trail ── */
-  trailColor:  "255,255,255",  /* r,g,b */
-  trailLength: 18,             /* how many dots in the trail */
-
 };
 /* ══════════════════════════ */
 
-/* apply config */
-document.getElementById("last-change-date").textContent = C.lastChange;
-document.getElementById("discord-val").textContent = C.discord;
 
-const linesEl = [
-  document.getElementById("line1"),
-  document.getElementById("line2"),
-  document.getElementById("line3"),
-];
-C.lines.forEach((t, i) => { if (linesEl[i]) linesEl[i].textContent = t; });
+/* ── apply config to DOM ── */
+document.getElementById("last-change-date").textContent = C.lastChange;
+
+["line1","line2","line3"].forEach((id, i) => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = C.lines[i] || "";
+});
+
+if (C.discord) {
+  document.getElementById("discord-line").style.display = "";
+  document.getElementById("discord-val").textContent = C.discord;
+}
 
 C.links.forEach(lk => {
   const a = document.createElement("a");
   a.className = "link-item";
-  a.href = lk.url;
-  a.target = "_blank";
-  a.rel = "noopener";
+  a.href = lk.url; a.target = "_blank"; a.rel = "noopener";
   a.textContent = lk.label;
   document.getElementById("links-container").appendChild(a);
 });
 
+
 /* ── typewriter ── */
-const nameEl = document.getElementById("site-name");
+const nameEl   = document.getElementById("site-name");
 const typeText = C.siteName;
-let typeIndex = 0, deleting = false;
+let ti = 0, deleting = false;
 
 function typeStep() {
   if (!deleting) {
-    nameEl.textContent = typeText.slice(0, ++typeIndex);
-    if (typeIndex === typeText.length) { deleting = true; setTimeout(typeStep, 1800); }
+    nameEl.textContent = typeText.slice(0, ++ti);
+    if (ti === typeText.length) { deleting = true; setTimeout(typeStep, 1800); }
     else setTimeout(typeStep, 100);
   } else {
-    nameEl.textContent = typeText.slice(0, --typeIndex);
-    if (typeIndex === 0) { deleting = false; setTimeout(typeStep, 400); }
+    nameEl.textContent = typeText.slice(0, --ti);
+    if (ti === 0) { deleting = false; setTimeout(typeStep, 400); }
     else setTimeout(typeStep, 60);
   }
 }
 setTimeout(typeStep, 500);
 
-/* ── overlay + music ── */
-const audio = document.getElementById("audio");
-const overlay = document.getElementById("overlay");
 
-if (C.music.url) {
-  audio.src = C.music.url;
-  audio.volume = C.music.volume;
-}
+/* ── video setup ── */
+const bgvideo = document.getElementById("bgvideo");
+const canvas  = document.getElementById("wordfield");
+const ctx     = canvas.getContext("2d");
+
+if (C.bgVideo.url) {
+  bgvideo.src     = C.bgVideo.url;
+  bgvideo.style.display  = "block";
+  bgvideo.style.opacity  = C.bgVideo.opacity;
+  canvas.style.display   = "none";
+} 
+
+
+/* ── overlay click ── */
+const audio   = document.getElementById("audio");
+const overlay = document.getElementById("overlay");
 
 overlay.addEventListener("click", () => {
   overlay.classList.add("hide");
   setTimeout(() => overlay.remove(), 700);
-  if (C.music.url) audio.play();
+
+  if (C.bgVideo.url) {
+    bgvideo.play().catch(err => console.warn("Video play failed:", err));
+  }
+
+  if (C.music.url) {
+    audio.src    = C.music.url;
+    audio.volume = C.music.volume;
+    audio.play().catch(() => {});
+  }
 });
 
-/* ── falling words (with drag) ── */
-const canvas = document.getElementById("wordfield");
-const ctx    = canvas.getContext("2d");
 
+/* ── falling words ── */
 function resize() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -321,23 +328,21 @@ resize();
 window.addEventListener("resize", () => { resize(); initWords(); });
 
 const words = [];
-function randWord() {
-  return C.bgWords[Math.floor(Math.random() * C.bgWords.length)];
-}
+function randWord() { return C.bgWords[Math.floor(Math.random() * C.bgWords.length)]; }
 
-function makeWord(spawnAtTop) {
+function makeWord(top) {
   const depth = Math.random();
   const size  = C.wordSize[0]  + depth * (C.wordSize[1]  - C.wordSize[0]);
   const speed = C.wordSpeed[0] + depth * (C.wordSpeed[1] - C.wordSpeed[0]);
   return {
-    text:    randWord(),
-    x:       Math.random() * canvas.width,
-    y:       spawnAtTop ? -(size * 2 + Math.random() * 80) : Math.random() * canvas.height,
+    text: randWord(),
+    x: Math.random() * canvas.width,
+    y: top ? -(size * 2 + Math.random() * 80) : Math.random() * canvas.height,
     size, speed, depth,
-    rot:     (Math.random() - .5) * Math.PI * 2,
-    rotSpeed:(Math.random() > .5 ? 1 : -1) * (0.002 + Math.random() * C.wordSpin),
-    drift:   (Math.random() - .5) * 0.15,
-    opacity: 0.03 + depth * 0.22,
+    rot:      (Math.random() - .5) * Math.PI * 2,
+    rotSpeed: (Math.random() > .5 ? 1 : -1) * (0.002 + Math.random() * C.wordSpin),
+    drift:    (Math.random() - .5) * 0.15,
+    opacity:  0.03 + depth * 0.22,
   };
 }
 
@@ -353,7 +358,7 @@ function draw() {
     ctx.save();
     ctx.translate(w.x, w.y);
     ctx.rotate(w.rot);
-    ctx.font = `400 ${w.size}px "Courier Prime", "Courier New", monospace`;
+    ctx.font = `400 ${w.size}px "Courier Prime","Courier New",monospace`;
     ctx.fillStyle = C.wordColor + w.opacity + ")";
     ctx.fillText(w.text, 0, 0);
     ctx.restore();
@@ -367,6 +372,7 @@ function draw() {
 }
 draw();
 
+
 /* ── ghost cursor trail ── */
 const trail = document.getElementById("trail");
 const tCtx  = trail.getContext("2d");
@@ -377,24 +383,19 @@ window.addEventListener("resize", () => {
   trail.height = window.innerHeight;
 });
 
-let mx = window.innerWidth  / 2;
-let my = window.innerHeight / 2;
-/* multiple ghost layers, each lagging more than the last */
+let mx = window.innerWidth / 2, my = window.innerHeight / 2;
 const ghosts = [
   { x: mx, y: my, lag: 0.18, alpha: 0.25, scale: 0.95 },
   { x: mx, y: my, lag: 0.10, alpha: 0.15, scale: 0.90 },
   { x: mx, y: my, lag: 0.06, alpha: 0.08, scale: 0.85 },
 ];
-
 window.addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
 
 function drawArrow(x, y, alpha, scale) {
-  const s = scale;
   tCtx.save();
   tCtx.translate(x, y);
-  tCtx.scale(s, s);
+  tCtx.scale(scale, scale);
   tCtx.beginPath();
-  /* standard OS arrow cursor shape */
   tCtx.moveTo(0, 0);
   tCtx.lineTo(0, 16);
   tCtx.lineTo(3.5, 12.5);
@@ -413,13 +414,11 @@ function drawArrow(x, y, alpha, scale) {
 
 function drawTrail() {
   tCtx.clearRect(0, 0, trail.width, trail.height);
-
   for (const g of ghosts) {
     g.x += (mx - g.x) * g.lag;
     g.y += (my - g.y) * g.lag;
     drawArrow(g.x, g.y, g.alpha, g.scale);
   }
-
   requestAnimationFrame(drawTrail);
 }
 drawTrail();
