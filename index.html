@@ -73,7 +73,6 @@ html, body {
   line-height: 1;
 }
 
-/* username with tooltip */
 .username {
   font-size: .78rem;
   color: rgba(255,255,255,.45);
@@ -108,7 +107,6 @@ html, body {
   transform: translateX(-50%) translateY(0);
 }
 
-/* badges */
 .badge {
   position: relative;
   display: flex;
@@ -218,13 +216,10 @@ html, body {
   <div class="site-name" id="site-name"></div>
 
   <div class="username-row">
-    <!-- username with UID tooltip -->
     <span class="username">
       netloop
       <span class="tip">UID: -1</span>
     </span>
-
-    <!-- owner crown badge -->
     <div class="badge">
       <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
@@ -232,8 +227,6 @@ html, body {
       </svg>
       <span class="tip">owner</span>
     </div>
-
-    <!-- developer { } badge -->
     <div class="badge">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M8 3H7a3 3 0 00-3 3v3a3 3 0 01-3 3 3 3 0 013 3v3a3 3 0 003 3h1"/>
@@ -277,13 +270,19 @@ const C = {
     { label: "-> discord", url: "https://discord.gg/ydjBdhSJm9" },
   ],
 
-  /* ── video background ── direct mp4 link, "" = use falling words ── */
+  /* ── video background ──
+     add as many mp4 links as you want — a random one plays each page load
+     set urls to [] to use falling words instead                           */
   bgVideo: {
-    url:     "https://files.catbox.moe/86qpf4.mp4",
+    urls: [
+      "https://files.catbox.moe/86qpf4.mp4",
+      "https://files.catbox.moe/4ep3ya.mp4",
+      "https://files.catbox.moe/zxmsp4.mp4", 
+    ],
     opacity: 0.5,
   },
 
-  /* ── falling words (only shown if bgVideo.url is empty) ── */
+  /* ── falling words (only used if bgVideo.urls is empty) ── */
   bgWords:   ["netloop", "net", "</>"],
   wordCount: 28,
   wordSpeed: [1.2, 2.8],
@@ -343,15 +342,18 @@ setTimeout(typeStep, 500);
 
 
 /* ── video setup ── */
-const bgvideo = document.getElementById("bgvideo");
-const canvas  = document.getElementById("wordfield");
-const ctx     = canvas.getContext("2d");
+const bgvideo  = document.getElementById("bgvideo");
+const canvas   = document.getElementById("wordfield");
+const ctx      = canvas.getContext("2d");
+const hasVideo = C.bgVideo.urls && C.bgVideo.urls.length > 0;
 
-if (C.bgVideo.url) {
-  bgvideo.src            = C.bgVideo.url;
-  bgvideo.style.display  = "block";
-  bgvideo.style.opacity  = C.bgVideo.opacity;
-  canvas.style.display   = "none";
+if (hasVideo) {
+  /* pick a random url from the array */
+  const randomUrl = C.bgVideo.urls[Math.floor(Math.random() * C.bgVideo.urls.length)];
+  bgvideo.src           = randomUrl;
+  bgvideo.style.display = "block";
+  bgvideo.style.opacity = C.bgVideo.opacity;
+  canvas.style.display  = "none";
 }
 
 
@@ -363,7 +365,7 @@ overlay.addEventListener("click", () => {
   overlay.classList.add("hide");
   setTimeout(() => overlay.remove(), 700);
 
-  if (C.bgVideo.url) {
+  if (hasVideo) {
     bgvideo.play().catch(err => console.warn("Video play failed:", err));
   }
 
