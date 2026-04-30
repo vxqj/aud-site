@@ -40,14 +40,22 @@ html, body {
   pointer-events: none;
 }
 
-/* ── Glass Card ── */
-#content {
+/* ── Card Wrapper (positions both cards together) ── */
+#card-stack {
   position: fixed;
   top: 36px;
   left: 40px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
-  /* glassmorphism */
+/* ── Glass Card ── */
+#content {
+  position: relative;
+  z-index: 10;
+
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -58,7 +66,6 @@ html, body {
     0 8px 40px rgba(0,0,0,0.45),
     inset 0 1px 0 rgba(255,255,255,0.15);
 
-  /* entry animation */
   opacity: 0;
   transform: translateY(-18px) scale(0.97);
   animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -69,13 +76,9 @@ html, body {
 }
 
 @keyframes cardIn {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* subtle shimmer line at top of card */
 #content::before {
   content: "";
   position: absolute;
@@ -86,6 +89,82 @@ html, body {
   pointer-events: none;
 }
 
+/* ── Arrow toggle button ── */
+#roblox-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 20px;
+  margin: 6px auto 0 auto;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeUp 0.5s ease forwards;
+  animation-delay: 1.2s;
+  align-self: center;
+}
+
+#roblox-toggle svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255,255,255,0.4);
+  transition: color 0.2s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#roblox-toggle:hover svg {
+  color: rgba(255,255,255,0.85);
+}
+
+/* ── Roblox Card ── */
+#roblox-card {
+  position: relative;
+  z-index: 9;
+
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 0;
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  margin-top: 6px;
+  overflow: hidden;
+
+  /* match main card width exactly */
+  width: 100%;
+
+  /* collapsed by default */
+  opacity: 0;
+  transform: translateY(-10px) scaleY(0.92);
+  transform-origin: top center;
+  pointer-events: none;
+  transition:
+    opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#roblox-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 16px; right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+#roblox-card.visible {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  pointer-events: all;
+}
+
+
+
+/* ── site-name, username-row, meta etc ── */
 .site-name {
   font-size: 1.35rem;
   font-weight: 700;
@@ -145,10 +224,7 @@ html, body {
   transition: opacity .15s, transform .15s;
   z-index: 20;
 }
-.username:hover .tip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+.username:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .badge {
   position: relative;
@@ -187,10 +263,7 @@ html, body {
   transition: opacity .15s, transform .15s;
   z-index: 20;
 }
-.badge:hover .tip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+.badge:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .meta-label {
   font-size: .78rem;
@@ -213,7 +286,6 @@ html, body {
 .meta-line:nth-of-type(2) { animation-delay: 0.89s; }
 .meta-line:nth-of-type(3) { animation-delay: 0.96s; }
 .meta-line:nth-of-type(4) { animation-delay: 1.03s; }
-
 .meta-line.dim { color: rgba(255,255,255,.55); }
 .spacer { height: 14px; }
 
@@ -225,7 +297,6 @@ html, body {
   animation: fadeUp 0.5s ease forwards;
   animation-delay: 1.1s;
 }
-
 .icon-link {
   display: flex;
   align-items: center;
@@ -234,16 +305,8 @@ html, body {
   transition: color .15s, transform .15s;
   text-decoration: none;
 }
-.icon-link:hover {
-  color: #fff;
-  transform: scale(1.15);
-}
-.icon-link svg {
-  width: 26px;
-  height: 26px;
-  fill: currentColor;
-  display: block;
-}
+.icon-link:hover { color: #fff; transform: scale(1.15); }
+.icon-link svg { width: 26px; height: 26px; fill: currentColor; display: block; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -288,40 +351,70 @@ html, body {
 
 <audio id="audio" loop></audio>
 
-<div id="content">
-  <div class="site-name" id="site-name"></div>
+<!-- Card stack wrapper -->
+<div id="card-stack">
+  <div id="content">
+    <div class="site-name" id="site-name"></div>
 
-  <div class="username-row">
-    <span class="username">
-      netloop
-      <span class="tip">UID: -1</span>
-    </span>
-    <div class="badge">
-      <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
-        <rect x="2" y="18" width="20" height="2" rx="1"/>
-      </svg>
-      <span class="tip">owner</span>
+    <div class="username-row">
+      <span class="username">
+        netloop
+        <span class="tip">UID: -1</span>
+      </span>
+      <div class="badge">
+        <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
+          <rect x="2" y="18" width="20" height="2" rx="1"/>
+        </svg>
+        <span class="tip">owner</span>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H7a3 3 0 00-3 3v3a3 3 0 01-3 3 3 3 0 013 3v3a3 3 0 003 3h1"/>
+          <path d="M16 3h1a3 3 0 013 3v3a3 3 0 003 3 3 3 0 00-3 3v3a3 3 0 01-3 3h-1"/>
+        </svg>
+        <span class="tip">Developer</span>
+      </div>
     </div>
-    <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 3H7a3 3 0 00-3 3v3a3 3 0 01-3 3 3 3 0 013 3v3a3 3 0 003 3h1"/>
-        <path d="M16 3h1a3 3 0 013 3v3a3 3 0 003 3 3 3 0 00-3 3v3a3 3 0 01-3 3h-1"/>
-      </svg>
-      <span class="tip">Developer</span>
-    </div>
+
+    <div class="meta-label">last change: <span id="last-change-date"></span></div>
+    <div class="spacer"></div>
+
+    <div class="meta-line dim" id="line1"></div>
+    <div class="meta-line dim" id="line2"></div>
+    <div class="meta-line dim" id="line3"></div>
+    <div class="meta-line" id="discord-line" style="display:none">discord: <span id="discord-val"></span></div>
+
+    <div class="spacer"></div>
+    <div class="icon-links" id="links-container"></div>
   </div>
 
-  <div class="meta-label">last change: <span id="last-change-date"></span></div>
-  <div class="spacer"></div>
+  <!-- Arrow toggle -->
+  <div id="roblox-toggle" title="Roblox profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
 
-  <div class="meta-line dim" id="line1"></div>
-  <div class="meta-line dim" id="line2"></div>
-  <div class="meta-line dim" id="line3"></div>
-  <div class="meta-line" id="discord-line" style="display:none">discord: <span id="discord-val"></span></div>
-
-  <div class="spacer"></div>
-  <div class="icon-links" id="links-container"></div>
+  <!-- Roblox card -->
+  <div id="roblox-card">
+    <div style="position:relative;">
+      <img id="roblox-avatar" alt="Roblox avatar"
+        src="data:image/jpeg;base64,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"
+        style="display:block; width:100%; height:calc(100vh - 36px - 68px - 30px); max-height:640px; object-fit:cover; object-position:top center; border-radius:20px;"
+      />
+      <!-- name overlay at bottom -->
+      <div style="
+        position:absolute; bottom:0; left:0; right:0;
+        padding: 60px 18px 18px 18px;
+        background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%);
+        border-radius: 0 0 20px 20px;
+      ">
+        <div style="font-size:.92rem; font-weight:700; color:#fff; letter-spacing:-.3px; margin-bottom:3px;">netIink</div>
+        <div style="font-size:.68rem; color:rgba(255,255,255,.45); letter-spacing:.5px;">UID: 3322249339</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -509,6 +602,38 @@ function drawTrail() {
   requestAnimationFrame(drawTrail);
 }
 drawTrail();
+
+/* ── Roblox card hover logic ── */
+const toggle     = document.getElementById("roblox-toggle");
+const robloxCard = document.getElementById("roblox-card");
+const toggleSvg  = toggle.querySelector("svg");
+
+let hideTimer   = null;
+let cardVisible = false;
+
+function showRobloxCard() {
+  clearTimeout(hideTimer);
+  if (!cardVisible) {
+    cardVisible = true;
+    robloxCard.classList.add("visible");
+    toggleSvg.style.transform = "rotate(180deg)";
+    toggleSvg.style.color = "rgba(255,255,255,0.7)";
+  }
+}
+
+function scheduleHide() {
+  hideTimer = setTimeout(() => {
+    cardVisible = false;
+    robloxCard.classList.remove("visible");
+    toggleSvg.style.transform = "rotate(0deg)";
+    toggleSvg.style.color = "rgba(255,255,255,0.4)";
+  }, 120);
+}
+
+toggle.addEventListener("mouseenter", showRobloxCard);
+toggle.addEventListener("mouseleave", scheduleHide);
+robloxCard.addEventListener("mouseenter", () => { clearTimeout(hideTimer); });
+robloxCard.addEventListener("mouseleave", scheduleHide);
 </script>
 </body>
 </html>
