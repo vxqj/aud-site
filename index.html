@@ -1,639 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>aud.lol</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  width: 100%; height: 100%;
-  background: #000;
-  overflow: hidden;
-  font-family: "Courier Prime", "Courier New", monospace;
-  color: #fff;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; }
 
-#bgvideo {
-  display: none;
-  position: fixed;
-  inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-}
+    #fluid { position: fixed; inset: 0; z-index: 0; }
 
-#wordfield {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
+    .vignette {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, rgba(10,10,15,.55) 100%),
+                  linear-gradient(to bottom, rgba(10,10,15,.5) 0%, transparent 25%, transparent 70%, rgba(10,10,15,.7) 100%);
+    }
 
-#trail {
-  position: fixed;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-}
+    .content {
+      position: fixed; inset: 0; z-index: 2;
+      display: flex; flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      font-family: Georgia, serif; color: #f0eef8;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+    .content.visible { opacity: 1; transform: translateY(0); }
 
-/* ── Card Wrapper (positions both cards together) ── */
-#card-stack {
-  position: fixed;
-  top: 36px;
-  left: 40px;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 340px;
-}
+    nav { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: .85rem; letter-spacing: .2em; text-transform: uppercase; }
+    .logo span { color: #FF9FFC; margin-right: .4rem; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(240,238,248,.45); text-decoration: none;
+      transition: color .3s;
+    }
+    .nav-links a:hover { color: #f0eef8; }
 
-/* ── Glass Card ── */
-#content {
-  position: relative;
-  z-index: 10;
+    main {
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: center; max-width: 680px;
+    }
 
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 20px;
-  padding: 22px 26px 20px 26px;
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+    .eyebrow {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 2rem; font-size: .65rem;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: #FF9FFC; opacity: .8;
+    }
+    .eyebrow::before {
+      content: ''; display: block; width: 2.5rem;
+      height: 1px; background: #FF9FFC;
+    }
 
-  opacity: 0;
-  transform: translateY(-18px) scale(0.97);
-  animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: 0.2s;
+    h1 {
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-weight: 300; line-height: .95;
+      letter-spacing: -.02em; margin-bottom: 1.75rem;
+    }
+    h1 em {
+      font-style: italic;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(240,238,248,.55);
+      padding-left: 1.5rem;
+      display: block;
+    }
 
-  display: flex;
-  flex-direction: column;
-}
+    p {
+      font-size: clamp(.9rem, 1.5vw, 1.05rem);
+      font-weight: 300; line-height: 1.7;
+      color: rgba(240,238,248,.45); margin-bottom: 2.5rem;
+    }
 
-@keyframes cardIn {
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
+    .actions { display: flex; align-items: center; gap: 1.5rem; }
+    .btn {
+      font-size: .7rem; letter-spacing: .15em; text-transform: uppercase;
+      padding: .85rem 2rem; cursor: pointer; border: none;
+      background: #f0eef8; color: #0a0a0f;
+      transition: background .3s, transform .2s;
+    }
+    .btn:hover { background: #FF9FFC; transform: translateY(-1px); }
+    .btn-ghost {
+      background: none; color: rgba(240,238,248,.45); padding: 0;
+      transition: color .3s;
+    }
+    .btn-ghost:hover { background: none; transform: none; color: #f0eef8; }
 
-#content::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 16px; right: 16px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  border-radius: 999px;
-  pointer-events: none;
-}
-
-/* ── Arrow toggle button ── */
-#roblox-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 20px;
-  margin: 6px auto 0 auto;
-  cursor: pointer;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-  animation-delay: 1.2s;
-}
-
-#roblox-toggle svg {
-  width: 18px;
-  height: 18px;
-  color: rgba(255,255,255,0.4);
-  transition: color 0.2s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-#roblox-toggle:hover svg {
-  color: rgba(255,255,255,0.85);
-}
-
-/* ── Roblox Card ── */
-#roblox-card {
-  position: relative;
-  z-index: 9;
-
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 20px;
-  padding: 0;
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.15);
-  margin-top: 6px;
-  overflow: hidden;
-
-  /* match main card width exactly */
-  width: 100%; /* inherits 280px from card-stack */
-
-  /* collapsed by default */
-  opacity: 0;
-  transform: translateY(-10px) scaleY(0.92);
-  transform-origin: top center;
-  pointer-events: none;
-  transition:
-    opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-#roblox-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 16px; right: 16px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  border-radius: 999px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-#roblox-card.visible {
-  opacity: 1;
-  transform: translateY(0) scaleY(1);
-  pointer-events: all;
-}
-
-
-
-/* ── site-name, username-row, meta etc ── */
-.site-name {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -.5px;
-  color: #fff;
-  margin-bottom: 6px;
-  line-height: 1;
-  min-height: 1.35rem;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-  animation-delay: 0.55s;
-}
-.site-name::after {
-  content: "|";
-  animation: blink .7s step-end infinite;
-  margin-left: 1px;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-.username-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 18px;
-  line-height: 1;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-  animation-delay: 0.65s;
-}
-
-.username {
-  font-size: .78rem;
-  color: rgba(255,255,255,.45);
-  letter-spacing: .5px;
-  position: relative;
-  cursor: default;
-  display: flex;
-  align-items: center;
-}
-.username:hover { color: rgba(255,255,255,.7); }
-.username .tip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: rgba(10,10,10,.95);
-  border: 1px solid rgba(255,255,255,.2);
-  color: #fff;
-  font-size: .62rem;
-  font-family: "Courier Prime", monospace;
-  letter-spacing: 1.5px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .15s, transform .15s;
-  z-index: 20;
-}
-.username:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.badge {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  cursor: default;
-}
-.badge svg {
-  width: 14px;
-  height: 14px;
-  color: #fff;
-  transition: transform .15s;
-  display: block;
-}
-.badge:hover svg { transform: scale(1.2); }
-.badge .tip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: rgba(10,10,10,.95);
-  border: 1px solid rgba(255,255,255,.2);
-  color: #fff;
-  font-size: .62rem;
-  font-family: "Courier Prime", monospace;
-  letter-spacing: 1.5px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .15s, transform .15s;
-  z-index: 20;
-}
-.badge:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.meta-label {
-  font-size: .78rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-  animation-delay: 0.75s;
-}
-.meta-line {
-  font-size: .78rem;
-  color: #fff;
-  margin-bottom: 3px;
-  line-height: 1.55;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-}
-.meta-line:nth-of-type(1) { animation-delay: 0.82s; }
-.meta-line:nth-of-type(2) { animation-delay: 0.89s; }
-.meta-line:nth-of-type(3) { animation-delay: 0.96s; }
-.meta-line:nth-of-type(4) { animation-delay: 1.03s; }
-.meta-line.dim { color: rgba(255,255,255,.55); }
-.spacer { height: 14px; }
-
-.icon-links {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
-  animation-delay: 1.1s;
-}
-.icon-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255,255,255,.7);
-  transition: color .15s, transform .15s;
-  text-decoration: none;
-}
-.icon-link:hover { color: #fff; transform: scale(1.15); }
-.icon-link svg { width: 26px; height: 26px; fill: currentColor; display: block; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Overlay ── */
-#overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: opacity .6s ease;
-}
-#overlay.hide { opacity: 0; pointer-events: none; }
-#overlay-text {
-  font-family: "Courier Prime", monospace;
-  font-size: .85rem;
-  color: rgba(255,255,255,.4);
-  letter-spacing: 2px;
-  animation: pulse 2.5s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: .4; }
-  50%       { opacity: .9; }
-}
-</style>
+    footer {
+      display: flex; justify-content: space-between;
+      font-size: .65rem; letter-spacing: .1em;
+      color: rgba(240,238,248,.2); text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
-<video id="bgvideo" loop playsinline></video>
-<canvas id="wordfield"></canvas>
-<canvas id="trail"></canvas>
+  <div id="fluid"></div>
+  <div class="vignette"></div>
 
-<div id="overlay">
-  <span id="overlay-text">click me</span>
-</div>
-
-<audio id="audio" loop></audio>
-
-<!-- Card stack wrapper -->
-<div id="card-stack">
-  <div id="content">
-    <div class="site-name" id="site-name"></div>
-
-    <div class="username-row">
-      <span class="username">
-        netloop
-        <span class="tip">UID: -1</span>
-      </span>
-      <div class="badge">
-        <svg viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="2,18 4,8 9,13 12,2 15,13 20,8 22,18"/>
-          <rect x="2" y="18" width="20" height="2" rx="1"/>
-        </svg>
-        <span class="tip">owner</span>
+  <div class="content" id="content">
+    <nav>
+      <div class="logo"><span>◈</span> Ether</div>
+      <div class="nav-links">
+        <a href="#">Work</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
       </div>
-      <div class="badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M8 3H7a3 3 0 00-3 3v3a3 3 0 01-3 3 3 3 0 013 3v3a3 3 0 003 3h1"/>
-          <path d="M16 3h1a3 3 0 013 3v3a3 3 0 003 3 3 3 0 00-3 3v3a3 3 0 01-3 3h-1"/>
-        </svg>
-        <span class="tip">Developer</span>
+    </nav>
+
+    <main>
+      <div class="eyebrow">Interactive Experience</div>
+      <h1>
+        Move your
+        <em>cursor</em>
+        to explore
+      </h1>
+      <p>A real-time fluid dynamics simulation.<br>Each gesture shapes the flow.</p>
+      <div class="actions">
+        <button class="btn">Begin</button>
+        <button class="btn btn-ghost">Learn more ↓</button>
       </div>
-    </div>
+    </main>
 
-    <div class="meta-label">last change: <span id="last-change-date"></span></div>
-    <div class="spacer"></div>
-
-    <div class="meta-line dim" id="line1"></div>
-    <div class="meta-line dim" id="line2"></div>
-    <div class="meta-line dim" id="line3"></div>
-    <div class="meta-line" id="discord-line" style="display:none">discord: <span id="discord-val"></span></div>
-
-    <div class="spacer"></div>
-    <div class="icon-links" id="links-container"></div>
+    <footer>
+      <span>Move your cursor across the canvas</span>
+      <span>WebGL · Three.js</span>
+    </footer>
   </div>
 
-  <!-- Arrow toggle -->
-  <div id="roblox-toggle" title="Roblox profile">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  </div>
+  <script type="module">
+    import * as THREE from 'three';
 
-  <!-- Roblox card -->
-  <div id="roblox-card">
-    <div style="position:relative;">
-      <img id="roblox-avatar" alt="Roblox avatar"
-        src="https://files.catbox.moe/uu4sm7.png"
-        style="display:block; width:100%; height:340px; object-fit:cover; object-position:top center; border-radius:20px;"
-      />
-      <!-- name overlay at bottom -->
-      <div style="
-        position:absolute; bottom:0; left:0; right:0;
-        padding: 60px 18px 18px 18px;
-        background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%);
-        border-radius: 0 0 20px 20px;
-      ">
-        <div style="font-size:.92rem; font-weight:700; color:#fff; letter-spacing:-.3px; margin-bottom:3px;">netIink</div>
-        <div style="font-size:.68rem; color:rgba(255,255,255,.45); letter-spacing:.5px;">UID: 3322249339</div>
-      </div>
-    </div>
-  </div>
-</div>
+    const container = document.getElementById('fluid');
 
-<script>
-const C = {
-  siteName:   "aud.lol",
-  lastChange: "29 April 2026",
-  lines: [
-    "Learning Python / Go",
-    "i love gambling",
-    "join discord via link",
-  ],
-  discord: "netloop (355869591278452746)",
-  links: [
-    { label: "tiktok",  url: "https://tiktok.com/@meqe",        icon: "tiktok"  },
-    { label: "discord", url: "https://discord.gg/mlg",   icon: "discord" },
-  ],
-  bgVideo: {
-    urls: [
-    /* "https://files.catbox.moe/86qpf4.mp4",
-      "https://files.catbox.moe/zxmsp4.mp4",
-      "https://files.catbox.moe/j8qzr3.mp4",
-      "https://files.catbox.moe/8m4xto.mp4",
-      "https://files.catbox.moe/t4qbvb.mp4",
-      "https://files.catbox.moe/fkftrj.mp4",
-      "https://files.catbox.moe/5nnovv.mp4",
-      "https://files.catbox.moe/578kht.mp4", */
-      "https://files.catbox.moe/klrzr3.mp4",
-    ],
-    opacity: 0.5,
-  },
-  bgWords:   ["netloop", "net", "</>"],
-  wordCount: 28,
-  wordSpeed: [1.2, 2.8],
-  wordSize:  [10, 32],
-  wordSpin:  0.008,
-  wordColor: "rgba(150,170,210,",
-  music: { url: "", volume: 0.4 },
-};
+    function makePaletteTexture(stops) {
+      const arr = stops.length === 1 ? [stops[0], stops[0]] : stops;
+      const data = new Uint8Array(arr.length * 4);
+      arr.forEach((hex, i) => {
+        const c = new THREE.Color(hex);
+        data[i*4]=Math.round(c.r*255); data[i*4+1]=Math.round(c.g*255);
+        data[i*4+2]=Math.round(c.b*255); data[i*4+3]=255;
+      });
+      const tex = new THREE.DataTexture(data, arr.length, 1, THREE.RGBAFormat);
+      tex.magFilter = tex.minFilter = THREE.LinearFilter;
+      tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+      tex.generateMipmaps = false; tex.needsUpdate = true;
+      return tex;
+    }
 
-const ICONS = {
-  tiktok: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.3 6.3 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/></svg>`,
-  discord: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`,
-};
+    const COLORS = ['#5227FF','#9B6FFF','#FF9FFC','#B497CF','#1a0a3d'];
+    const paletteTex = makePaletteTexture(COLORS);
+    const bgVec4 = new THREE.Vector4(0,0,0,0);
 
-/* ── apply config ── */
-document.getElementById("last-change-date").textContent = C.lastChange;
-["line1","line2","line3"].forEach((id, i) => {
-  const el = document.getElementById(id);
-  if (el) el.textContent = C.lines[i] || "";
-});
-if (C.discord) {
-  document.getElementById("discord-line").style.display = "";
-  document.getElementById("discord-val").textContent = C.discord;
-}
-C.links.forEach(lk => {
-  const a = document.createElement("a");
-  a.className = "icon-link";
-  a.href = lk.url;
-  a.target = "_blank";
-  a.rel = "noopener";
-  a.title = lk.label;
-  a.innerHTML = ICONS[lk.icon] || lk.label;
-  document.getElementById("links-container").appendChild(a);
-});
+    // --- renderer ---
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.autoClear = false;
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+    Object.assign(renderer.domElement.style, { width:'100%', height:'100%', display:'block' });
 
-/* ── typewriter ── */
-const nameEl   = document.getElementById("site-name");
-const typeText = C.siteName;
-let ti = 0, deleting = false;
-function typeStep() {
-  if (!deleting) {
-    nameEl.textContent = typeText.slice(0, ++ti);
-    if (ti === typeText.length) { deleting = true; setTimeout(typeStep, 1800); }
-    else setTimeout(typeStep, 100);
-  } else {
-    nameEl.textContent = typeText.slice(0, --ti);
-    if (ti === 0) { deleting = false; setTimeout(typeStep, 400); }
-    else setTimeout(typeStep, 60);
-  }
-}
-setTimeout(typeStep, 700);
+    let W = container.clientWidth, H = container.clientHeight;
+    renderer.setSize(W, H);
 
-/* ── video setup ── */
-const bgvideo  = document.getElementById("bgvideo");
-const canvas   = document.getElementById("wordfield");
-const ctx      = canvas.getContext("2d");
-const hasVideo = C.bgVideo.urls && C.bgVideo.urls.length > 0;
+    // --- shaders ---
+    const face_vert = `attribute vec3 position;uniform vec2 boundarySpace;varying vec2 uv;precision highp float;void main(){vec3 pos=position;vec2 scale=1.0-boundarySpace*2.0;pos.xy*=scale;uv=vec2(0.5)+pos.xy*0.5;gl_Position=vec4(pos,1.0);}`;
+    const line_vert = `attribute vec3 position;uniform vec2 px;precision highp float;varying vec2 uv;void main(){vec3 pos=position;uv=0.5+pos.xy*0.5;vec2 n=sign(pos.xy);pos.xy=abs(pos.xy)-px;pos.xy*=n;gl_Position=vec4(pos,1.0);}`;
+    const mouse_vert = `precision highp float;attribute vec3 position;attribute vec2 uv;uniform vec2 center;uniform vec2 scale;uniform vec2 px;varying vec2 vUv;void main(){vec2 pos=position.xy*scale*2.0*px+center;vUv=uv;gl_Position=vec4(pos,0.0,1.0);}`;
+    const advection_frag = `precision highp float;uniform sampler2D velocity;uniform float dt;uniform bool isBFECC;uniform vec2 fboSize;uniform vec2 px;varying vec2 uv;void main(){vec2 ratio=max(fboSize.x,fboSize.y)/fboSize;if(!isBFECC){vec2 vel=texture2D(velocity,uv).xy;gl_FragColor=vec4(texture2D(velocity,uv-vel*dt*ratio).xy,0,0);}else{vec2 vel=texture2D(velocity,uv).xy;vec2 old=uv-vel*dt*ratio;vec2 v2=texture2D(velocity,old).xy;vec2 new2=old+v2*dt*ratio;vec2 err=new2-uv;vec2 c=uv-err/2.0;vec2 v3=texture2D(velocity,c).xy;gl_FragColor=vec4(texture2D(velocity,c-v3*dt*ratio).xy,0,0);}}`;
+    const color_frag = `precision highp float;uniform sampler2D velocity;uniform sampler2D palette;uniform vec4 bgColor;varying vec2 uv;void main(){vec2 vel=texture2D(velocity,uv).xy;float l=clamp(length(vel),0.0,1.0);vec3 c=texture2D(palette,vec2(l,0.5)).rgb;gl_FragColor=vec4(mix(bgColor.rgb,c,l),mix(bgColor.a,1.0,l));}`;
+    const divergence_frag = `precision highp float;uniform sampler2D velocity;uniform float dt;uniform vec2 px;varying vec2 uv;void main(){float x0=texture2D(velocity,uv-vec2(px.x,0)).x;float x1=texture2D(velocity,uv+vec2(px.x,0)).x;float y0=texture2D(velocity,uv-vec2(0,px.y)).y;float y1=texture2D(velocity,uv+vec2(0,px.y)).y;gl_FragColor=vec4((x1-x0+y1-y0)/2.0/dt);}`;
+    const externalForce_frag = `precision highp float;uniform vec2 force;uniform vec2 center;uniform vec2 scale;uniform vec2 px;varying vec2 vUv;void main(){vec2 c=(vUv-0.5)*2.0;float d=1.0-min(length(c),1.0);d*=d;gl_FragColor=vec4(force*d,0,1);}`;
+    const poisson_frag = `precision highp float;uniform sampler2D pressure;uniform sampler2D divergence;uniform vec2 px;varying vec2 uv;void main(){float p0=texture2D(pressure,uv+vec2(px.x*2,0)).r;float p1=texture2D(pressure,uv-vec2(px.x*2,0)).r;float p2=texture2D(pressure,uv+vec2(0,px.y*2)).r;float p3=texture2D(pressure,uv-vec2(0,px.y*2)).r;float div=texture2D(divergence,uv).r;gl_FragColor=vec4((p0+p1+p2+p3)/4.0-div);}`;
+    const pressure_frag = `precision highp float;uniform sampler2D pressure;uniform sampler2D velocity;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){float p0=texture2D(pressure,uv+vec2(px.x,0)).r;float p1=texture2D(pressure,uv-vec2(px.x,0)).r;float p2=texture2D(pressure,uv+vec2(0,px.y)).r;float p3=texture2D(pressure,uv-vec2(0,px.y)).r;vec2 v=texture2D(velocity,uv).xy;gl_FragColor=vec4(v-vec2(p0-p1,p2-p3)*0.5*dt,0,1);}`;
+    const viscous_frag = `precision highp float;uniform sampler2D velocity;uniform sampler2D velocity_new;uniform float v;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){vec2 old=texture2D(velocity,uv).xy;vec2 n0=texture2D(velocity_new,uv+vec2(px.x*2,0)).xy;vec2 n1=texture2D(velocity_new,uv-vec2(px.x*2,0)).xy;vec2 n2=texture2D(velocity_new,uv+vec2(0,px.y*2)).xy;vec2 n3=texture2D(velocity_new,uv-vec2(0,px.y*2)).xy;gl_FragColor=vec4((4.0*old+v*dt*(n0+n1+n2+n3))/(4.0*(1.0+v*dt)),0,0);}`;
 
-if (hasVideo) {
-  const randomUrl = C.bgVideo.urls[Math.floor(Math.random() * C.bgVideo.urls.length)];
-  bgvideo.src           = randomUrl;
-  bgvideo.style.display = "block";
-  bgvideo.style.opacity = C.bgVideo.opacity;
-  canvas.style.display  = "none";
-}
+    // --- FBO helpers ---
+    const isIOS = /(iPad|iPhone|iPod)/i.test(navigator.userAgent);
+    const floatType = isIOS ? THREE.HalfFloatType : THREE.FloatType;
+    function mkFBO() {
+      return new THREE.WebGLRenderTarget(
+        Math.max(1,Math.round(0.5*W)), Math.max(1,Math.round(0.5*H)),
+        { type: floatType, depthBuffer: false, stencilBuffer: false,
+          minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
+          wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping }
+      );
+    }
 
-/* ── overlay click ── */
-const audio   = document.getElementById("audio");
-const overlay = document.getElementById("overlay");
-overlay.addEventListener("click", () => {
-  overlay.classList.add("hide");
-  setTimeout(() => overlay.remove(), 700);
-  if (hasVideo) bgvideo.play().catch(e => console.warn("Video play failed:", e));
-  if (C.music.url) {
-    audio.src    = C.music.url;
-    audio.volume = C.music.volume;
-    audio.play().catch(() => {});
-  }
-});
+    let fw = Math.max(1,Math.round(0.5*W)), fh = Math.max(1,Math.round(0.5*H));
+    const fbos = {};
+    ['vel_0','vel_1','vel_v0','vel_v1','div','p0','p1'].forEach(k => fbos[k] = mkFBO());
 
-/* ── falling words ── */
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resize();
-window.addEventListener("resize", () => { resize(); initWords(); });
+    function cellScale() { return new THREE.Vector2(1/fw, 1/fh); }
+    function fboSize()   { return new THREE.Vector2(fw, fh); }
 
-const words = [];
-function randWord() { return C.bgWords[Math.floor(Math.random() * C.bgWords.length)]; }
-function makeWord(top) {
-  const depth = Math.random();
-  const size  = C.wordSize[0]  + depth * (C.wordSize[1]  - C.wordSize[0]);
-  const speed = C.wordSpeed[0] + depth * (C.wordSpeed[1] - C.wordSpeed[0]);
-  return {
-    text: randWord(), x: Math.random() * canvas.width,
-    y: top ? -(size * 2 + Math.random() * 80) : Math.random() * canvas.height,
-    size, speed, depth,
-    rot: (Math.random() - .5) * Math.PI * 2,
-    rotSpeed: (Math.random() > .5 ? 1 : -1) * (0.002 + Math.random() * C.wordSpin),
-    drift: (Math.random() - .5) * 0.15,
-    opacity: 0.03 + depth * 0.22,
-  };
-}
-function initWords() { words.length = 0; for (let i = 0; i < C.wordCount; i++) words.push(makeWord(false)); }
-initWords();
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (const w of words) {
-    ctx.save();
-    ctx.translate(w.x, w.y);
-    ctx.rotate(w.rot);
-    ctx.font = `400 ${w.size}px "Courier Prime","Courier New",monospace`;
-    ctx.fillStyle = C.wordColor + w.opacity + ")";
-    ctx.fillText(w.text, 0, 0);
-    ctx.restore();
-    w.y += w.speed; w.x += w.drift; w.rot += w.rotSpeed;
-    if (w.y > canvas.height + w.size * 3) { Object.assign(w, makeWord(true)); w.x = Math.random() * canvas.width; }
-  }
-  requestAnimationFrame(draw);
-}
-draw();
+    // --- shader pass ---
+    function makePass(vert, frag, uniforms) {
+      const scene = new THREE.Scene();
+      const cam = new THREE.Camera();
+      const mat = new THREE.RawShaderMaterial({ vertexShader: vert, fragmentShader: frag, uniforms });
+      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+      return { scene, cam, mat, uniforms };
+    }
+    function runPass(pass, target) {
+      renderer.setRenderTarget(target || null);
+      renderer.render(pass.scene, pass.cam);
+      renderer.setRenderTarget(null);
+    }
 
-/* ── ghost cursor trail ── */
-const trail = document.getElementById("trail");
-const tCtx  = trail.getContext("2d");
-trail.width  = window.innerWidth;
-trail.height = window.innerHeight;
-window.addEventListener("resize", () => { trail.width = window.innerWidth; trail.height = window.innerHeight; });
-let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-const ghosts = [
-  { x: mx, y: my, lag: 0.18, alpha: 0.25, scale: 0.95 },
-  { x: mx, y: my, lag: 0.10, alpha: 0.15, scale: 0.90 },
-  { x: mx, y: my, lag: 0.06, alpha: 0.08, scale: 0.85 },
-];
-window.addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
-function drawArrow(x, y, alpha, scale) {
-  tCtx.save();
-  tCtx.translate(x, y);
-  tCtx.scale(scale, scale);
-  tCtx.beginPath();
-  tCtx.moveTo(0, 0); tCtx.lineTo(0, 16); tCtx.lineTo(3.5, 12.5);
-  tCtx.lineTo(6, 18); tCtx.lineTo(8, 17); tCtx.lineTo(5.5, 11.5);
-  tCtx.lineTo(10, 11.5); tCtx.closePath();
-  tCtx.fillStyle = `rgba(255,255,255,${alpha})`;
-  tCtx.fill();
-  tCtx.strokeStyle = `rgba(0,0,0,${alpha * 0.5})`;
-  tCtx.lineWidth = 0.8;
-  tCtx.stroke();
-  tCtx.restore();
-}
-function drawTrail() {
-  tCtx.clearRect(0, 0, trail.width, trail.height);
-  for (const g of ghosts) {
-    g.x += (mx - g.x) * g.lag; g.y += (my - g.y) * g.lag;
-    drawArrow(g.x, g.y, g.alpha, g.scale);
-  }
-  requestAnimationFrame(drawTrail);
-}
-drawTrail();
+    const cs = cellScale(), fs = fboSize();
 
-/* ── Roblox card hover logic ── */
-const toggle     = document.getElementById("roblox-toggle");
-const robloxCard = document.getElementById("roblox-card");
-const toggleSvg  = toggle.querySelector("svg");
+    const advPass = makePass(face_vert, advection_frag, {
+      boundarySpace:{value:cs}, px:{value:cs}, fboSize:{value:fs},
+      velocity:{value:fbos.vel_0.texture}, dt:{value:0.014}, isBFECC:{value:true}
+    });
+    // boundary lines
+    const bGeo = new THREE.BufferGeometry();
+    bGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1,-1,0,-1,1,0,-1,1,0,1,1,0,1,1,0,1,-1,0,1,-1,0,-1,-1,0]),3));
+    const bLine = new THREE.LineSegments(bGeo, new THREE.RawShaderMaterial({ vertexShader: line_vert, fragmentShader: advection_frag, uniforms: advPass.uniforms }));
+    bLine.visible = false;
+    advPass.scene.add(bLine);
 
-let hideTimer   = null;
-let cardVisible = false;
+    const mouseScene = new THREE.Scene();
+    const mouseCam = new THREE.Camera();
+    const mouseMat = new THREE.RawShaderMaterial({
+      vertexShader: mouse_vert, fragmentShader: externalForce_frag,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+      uniforms: { px:{value:cs}, force:{value:new THREE.Vector2()}, center:{value:new THREE.Vector2()}, scale:{value:new THREE.Vector2(100,100)} }
+    });
+    mouseScene.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1), mouseMat));
 
-function showRobloxCard() {
-  clearTimeout(hideTimer);
-  if (!cardVisible) {
-    cardVisible = true;
-    robloxCard.classList.add("visible");
-    toggleSvg.style.transform = "rotate(180deg)";
-    toggleSvg.style.color = "rgba(255,255,255,0.7)";
-  }
-}
+    const divPass = makePass(face_vert, divergence_frag, {
+      boundarySpace:{value:cs}, velocity:{value:fbos.vel_1.texture}, px:{value:cs}, dt:{value:0.014}
+    });
+    const poissonPass = makePass(face_vert, poisson_frag, {
+      boundarySpace:{value:cs}, pressure:{value:fbos.p0.texture}, divergence:{value:fbos.div.texture}, px:{value:cs}
+    });
+    const pressPass = makePass(face_vert, pressure_frag, {
+      boundarySpace:{value:cs}, pressure:{value:fbos.p0.texture}, velocity:{value:fbos.vel_1.texture}, px:{value:cs}, dt:{value:0.014}
+    });
 
-function scheduleHide() {
-  hideTimer = setTimeout(() => {
-    cardVisible = false;
-    robloxCard.classList.remove("visible");
-    toggleSvg.style.transform = "rotate(0deg)";
-    toggleSvg.style.color = "rgba(255,255,255,0.4)";
-  }, 120);
-}
+    const outScene = new THREE.Scene();
+    const outCam = new THREE.Camera();
+    const outMat = new THREE.RawShaderMaterial({
+      vertexShader: face_vert, fragmentShader: color_frag,
+      transparent: true, depthWrite: false,
+      uniforms: { velocity:{value:fbos.vel_0.texture}, boundarySpace:{value:new THREE.Vector2()}, palette:{value:paletteTex}, bgColor:{value:bgVec4} }
+    });
+    outScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), outMat));
 
-toggle.addEventListener("mouseenter", showRobloxCard);
-toggle.addEventListener("mouseleave", scheduleHide);
-robloxCard.addEventListener("mouseenter", () => { clearTimeout(hideTimer); });
-robloxCard.addEventListener("mouseleave", scheduleHide);
-</script>
+    // --- mouse ---
+    const coords = new THREE.Vector2();
+    const coordsOld = new THREE.Vector2();
+    const diff = new THREE.Vector2();
+    let isInside = false;
+
+    window.addEventListener('mousemove', e => {
+      const r = container.getBoundingClientRect();
+      isInside = e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      if (!isInside) return;
+      coords.set((e.clientX-r.left)/r.width*2-1, -((e.clientY-r.top)/r.height*2-1));
+    });
+    window.addEventListener('touchmove', e => {
+      const t = e.touches[0], r = container.getBoundingClientRect();
+      coords.set((t.clientX-r.left)/r.width*2-1, -((t.clientY-r.top)/r.height*2-1));
+    }, { passive: true });
+
+    // --- auto demo ---
+    let autoTarget = new THREE.Vector2((Math.random()*2-1)*.8, (Math.random()*2-1)*.8);
+    let autoCurrent = new THREE.Vector2();
+    let lastInteract = 0;
+
+    function pickTarget() { autoTarget.set((Math.random()*2-1)*.8,(Math.random()*2-1)*.8); }
+    function updateAuto(now) {
+      if (isInside || now - lastInteract < 2000) return;
+      const dir = new THREE.Vector2().subVectors(autoTarget, autoCurrent);
+      if (dir.length() < 0.02) { pickTarget(); return; }
+      autoCurrent.addScaledVector(dir.normalize(), 0.004);
+      coords.copy(autoCurrent);
+    }
+    window.addEventListener('mousemove', () => lastInteract = performance.now());
+
+    // --- resize ---
+    function resize() {
+      W = container.clientWidth; H = container.clientHeight;
+      renderer.setSize(W, H);
+      fw = Math.max(1,Math.round(0.5*W)); fh = Math.max(1,Math.round(0.5*H));
+      Object.values(fbos).forEach(f => f.setSize(fw, fh));
+      const nc = new THREE.Vector2(1/fw,1/fh);
+      [advPass,divPass,poissonPass,pressPass].forEach(p => {
+        if(p.uniforms.px) p.uniforms.px.value = nc;
+        if(p.uniforms.boundarySpace) p.uniforms.boundarySpace.value = nc;
+      });
+      mouseMat.uniforms.px.value = nc;
+      advPass.uniforms.fboSize.value = new THREE.Vector2(fw,fh);
+    }
+    window.addEventListener('resize', resize);
+
+    // --- clock ---
+    const clock = new THREE.Clock(); clock.start();
+
+    // --- loop ---
+    function loop() {
+      const now = performance.now();
+      clock.getDelta();
+      updateAuto(now);
+
+      diff.subVectors(coords, coordsOld);
+      coordsOld.copy(coords);
+
+      const MOUSE_FORCE = 25, CURSOR_SIZE = 120;
+      const nc = new THREE.Vector2(1/fw,1/fh);
+      const csx = CURSOR_SIZE*nc.x, csy = CURSOR_SIZE*nc.y;
+      mouseMat.uniforms.force.value.set((diff.x/2)*MOUSE_FORCE,(diff.y/2)*MOUSE_FORCE);
+      mouseMat.uniforms.center.value.set(
+        Math.min(Math.max(coords.x,-1+csx+nc.x*2),1-csx-nc.x*2),
+        Math.min(Math.max(coords.y,-1+csy+nc.y*2),1-csy-nc.y*2)
+      );
+      mouseMat.uniforms.scale.value.set(CURSOR_SIZE,CURSOR_SIZE);
+
+      // advect
+      advPass.uniforms.velocity.value = fbos.vel_0.texture;
+      runPass(advPass, fbos.vel_1);
+
+      // external force
+      renderer.setRenderTarget(fbos.vel_1);
+      renderer.render(mouseScene, mouseCam);
+      renderer.setRenderTarget(null);
+
+      // divergence
+      divPass.uniforms.velocity.value = fbos.vel_1.texture;
+      runPass(divPass, fbos.div);
+
+      // poisson
+      let pIn = fbos.p0, pOut = fbos.p1;
+      for (let i=0;i<32;i++) {
+        poissonPass.uniforms.pressure.value = pIn.texture;
+        runPass(poissonPass, pOut);
+        [pIn,pOut] = [pOut,pIn];
+      }
+
+      // pressure projection
+      pressPass.uniforms.velocity.value = fbos.vel_1.texture;
+      pressPass.uniforms.pressure.value = pIn.texture;
+      runPass(pressPass, fbos.vel_0);
+
+      // render
+      outMat.uniforms.velocity.value = fbos.vel_0.texture;
+      renderer.setRenderTarget(null);
+      renderer.render(outScene, outCam);
+
+      requestAnimationFrame(loop);
+    }
+
+    setTimeout(() => { document.getElementById('content').classList.add('visible'); }, 100);
+    loop();
+  </script>
 </body>
 </html>
