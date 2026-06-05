@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUD.LOL - OSINT Suite</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="container">
+        <div class="glow">🔮 AUD.LOL</div>
+        <h1>OSINT <span class="gradient">POWER SUITE</span></h1>
+        <p class="sub">Discord ID · Data Breaches · Emails · Usernames · IP</p>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="discord">🆔 Discord</button>
+            <button class="tab-btn" data-tab="breach">💀 Breach Check</button>
+            <button class="tab-btn" data-tab="email">📧 Email OSINT</button>
+            <button class="tab-btn" data-tab="username">👤 Username</button>
+            <button class="tab-btn" data-tab="ip">🌐 IP Lookup</button>
+        </div>
+
+        <div id="discord" class="tab-content active">
+            <input type="text" id="discordId" placeholder="Discord User ID (e.g., 123456789012345678)">
+            <button id="lookupDiscord">🚀 Lookup</button>
+            <div class="result-card" id="discordResult"></div>
+        </div>
+
+        <div id="breach" class="tab-content">
+            <input type="text" id="breachEmail" placeholder="Email address">
+            <button id="checkBreach">💀 Check Breaches</button>
+            <div class="result-card" id="breachResult"></div>
+        </div>
+
+        <div id="email" class="tab-content">
+            <input type="text" id="osintEmail" placeholder="target@example.com">
+            <button id="scanEmail">🔎 Full OSINT</button>
+            <div class="result-card" id="emailResult"></div>
+        </div>
+
+        <div id="username" class="tab-content">
+            <input type="text" id="usernameInput" placeholder="Username">
+            <button id="scanUsername">🌍 50+ Platforms</button>
+            <div class="result-card" id="usernameResult"></div>
+        </div>
+
+        <div id="ip" class="tab-content">
+            <input type="text" id="ipInput" placeholder="IP address (IPv4)">
+            <button id="lookupIP">📍 Geolocate</button>
+            <div class="result-card" id="ipResult"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
