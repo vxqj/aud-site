@@ -1,6 +1,312 @@
 <!DOCTYPE html>
-<html>
-<head><title>aud.lol OSINT</title><style>body{background:black;color:white;font-family:monospace;padding:20px;}input,button{background:#111;color:white;border:1px solid white;padding:5px;}</style></head>
-<body><h1>aud.lol OSINT</h1>
-<input id="id" placeholder="Discord ID"><button onclick="fetch('https://api.aud.lol/discord/'+document.getElementById('id').value).then(r=>r.json()).then(d=>document.getElementById('out').innerHTML=JSON.stringify(d,null,2))">Lookup</button>
-<pre id="out"></pre></body></html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aud.lol | OSINT Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000000; color: #ffffff; font-family: 'Courier New', 'Monaco', monospace; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .logo { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
+        .logo small { font-size: 12px; color: #888; letter-spacing: 0; }
+        .tagline { color: #888; font-size: 12px; }
+        .nav { border-bottom: 1px solid #333; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 0; }
+        .nav-btn { background: none; border: none; color: #888; font-family: monospace; font-size: 14px; padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: none; }
+        .nav-btn:hover { color: #fff; background: #111; }
+        .nav-btn.active { color: #fff; border-bottom-color: #fff; }
+        .panel { display: none; animation: fade 0.15s ease; }
+        .panel.active { display: block; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .input-group { margin: 20px 0; }
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 8px; }
+        input, textarea { width: 100%; max-width: 600px; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 10px 12px; font-family: monospace; font-size: 14px; border-radius: 0px; }
+        input:focus, textarea:focus { outline: none; border-color: #fff; }
+        button { background: #fff; border: none; color: #000; padding: 8px 20px; font-family: monospace; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 0px; margin-top: 10px; margin-right: 10px; }
+        button:hover { background: #ccc; }
+        button.secondary { background: #222; color: #fff; border: 1px solid #444; }
+        .result { margin-top: 30px; border: 1px solid #333; padding: 20px; background: #050505; font-size: 13px; overflow-x: auto; }
+        .result h3 { font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
+        .result h4 { font-size: 12px; margin-top: 15px; margin-bottom: 8px; color: #888; }
+        .error { color: #ff4444; }
+        .success { color: #44ff44; }
+        .flex { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+        .badge { background: #111; padding: 4px 8px; font-size: 10px; border: 1px solid #333; display: inline-block; margin-right: 8px; margin-bottom: 8px; text-decoration: none; color: #fff; }
+        .badge:hover { background: #222; }
+        a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+        a:hover { color: #aaa; }
+        .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #222; font-size: 11px; color: #444; text-align: center; }
+        hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+        pre { font-family: monospace; white-space: pre-wrap; word-break: break-word; color: #ddd; }
+        .loading { display: inline-block; width: 12px; height: 12px; border: 1px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 700px) { .container { padding: 20px; } .header { flex-direction: column; align-items: flex-start; gap: 10px; } .nav-btn { padding: 8px 12px; font-size: 11px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">aud.lol<span style="color:#888;"><small> /// OSINT SUITE</small></span></div>
+        <div class="tagline">discord · breaches · email · username · ip · phone · domain</div>
+    </div>
+    <div class="nav">
+        <button class="nav-btn active" data-tab="discord">DISCORD</button>
+        <button class="nav-btn" data-tab="breach">BREACHES</button>
+        <button class="nav-btn" data-tab="email">EMAIL OSINT</button>
+        <button class="nav-btn" data-tab="username">USERNAME</button>
+        <button class="nav-btn" data-tab="ip">IP GEOLOCATION</button>
+        <button class="nav-btn" data-tab="phone">PHONE</button>
+        <button class="nav-btn" data-tab="domain">DOMAIN</button>
+    </div>
+
+    <!-- DISCORD PANEL -->
+    <div id="discord" class="panel active">
+        <div class="input-group"><label>DISCORD USER ID</label><input type="text" id="discordId" placeholder="123456789012345678"><button id="discordBtn">LOOKUP</button><button id="discordResetTokenBtn" class="secondary">RESET TOKEN</button></div>
+        <div id="discordResult" class="result"></div>
+    </div>
+
+    <!-- BREACH PANEL -->
+    <div id="breach" class="panel">
+        <div class="input-group"><label>EMAIL ADDRESS</label><input type="email" id="breachEmail" placeholder="user@example.com"><button id="breachBtn">CHECK BREACHES</button></div>
+        <div id="breachResult" class="result"></div>
+    </div>
+
+    <!-- EMAIL OSINT PANEL -->
+    <div id="email" class="panel">
+        <div class="input-group"><label>EMAIL ADDRESS</label><input type="email" id="osintEmail" placeholder="target@example.com"><button id="emailBtn">FULL OSINT</button><button id="emailBreachBtn" class="secondary">CHECK BREACHES ONLY</button></div>
+        <div id="emailResult" class="result"></div>
+    </div>
+
+    <!-- USERNAME PANEL -->
+    <div id="username" class="panel">
+        <div class="input-group"><label>USERNAME</label><input type="text" id="usernameInput" placeholder="username"><button id="usernameBtn">SCAN 50+ PLATFORMS</button><button id="usernameCustomBtn" class="secondary">CUSTOM PLATFORMS</button></div>
+        <div id="usernameResult" class="result"></div>
+    </div>
+
+    <!-- IP PANEL -->
+    <div id="ip" class="panel">
+        <div class="input-group"><label>IP ADDRESS (IPv4/IPv6)</label><input type="text" id="ipInput" placeholder="8.8.8.8"><button id="ipBtn">GEOLOCATE</button><button id="ipMyBtn" class="secondary">MY IP</button></div>
+        <div id="ipResult" class="result"></div>
+    </div>
+
+    <!-- PHONE PANEL -->
+    <div id="phone" class="panel">
+        <div class="input-group"><label>PHONE NUMBER (international format)</label><input type="text" id="phoneInput" placeholder="+1234567890"><button id="phoneBtn">LOOKUP</button></div>
+        <div id="phoneResult" class="result"></div>
+    </div>
+
+    <!-- DOMAIN PANEL -->
+    <div id="domain" class="panel">
+        <div class="input-group"><label>DOMAIN NAME</label><input type="text" id="domainInput" placeholder="example.com"><button id="domainBtn">WHOIS LOOKUP</button><button id="domainDnsBtn" class="secondary">DNS RECORDS</button></div>
+        <div id="domainResult" class="result"></div>
+    </div>
+
+    <div class="footer">aud.lol — osint tools · data from public sources · rate limits apply · no warranty</div>
+</div>
+
+<script>
+    // ============= CONFIGURATION =============
+    // CHANGE THIS TO YOUR RENDER BACKEND URL
+    const API_BASE = 'https://your-backend.onrender.com/api';
+    
+    // ============= HELPER FUNCTIONS =============
+    async function callAPI(endpoint, resultId, renderFn, options = {}) {
+        const div = document.getElementById(resultId);
+        div.innerHTML = '<div><span class="loading"></span> [ loading... ]</div>';
+        try {
+            let url = `${API_BASE}${endpoint}`;
+            if (options.query) url += '?' + new URLSearchParams(options.query);
+            const res = await fetch(url, { method: options.method || 'GET' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (renderFn) renderFn(data, div);
+            else div.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        } catch(err) {
+            div.innerHTML = `<div class="error">[ ERROR ] ${err.message}<br><br>Make sure backend is running at ${API_BASE}</div>`;
+        }
+    }
+
+    function setLoading(btn, isLoading) {
+        btn.disabled = isLoading;
+        btn.textContent = isLoading ? '...' : btn.dataset.originalText || btn.textContent;
+        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
+    }
+
+    // ============= RENDER FUNCTIONS =============
+    function renderDiscord(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        div.innerHTML = `
+            <h3>DISCORD USER</h3>
+            <div class="flex">
+                <div><strong>ID</strong><br>${data.id || '?'}</div>
+                <div><strong>USERNAME</strong><br>${data.username || '?'}${data.discriminator && data.discriminator !== '0' ? '#'+data.discriminator : ''}</div>
+                <div><strong>GLOBAL NAME</strong><br>${data.global_name || 'None'}</div>
+                <div><strong>CREATED</strong><br>${data.created_at || '?'}</div>
+                <div><strong>FLAGS</strong><br>${data.public_flags || 0}</div>
+            </div>
+            ${data.bio ? `<hr><div><strong>BIO</strong><br>${data.bio}</div>` : ''}
+            ${data.avatar_url ? `<hr><img src="${data.avatar_url}" style="max-width:80px; border:1px solid #333;">` : ''}
+            ${data.banner_url ? `<hr><div><strong>BANNER</strong><br><img src="${data.banner_url}" style="max-width:200px; border:1px solid #333;"></div>` : ''}
+            ${data.mutual_guilds ? `<hr><div><strong>MUTUAL SERVERS</strong><br>${data.mutual_guilds.length}</div>` : ''}
+        `;
+    }
+
+    function renderBreach(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        if (!data.breaches || data.breaches.length === 0) {
+            div.innerHTML = `<h3>NO KNOWN BREACHES</h3><div class="success">✓ This email appears in no public data breaches.</div>`;
+            return;
+        }
+        let html = `<h3>${data.breaches.length} BREACH${data.breaches.length !== 1 ? 'ES' : ''} FOUND</h3>`;
+        data.breaches.forEach(b => {
+            html += `<div style="margin-bottom:16px; border-left:2px solid #ff4444; padding-left:12px;">
+                        <strong>${b.Name || b.name || '?'}</strong><br>
+                        <span style="color:#aaa;">Date: ${b.BreachDate || b.breachDate || 'unknown'}</span><br>
+                        <span style="color:#aaa;">Compromised data: ${(b.DataClasses || b.dataClasses || []).join(', ') || 'unknown'}</span><br>
+                        <span style="color:#aaa;">Accounts affected: ${b.PwnCount ? b.PwnCount.toLocaleString() : 'unknown'}</span>
+                     </div>`;
+        });
+        div.innerHTML = html;
+    }
+
+    function renderEmailOSINT(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        div.innerHTML = `
+            <h3>EMAIL OSINT</h3>
+            <div><strong>EMAIL</strong> ${data.email}</div>
+            <div><strong>BREACH COUNT</strong> ${data.breach_count || 0}</div>
+            <div><strong>SOCIAL PROFILES</strong> ${data.socials?.length || 0}</div>
+            ${data.socials && data.socials.length ? '<hr><div>' + data.socials.map(s => `<a href="${s.url}" target="_blank" class="badge">${s.platform}</a>`).join('') + '</div>' : ''}
+            ${data.breaches && data.breaches.length ? `<hr><div><strong>BREACHES</strong><br>${data.breaches.slice(0,5).map(b => b.Name).join(', ')}${data.breaches.length > 5 ? '...' : ''}</div>` : ''}
+        `;
+    }
+
+    function renderUsername(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        const found = (data.profiles || []).filter(p => p.exists);
+        const notFound = (data.profiles || []).filter(p => !p.exists);
+        div.innerHTML = `
+            <h3>USERNAME: ${data.username || '?'}</h3>
+            <div><strong>FOUND ON ${found.length}/${data.total || 0} PLATFORMS</strong></div>
+            <div style="margin-top:16px;">
+                ${found.map(p => `<a href="${p.url}" target="_blank" class="badge" style="background:#0a2a0a;">✓ ${p.name}</a>`).join('')}
+            </div>
+            ${notFound.length ? `<details style="margin-top:16px;"><summary style="color:#888; cursor:pointer;">Not found on ${notFound.length} platforms (click to expand)</summary><div style="margin-top:10px;">${notFound.map(p => `<span class="badge" style="background:#2a0a0a; opacity:0.6;">✗ ${p.name}</span>`).join('')}</div></details>` : ''}
+        `;
+    }
+
+    function renderIP(data, div) {
+        if (data.error || data.status === 'fail') { div.innerHTML = `<div class="error">${data.message || 'Invalid IP or lookup failed'}</div>`; return; }
+        div.innerHTML = `
+            <h3>IP GEOLOCATION</h3>
+            <div class="flex">
+                <div><strong>IP</strong><br>${data.ip || data.query || '?'}</div>
+                <div><strong>LOCATION</strong><br>${data.city || '?'}, ${data.regionName || data.region || '?'}, ${data.country || '?'}</div>
+                <div><strong>ISP</strong><br>${data.org || data.isp || '?'}</div>
+                <div><strong>COORDINATES</strong><br>${data.lat || data.latitude || '?'}, ${data.lon || data.longitude || '?'}</div>
+                <div><strong>TIMEZONE</strong><br>${data.timezone || '?'}</div>
+                <div><strong>ZIP CODE</strong><br>${data.zip || data.postalCode || '?'}</div>
+            </div>
+            <hr><div><strong>MAP</strong><br><a href="https://www.google.com/maps?q=${data.lat || data.latitude || 0},${data.lon || data.longitude || 0}" target="_blank">View on Google Maps →</a></div>
+        `;
+    }
+
+    function renderPhone(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        div.innerHTML = `
+            <h3>PHONE NUMBER INFORMATION</h3>
+            <div class="flex">
+                <div><strong>NUMBER</strong><br>${data.number || '?'}</div>
+                <div><strong>COUNTRY</strong><br>${data.country || '?'}</div>
+                <div><strong>CARRIER</strong><br>${data.carrier || 'Unknown'}</div>
+                <div><strong>LINE TYPE</strong><br>${data.line_type || 'Unknown'}</div>
+                <div><strong>VALID</strong><br>${data.valid ? 'Yes' : 'No/Unknown'}</div>
+            </div>
+        `;
+    }
+
+    function renderDomain(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        div.innerHTML = `
+            <h3>DOMAIN WHOIS</h3>
+            <div><strong>DOMAIN</strong> ${data.domain || '?'}</div>
+            <div><strong>REGISTRAR</strong><br>${data.registrar || 'Unknown'}</div>
+            <div><strong>CREATION DATE</strong><br>${data.creation_date || 'Unknown'}</div>
+            <div><strong>EXPIRATION DATE</strong><br>${data.expiration_date || 'Unknown'}</div>
+            <div><strong>NAME SERVERS</strong><br>${data.name_servers ? data.name_servers.join('<br>') : 'Unknown'}</div>
+            ${data.registrant ? `<hr><div><strong>REGISTRANT</strong><br>${data.registrant}</div>` : ''}
+        `;
+    }
+
+    function renderDomainDNS(data, div) {
+        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
+        let html = `<h3>DNS RECORDS FOR ${data.domain || '?'}</h3>`;
+        for (const [type, records] of Object.entries(data.records || {})) {
+            if (records && records.length) {
+                html += `<h4>${type} RECORDS</h4><ul style="margin-left:20px; margin-bottom:15px;">`;
+                records.forEach(r => html += `<li><code>${r}</code></li>`);
+                html += `</ul>`;
+            }
+        }
+        div.innerHTML = html;
+    }
+
+    // ============= EVENT HANDLERS =============
+    document.getElementById('discordBtn').onclick = () => {
+        const id = document.getElementById('discordId').value.trim();
+        if (id) callAPI(`/discord/${id}`, 'discordResult', renderDiscord);
+    };
+    document.getElementById('discordResetTokenBtn').onclick = () => {
+        callAPI('/discord/reset-token', 'discordResult', (data, div) => {
+            div.innerHTML = `<div class="success">${data.message || 'Token reset requested'}</div>`;
+        });
+    };
+    document.getElementById('breachBtn').onclick = () => {
+        const email = document.getElementById('breachEmail').value.trim();
+        if (email) callAPI(`/breach/${email}`, 'breachResult', renderBreach);
+    };
+    document.getElementById('emailBtn').onclick = () => {
+        const email = document.getElementById('osintEmail').value.trim();
+        if (email) callAPI(`/email-osint/${email}`, 'emailResult', renderEmailOSINT);
+    };
+    document.getElementById('emailBreachBtn').onclick = () => {
+        const email = document.getElementById('osintEmail').value.trim();
+        if (email) callAPI(`/breach/${email}`, 'emailResult', renderBreach);
+    };
+    document.getElementById('usernameBtn').onclick = () => {
+        const user = document.getElementById('usernameInput').value.trim();
+        if (user) callAPI(`/username/${user}`, 'usernameResult', renderUsername);
+    };
+    document.getElementById('ipBtn').onclick = () => {
+        const ip = document.getElementById('ipInput').value.trim();
+        if (ip) callAPI(`/ip/${ip}`, 'ipResult', renderIP);
+    };
+    document.getElementById('ipMyBtn').onclick = () => {
+        callAPI('/ip/my', 'ipResult', renderIP);
+    };
+    document.getElementById('phoneBtn').onclick = () => {
+        const phone = document.getElementById('phoneInput').value.trim();
+        if (phone) callAPI(`/phone/${encodeURIComponent(phone)}`, 'phoneResult', renderPhone);
+    };
+    document.getElementById('domainBtn').onclick = () => {
+        const domain = document.getElementById('domainInput').value.trim();
+        if (domain) callAPI(`/domain/${domain}`, 'domainResult', renderDomain);
+    };
+    document.getElementById('domainDnsBtn').onclick = () => {
+        const domain = document.getElementById('domainInput').value.trim();
+        if (domain) callAPI(`/domain/${domain}/dns`, 'domainResult', renderDomainDNS);
+    };
+
+    // Tab switching
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+</script>
+</body>
+</html>
