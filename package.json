@@ -1,0 +1,11 @@
+{
+  "name": "osint-api",
+  "version": "1.0.0",
+  "main": "api.js",
+  "scripts": {
+    "start": "node api.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
