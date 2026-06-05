@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html>
+<head><title>aud.lol OSINT</title><style>body{background:black;color:white;font-family:monospace;padding:20px;}input,button{background:#111;color:white;border:1px solid white;padding:5px;}</style></head>
+<body><h1>aud.lol OSINT</h1>
+<input id="id" placeholder="Discord ID"><button onclick="fetch('https://api.aud.lol/discord/'+document.getElementById('id').value).then(r=>r.json()).then(d=>document.getElementById('out').innerHTML=JSON.stringify(d,null,2))">Lookup</button>
+<pre id="out"></pre></body></html>
