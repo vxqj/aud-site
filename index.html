@@ -188,6 +188,65 @@
             font-size: 13px;
         }
 
+        /* SIDEBAR TABS */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            padding: 12px 28px;
+            font-size: 13px;
+            font-weight: 450;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 0px;
+            margin-bottom: -1px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.5;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        .panel {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .card {
             background: rgba(5,5,5,0.85);
             backdrop-filter: blur(5px);
@@ -285,15 +344,15 @@
             border-radius: 12px;
             padding: 16px;
             margin-top: 20px;
-            max-height: 300px;
             overflow-y: auto;
-            font-size: 12px;
+            font-size: 13px;
             font-family: monospace;
         }
 
         .status p {
-            margin-bottom: 6px;
-            color: #888;
+            margin-bottom: 8px;
+            color: #ccc;
+            line-height: 1.5;
         }
 
         .status .success {
@@ -361,6 +420,12 @@
         .main-content::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
     </style>
 </head>
 <body>
@@ -396,7 +461,7 @@
 <div class="container">
     <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
-        <div class="sub">email delivery system</div>
+        <div class="sub">email delivery system / ip geolocation</div>
     </div>
 
     <div id="backendStatus" class="backend-status">
@@ -407,81 +472,123 @@
         ⚠️ educational purpose only — test your own servers only.
     </div>
 
-    <div class="card">
-        <h3>send emails</h3>
-        
-        <div class="row">
+    <!-- TABS -->
+    <div class="tabs-container">
+        <button class="tab-btn active" data-tab="email">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <polyline points="22,7 12,13 2,7"></polyline>
+            </svg>
+            EMAIL
+        </button>
+        <button class="tab-btn" data-tab="ip">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 10c0 4-8 12-8 12s-8-8-8-12a8 8 0 1 1 16 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            IP GEOLOCATION
+        </button>
+    </div>
+
+    <!-- EMAIL PANEL -->
+    <div id="emailPanel" class="panel active">
+        <div class="card">
+            <h3>send emails</h3>
+            
+            <div class="row">
+                <div class="input-group">
+                    <label>from email</label>
+                    <input type="email" id="fromEmail" placeholder="noreply@aud.lol" value="noreply@aud.lol">
+                </div>
+                <div class="input-group">
+                    <label>to email</label>
+                    <input type="email" id="toEmail" placeholder="target@example.com">
+                </div>
+            </div>
+
             <div class="input-group">
-                <label>from email</label>
-                <input type="email" id="fromEmail" placeholder="noreply@aud.lol" value="noreply@aud.lol">
+                <label>subject</label>
+                <input type="text" id="subject" placeholder="your subject here">
             </div>
+
             <div class="input-group">
-                <label>to email</label>
-                <input type="email" id="toEmail" placeholder="target@example.com">
+                <label>message body</label>
+                <textarea id="body" placeholder="enter your message here..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label>delay (seconds)</label>
+                    <input type="number" id="delay" value="2" min="0.5" step="0.5">
+                </div>
+                <div class="input-group">
+                    <label>bulk mode</label>
+                    <select id="bulkMode">
+                        <option value="single">single</option>
+                        <option value="list">bulk list</option>
+                        <option value="spam">spam mode</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="variationsGroup" style="display: none;">
+                <div class="input-group">
+                    <label>subject variations (one per line)</label>
+                    <textarea id="subjectVariations" rows="3" placeholder="enter different subjects here...&#10;one per line"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>message variations (one per line)</label>
+                    <textarea id="messageVariations" rows="4" placeholder="enter different messages here...&#10;one per line"></textarea>
+                </div>
+            </div>
+
+            <div class="input-group" id="bulkTargetsGroup" style="display: none;">
+                <label>bulk targets (one per line)</label>
+                <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com"></textarea>
+            </div>
+
+            <div class="input-group" id="spamCountGroup" style="display: none;">
+                <label>spam count</label>
+                <input type="number" id="spamCount" value="10" min="1" max="1000">
+            </div>
+
+            <div class="flex">
+                <div>
+                    <button id="sendBtn">▶ send</button>
+                    <button id="stopBtn" class="danger" style="display: none;">⏹ stop</button>
+                </div>
+                <div>
+                    <button id="testBackendBtn" class="secondary">🔌 test backend</button>
+                </div>
             </div>
         </div>
 
-        <div class="input-group">
-            <label>subject</label>
-            <input type="text" id="subject" placeholder="your subject here">
-        </div>
-
-        <div class="input-group">
-            <label>message body</label>
-            <textarea id="body" placeholder="enter your message here..."></textarea>
-        </div>
-
-        <div class="row">
-            <div class="input-group">
-                <label>delay (seconds)</label>
-                <input type="number" id="delay" value="2" min="0.5" step="0.5">
-            </div>
-            <div class="input-group">
-                <label>bulk mode</label>
-                <select id="bulkMode">
-                    <option value="single">single</option>
-                    <option value="list">bulk list</option>
-                    <option value="spam">spam mode</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="variationsGroup" style="display: none;">
-            <div class="input-group">
-                <label>subject variations (one per line)</label>
-                <textarea id="subjectVariations" rows="3" placeholder="enter different subjects here...&#10;one per line"></textarea>
-            </div>
-            <div class="input-group">
-                <label>message variations (one per line)</label>
-                <textarea id="messageVariations" rows="4" placeholder="enter different messages here...&#10;one per line"></textarea>
-            </div>
-        </div>
-
-        <div class="input-group" id="bulkTargetsGroup" style="display: none;">
-            <label>bulk targets (one per line)</label>
-            <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com"></textarea>
-        </div>
-
-        <div class="input-group" id="spamCountGroup" style="display: none;">
-            <label>spam count</label>
-            <input type="number" id="spamCount" value="10" min="1" max="1000">
-        </div>
-
-        <div class="flex">
-            <div>
-                <button id="sendBtn">▶ send</button>
-                <button id="stopBtn" class="danger" style="display: none;">⏹ stop</button>
-            </div>
-            <div>
-                <button id="testBackendBtn" class="secondary">🔌 test backend</button>
+        <div class="card">
+            <h3>status</h3>
+            <div id="status" class="status">
+                <p>ready.</p>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <h3>status</h3>
-        <div id="status" class="status">
-            <p>ready.</p>
+    <!-- IP GEOLOCATION PANEL -->
+    <div id="ipPanel" class="panel">
+        <div class="card">
+            <h3>ip geolocation</h3>
+            
+            <div class="input-group">
+                <label>ip address</label>
+                <input type="text" id="ipAddress" placeholder="8.8.8.8 or leave empty for your IP">
+            </div>
+            
+            <div class="flex">
+                <button id="lookupIpBtn">lookup ip</button>
+                <button id="myIpBtn" class="secondary">my ip</button>
+            </div>
+            
+            <div id="ipResult" class="status">
+                <p>enter an IP address or click "my ip".</p>
+            </div>
         </div>
     </div>
 </div>
@@ -619,6 +726,76 @@
     
     initCanvas();
     animateCanvas();
+    
+    // ============ TAB SWITCHING ============
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.dataset.tab === tabId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        document.querySelectorAll('.panel').forEach(panel => {
+            if (panel.id === `${tabId}Panel`) {
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        });
+    }
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    
+    // ============ IP GEOLOCATION ============
+    async function lookupIP(ip = '') {
+        const resultDiv = document.getElementById('ipResult');
+        resultDiv.innerHTML = '<p>looking up...</p>';
+        
+        let url = 'http://ip-api.com/json/';
+        if (ip && ip.trim() !== '') {
+            url += encodeURIComponent(ip.trim());
+        } else {
+            url += 'me';
+        }
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                resultDiv.innerHTML = `
+                    <div class="result-grid">
+                        <div><strong>IP:</strong> ${data.query}</div>
+                        <div><strong>Country:</strong> ${data.country}</div>
+                        <div><strong>Region:</strong> ${data.regionName}</div>
+                        <div><strong>City:</strong> ${data.city}</div>
+                        <div><strong>ISP:</strong> ${data.isp}</div>
+                        <div><strong>Organization:</strong> ${data.org || 'N/A'}</div>
+                        <div><strong>Timezone:</strong> ${data.timezone}</div>
+                        <div><strong>Coordinates:</strong> ${data.lat}, ${data.lon}</div>
+                        <div><strong>ZIP Code:</strong> ${data.zip || 'N/A'}</div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `<p class="error">invalid IP address or lookup failed</p>`;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p class="error">lookup failed: ${error.message}</p>`;
+        }
+    }
+    
+    document.getElementById('lookupIpBtn').addEventListener('click', () => {
+        const ip = document.getElementById('ipAddress').value;
+        lookupIP(ip);
+    });
+    
+    document.getElementById('myIpBtn').addEventListener('click', () => {
+        lookupIP('');
+    });
     
     // ============ OBFUSCATED PASSCODE ============
     function checkPasscode() {
