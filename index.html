@@ -746,31 +746,31 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ IP GEOLOCATION (FIXED - USING ipwho.is) ============
+    // ============ IP GEOLOCATION (WORKING - ipapi.co) ============
     async function lookupIP(ip = '') {
         const resultDiv = document.getElementById('ipResult');
         resultDiv.innerHTML = '<p>looking up...</p>';
         
-        let url = 'https://ipwho.is/';
+        let url = 'https://ipapi.co/json/';
         if (ip && ip.trim() !== '') {
-            url += encodeURIComponent(ip.trim());
+            url = `https://ipapi.co/${encodeURIComponent(ip.trim())}/json/`;
         }
         
         try {
             const response = await fetch(url);
             const data = await response.json();
             
-            if (data.success === true) {
+            if (data.ip) {
                 resultDiv.innerHTML = `
                     <div class="result-grid">
                         <div><strong>IP:</strong> ${data.ip}</div>
-                        <div><strong>Country:</strong> ${data.country}</div>
-                        <div><strong>Region:</strong> ${data.region}</div>
-                        <div><strong>City:</strong> ${data.city}</div>
-                        <div><strong>ISP:</strong> ${data.connection?.isp || 'N/A'}</div>
-                        <div><strong>Organization:</strong> ${data.connection?.org || 'N/A'}</div>
-                        <div><strong>Timezone:</strong> ${data.timezone?.name || 'N/A'}</div>
-                        <div><strong>Coordinates:</strong> ${data.latitude}, ${data.longitude}</div>
+                        <div><strong>Country:</strong> ${data.country_name || 'N/A'}</div>
+                        <div><strong>Region:</strong> ${data.region || 'N/A'}</div>
+                        <div><strong>City:</strong> ${data.city || 'N/A'}</div>
+                        <div><strong>ISP:</strong> ${data.org || 'N/A'}</div>
+                        <div><strong>Organization:</strong> ${data.org || 'N/A'}</div>
+                        <div><strong>Timezone:</strong> ${data.timezone || 'N/A'}</div>
+                        <div><strong>Coordinates:</strong> ${data.latitude || 'N/A'}, ${data.longitude || 'N/A'}</div>
                         <div><strong>ZIP Code:</strong> ${data.postal || 'N/A'}</div>
                     </div>
                 `;
