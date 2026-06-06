@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aud.lol | Multi Tool System</title>
+    <title>aud.lol | Email Delivery System</title>
     
     <!-- Discord Embed Meta Tags -->
     <meta property="og:title" content="aud.lol | Email Delivery System">
@@ -155,6 +155,14 @@
             letter-spacing: 1px;
         }
 
+        /* Last updated text */
+        .last-updated {
+            margin-top: 28px;
+            font-size: 9px;
+            color: #333;
+            letter-spacing: 0.5px;
+        }
+
         .main-content {
             display: none;
             height: 100vh;
@@ -195,13 +203,14 @@
             margin-bottom: 32px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             padding-bottom: 0;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             background: transparent;
             border: none;
             color: #666;
-            padding: 12px 28px;
+            padding: 12px 24px;
             font-size: 13px;
             font-weight: 450;
             cursor: pointer;
@@ -425,6 +434,14 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
+        .avatar-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -453,6 +470,7 @@
             <button id="unlockBtn">unlock</button>
         </div>
         <div id="gateError" class="gate-error"></div>
+        <div class="last-updated">last updated: 06/07/2026</div>
     </div>
 </div>
 
@@ -460,7 +478,7 @@
 <div class="container">
     <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
-        <div class="sub">email delivery system / ip geolocation</div>
+        <div class="sub">email delivery system / roblox lookup</div>
     </div>
 
     <div id="backendStatus" class="backend-status">
@@ -479,15 +497,18 @@
             </svg>
             EMAIL
         </button>
-        <button class="tab-btn" data-tab="ip">
+        <button class="tab-btn" data-tab="roblox">
             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path d="M20 10c0 4-8 12-8 12s-8-8-8-12a8 8 0 1 1 16 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
+                <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <circle cx="15.5" cy="8.5" r="1.5"></circle>
+                <path d="M7 14c1 2 3 3 5 3s4-1 5-3"></path>
             </svg>
-            IP GEOLOCATION
+            ROBLOX
         </button>
     </div>
 
+    <!-- EMAIL PANEL -->
     <div id="emailPanel" class="panel active">
         <div class="card">
             <h3>send emails</h3>
@@ -568,22 +589,22 @@
         </div>
     </div>
 
-    <div id="ipPanel" class="panel">
+    <!-- ROBLOX PANEL -->
+    <div id="robloxPanel" class="panel">
         <div class="card">
-            <h3>ip geolocation</h3>
+            <h3>roblox profile lookup</h3>
             
             <div class="input-group">
-                <label>ip address</label>
-                <input type="text" id="ipAddress" placeholder="8.8.8.8 or leave empty for your IP">
+                <label>roblox username or user ID</label>
+                <input type="text" id="robloxUsername" placeholder="e.g., Roblox or 123456789">
             </div>
             
             <div class="flex">
-                <button id="lookupIpBtn">lookup ip</button>
-                <button id="myIpBtn" class="secondary">my ip</button>
+                <button id="lookupRobloxBtn">lookup profile</button>
             </div>
             
-            <div id="ipResult" class="status">
-                <p>enter an IP address or click "my ip".</p>
+            <div id="robloxResult" class="status">
+                <p>enter a Roblox username or user ID to get profile information.</p>
             </div>
         </div>
     </div>
@@ -746,112 +767,94 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ IP GEOLOCATION (WITH RATE LIMIT HANDLING & FALLBACK APIS) ============
-    let lastLookupTime = 0;
-    const MIN_DELAY_MS = 2000; // 2 second minimum between lookups
-    
-    async function lookupIP(ip = '') {
-        const resultDiv = document.getElementById('ipResult');
+    // ============ ROBLOX LOOKUP ============
+    async function lookupRoblox() {
+        const input = document.getElementById('robloxUsername').value.trim();
+        const resultDiv = document.getElementById('robloxResult');
         
-        // Rate limiting to prevent API blocks
-        const now = Date.now();
-        if (now - lastLookupTime < MIN_DELAY_MS) {
-            const waitTime = Math.ceil((MIN_DELAY_MS - (now - lastLookupTime)) / 1000);
-            resultDiv.innerHTML = `<p class="error">please wait ${waitTime} seconds between lookups</p>`;
+        if (!input) {
+            resultDiv.innerHTML = '<p class="error">enter a Roblox username or user ID</p>';
             return;
         }
-        lastLookupTime = now;
         
         resultDiv.innerHTML = '<p>looking up...</p>';
         
-        // Multiple APIs to try in order
-        const apis = [
-            {
-                url: ip ? `https://ipapi.co/${encodeURIComponent(ip.trim())}/json/` : 'https://ipapi.co/json/',
-                parser: (data) => data.ip ? {
-                    ip: data.ip,
-                    country: data.country_name,
-                    region: data.region,
-                    city: data.city,
-                    isp: data.org,
-                    timezone: data.timezone,
-                    lat: data.latitude,
-                    lon: data.longitude,
-                    zip: data.postal
-                } : null
-            },
-            {
-                url: `https://ipwho.is/${ip ? encodeURIComponent(ip.trim()) : ''}`,
-                parser: (data) => data.success ? {
-                    ip: data.ip,
-                    country: data.country,
-                    region: data.region,
-                    city: data.city,
-                    isp: data.connection?.isp,
-                    timezone: data.timezone?.name,
-                    lat: data.latitude,
-                    lon: data.longitude,
-                    zip: data.postal
-                } : null
-            },
-            {
-                url: `https://freeipapi.com/api/json/${ip ? encodeURIComponent(ip.trim()) : ''}`,
-                parser: (data) => data.ipAddress ? {
-                    ip: data.ipAddress,
-                    country: data.countryName,
-                    region: data.regionName,
-                    city: data.cityName,
-                    isp: null,
-                    timezone: null,
-                    lat: data.latitude,
-                    lon: data.longitude,
-                    zip: null
-                } : null
-            }
-        ];
-        
-        for (const api of apis) {
-            try {
-                const response = await fetch(api.url);
-                const data = await response.json();
-                const parsed = api.parser(data);
-                
-                if (parsed && parsed.ip) {
-                    resultDiv.innerHTML = `
-                        <div class="result-grid">
-                            <div><strong>IP:</strong> ${parsed.ip}</div>
-                            <div><strong>Country:</strong> ${parsed.country || 'N/A'}</div>
-                            <div><strong>Region:</strong> ${parsed.region || 'N/A'}</div>
-                            <div><strong>City:</strong> ${parsed.city || 'N/A'}</div>
-                            <div><strong>ISP:</strong> ${parsed.isp || 'N/A'}</div>
-                            <div><strong>Timezone:</strong> ${parsed.timezone || 'N/A'}</div>
-                            <div><strong>Coordinates:</strong> ${parsed.lat || 'N/A'}, ${parsed.lon || 'N/A'}</div>
-                            <div><strong>ZIP Code:</strong> ${parsed.zip || 'N/A'}</div>
-                        </div>
-                    `;
+        try {
+            let userId = input;
+            
+            // If input is not a number (username), resolve it to userId first
+            if (isNaN(input)) {
+                const usernameRes = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usernames: [input] })
+                });
+                const usernameData = await usernameRes.json();
+                if (!usernameData.data || usernameData.data.length === 0) {
+                    resultDiv.innerHTML = '<p class="error">username not found</p>';
                     return;
                 }
-            } catch (e) {
-                // Try next API
-                continue;
+                userId = usernameData.data[0].id;
             }
+            
+            // Get user profile
+            const profileRes = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+            const profile = await profileRes.json();
+            
+            if (!profile || profile.errors) {
+                resultDiv.innerHTML = '<p class="error">user not found</p>';
+                return;
+            }
+            
+            // Get follower/following counts
+            const socialRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`);
+            const socialData = await socialRes.json();
+            
+            const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`);
+            const followingData = await followingRes.json();
+            
+            // Get friend count
+            const friendsRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`);
+            const friendsData = await friendsRes.json();
+            
+            // Get account age
+            const createdDate = new Date(profile.created);
+            const now = new Date();
+            const accountAgeYears = now.getFullYear() - createdDate.getFullYear();
+            const accountAgeDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+            
+            // Get join date formatted
+            const joinDate = createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // Get avatar image
+            const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
+            
+            resultDiv.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="${avatarUrl}" class="avatar-img" style="width: 100px; height: 100px; border-radius: 50%;" onerror="this.src='https://www.roblox.com/favicon.ico'">
+                </div>
+                <div class="result-grid">
+                    <div><strong>Username:</strong> ${profile.name}</div>
+                    <div><strong>Display Name:</strong> ${profile.displayName || profile.name}</div>
+                    <div><strong>User ID:</strong> ${profile.id}</div>
+                    <div><strong>Join Date:</strong> ${joinDate}</div>
+                    <div><strong>Account Age:</strong> ${accountAgeYears} years (${accountAgeDays} days)</div>
+                    <div><strong>Followers:</strong> ${socialData.count?.toLocaleString() || 0}</div>
+                    <div><strong>Following:</strong> ${followingData.count?.toLocaleString() || 0}</div>
+                    <div><strong>Friends:</strong> ${friendsData.count?.toLocaleString() || 0}</div>
+                    <div><strong>Profile Link:</strong> <a href="https://www.roblox.com/user.aspx?id=${profile.id}" target="_blank" style="color:#44aaff;">open in Roblox →</a></div>
+                </div>
+                ${profile.description ? `<hr><div><strong>Bio:</strong> ${profile.description}</div>` : ''}
+            `;
+            
+        } catch (error) {
+            resultDiv.innerHTML = `<p class="error">lookup failed: ${error.message}</p>`;
         }
-        
-        resultDiv.innerHTML = `<p class="error">all lookup services failed. please try again in a few minutes.</p>`;
     }
     
-    document.getElementById('lookupIpBtn').addEventListener('click', () => {
-        const ip = document.getElementById('ipAddress').value;
-        if (ip && ip.trim()) {
-            lookupIP(ip);
-        } else {
-            document.getElementById('ipResult').innerHTML = '<p class="error">enter an IP address</p>';
-        }
-    });
-    
-    document.getElementById('myIpBtn').addEventListener('click', () => {
-        document.getElementById('ipAddress').value = '';
-        lookupIP('');
+    document.getElementById('lookupRobloxBtn').addEventListener('click', lookupRoblox);
+    document.getElementById('robloxUsername').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') lookupRoblox();
     });
     
     // ============ OBFUSCATED PASSCODE ============
