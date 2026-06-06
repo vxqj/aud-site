@@ -3,310 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aud.lol | OSINT Suite</title>
+    <title>aud.lol | OG User Vault</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000000; color: #ffffff; font-family: 'Courier New', 'Monaco', monospace; line-height: 1.5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .header { border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; flex-wrap: wrap; }
-        .logo { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
-        .logo small { font-size: 12px; color: #888; letter-spacing: 0; }
-        .tagline { color: #888; font-size: 12px; }
-        .nav { border-bottom: 1px solid #333; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 0; }
-        .nav-btn { background: none; border: none; color: #888; font-family: monospace; font-size: 14px; padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: none; }
-        .nav-btn:hover { color: #fff; background: #111; }
-        .nav-btn.active { color: #fff; border-bottom-color: #fff; }
-        .panel { display: none; animation: fade 0.15s ease; }
-        .panel.active { display: block; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-        .input-group { margin: 20px 0; }
-        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 8px; }
-        input, textarea { width: 100%; max-width: 600px; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 10px 12px; font-family: monospace; font-size: 14px; border-radius: 0px; }
-        input:focus, textarea:focus { outline: none; border-color: #fff; }
-        button { background: #fff; border: none; color: #000; padding: 8px 20px; font-family: monospace; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 0px; margin-top: 10px; margin-right: 10px; }
-        button:hover { background: #ccc; }
-        button.secondary { background: #222; color: #fff; border: 1px solid #444; }
-        .result { margin-top: 30px; border: 1px solid #333; padding: 20px; background: #050505; font-size: 13px; overflow-x: auto; }
-        .result h3 { font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
-        .result h4 { font-size: 12px; margin-top: 15px; margin-bottom: 8px; color: #888; }
-        .error { color: #ff4444; }
-        .success { color: #44ff44; }
-        .flex { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
-        .badge { background: #111; padding: 4px 8px; font-size: 10px; border: 1px solid #333; display: inline-block; margin-right: 8px; margin-bottom: 8px; text-decoration: none; color: #fff; }
-        .badge:hover { background: #222; }
-        a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
-        a:hover { color: #aaa; }
-        .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #222; font-size: 11px; color: #444; text-align: center; }
-        hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
-        pre { font-family: monospace; white-space: pre-wrap; word-break: break-word; color: #ddd; }
-        .loading { display: inline-block; width: 12px; height: 12px; border: 1px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 700px) { .container { padding: 20px; } .header { flex-direction: column; align-items: flex-start; gap: 10px; } .nav-btn { padding: 8px 12px; font-size: 11px; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            font-family: 'Courier New', 'Monaco', monospace;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* PASSCODE GATE */
+        .gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(0px);
+            transition: all 0.5s ease;
+        }
+
+        .gate-box {
+            text-align: center;
+            background: #050505;
+            padding: 40px;
+            border: 1px solid #222;
+            width: 350px;
+        }
+
+        .gate-box h2 {
+            color: #fff;
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .gate-box input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            font-size: 14px;
+            font-family: monospace;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .gate-box input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .gate-error {
+            color: #ff4444;
+            font-size: 11px;
+            margin-top: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* DASHBOARD */
+        .dashboard {
+            display: none;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: #050505;
+            border-right: 1px solid #1a1a1a;
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 20px 30px 20px;
+            font-size: 20px;
+            letter-spacing: -1px;
+            border-bottom: 1px solid #1a1a1a;
+            margin-bottom: 30px;
+        }
+
+        .logo span {
+            color: #888;
+        }
+
+        .nav-item {
+            padding: 14px 20px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .nav-item:hover {
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #0f0f0f;
+            color: #fff;
+            border-left: 2px solid #fff;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .panel {
+            display: none;
+            animation: fade 0.2s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CLAIM SECTION */
+        .claim-box {
+            max-width: 500px;
+        }
+
+        .claim-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+        }
+
+        .claim-title small {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        button {
+            background: #fff;
+            border: none;
+            color: #000;
+            padding: 10px 24px;
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #ccc;
+        }
+
+        .claim-message {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .claim-message.error {
+            color: #ff4444;
+        }
+
+        .claim-message.success {
+            color: #44ff44;
+        }
+
+        /* INVENTORY */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .inventory-item {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .inventory-item .username {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .inventory-item .date {
+            font-size: 9px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        .empty-inventory {
+            color: #444;
+            text-align: center;
+            padding: 60px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            background: #050505;
+            padding: 8px 16px;
+            font-size: 10px;
+            color: #333;
+            border-top: 1px solid #1a1a1a;
+            border-left: 1px solid #1a1a1a;
+            z-index: 100;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #1a1a1a;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <div class="logo">aud.lol<span style="color:#888;"><small> /// OSINT SUITE</small></span></div>
-        <div class="tagline">discord · breaches · email · username · ip · phone · domain</div>
-    </div>
-    <div class="nav">
-        <button class="nav-btn active" data-tab="discord">DISCORD</button>
-        <button class="nav-btn" data-tab="breach">BREACHES</button>
-        <button class="nav-btn" data-tab="email">EMAIL OSINT</button>
-        <button class="nav-btn" data-tab="username">USERNAME</button>
-        <button class="nav-btn" data-tab="ip">IP GEOLOCATION</button>
-        <button class="nav-btn" data-tab="phone">PHONE</button>
-        <button class="nav-btn" data-tab="domain">DOMAIN</button>
-    </div>
 
-    <!-- DISCORD PANEL -->
-    <div id="discord" class="panel active">
-        <div class="input-group"><label>DISCORD USER ID</label><input type="text" id="discordId" placeholder="123456789012345678"><button id="discordBtn">LOOKUP</button><button id="discordResetTokenBtn" class="secondary">RESET TOKEN</button></div>
-        <div id="discordResult" class="result"></div>
+<!-- PASSCODE GATE -->
+<div id="gate" class="gate">
+    <div class="gate-box">
+        <h2>aud.lol</h2>
+        <input type="password" id="passcodeInput" placeholder="ENTER PASSCODE" autofocus>
+        <div id="gateError" class="gate-error"></div>
     </div>
+</div>
 
-    <!-- BREACH PANEL -->
-    <div id="breach" class="panel">
-        <div class="input-group"><label>EMAIL ADDRESS</label><input type="email" id="breachEmail" placeholder="user@example.com"><button id="breachBtn">CHECK BREACHES</button></div>
-        <div id="breachResult" class="result"></div>
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard">
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">aud<span>.</span>lol</div>
+            <div class="nav-item active" data-tab="inventory">
+                <span class="nav-icon">📦</span>
+                <span>INVENTORY</span>
+            </div>
+            <div class="nav-item" data-tab="claim">
+                <span class="nav-icon">🔓</span>
+                <span>CLAIM</span>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main">
+            <!-- INVENTORY PANEL -->
+            <div id="inventory" class="panel active">
+                <div class="claim-title">INVENTORY <small>// claimed usernames</small></div>
+                <div id="inventoryList" class="inventory-grid">
+                    <div class="empty-inventory">⌀ NO USERNAMES CLAIMED YET</div>
+                </div>
+            </div>
+
+            <!-- CLAIM PANEL -->
+            <div id="claim" class="panel">
+                <div class="claim-box">
+                    <div class="claim-title">CLAIM YOUR NEXT USERNAME</div>
+                    <div class="input-group">
+                        <label>USERNAME</label>
+                        <input type="text" id="claimUsername" placeholder="sin" maxlength="16">
+                    </div>
+                    <button id="claimBtn">CLAIM</button>
+                    <div id="claimMessage" class="claim-message"></div>
+                    <hr>
+                    <div style="font-size: 11px; color: #444;">
+                        ⚠️ Once claimed, username is permanently yours.<br>
+                        🔥 OG usernames are first come, first served.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- EMAIL OSINT PANEL -->
-    <div id="email" class="panel">
-        <div class="input-group"><label>EMAIL ADDRESS</label><input type="email" id="osintEmail" placeholder="target@example.com"><button id="emailBtn">FULL OSINT</button><button id="emailBreachBtn" class="secondary">CHECK BREACHES ONLY</button></div>
-        <div id="emailResult" class="result"></div>
-    </div>
-
-    <!-- USERNAME PANEL -->
-    <div id="username" class="panel">
-        <div class="input-group"><label>USERNAME</label><input type="text" id="usernameInput" placeholder="username"><button id="usernameBtn">SCAN 50+ PLATFORMS</button><button id="usernameCustomBtn" class="secondary">CUSTOM PLATFORMS</button></div>
-        <div id="usernameResult" class="result"></div>
-    </div>
-
-    <!-- IP PANEL -->
-    <div id="ip" class="panel">
-        <div class="input-group"><label>IP ADDRESS (IPv4/IPv6)</label><input type="text" id="ipInput" placeholder="8.8.8.8"><button id="ipBtn">GEOLOCATE</button><button id="ipMyBtn" class="secondary">MY IP</button></div>
-        <div id="ipResult" class="result"></div>
-    </div>
-
-    <!-- PHONE PANEL -->
-    <div id="phone" class="panel">
-        <div class="input-group"><label>PHONE NUMBER (international format)</label><input type="text" id="phoneInput" placeholder="+1234567890"><button id="phoneBtn">LOOKUP</button></div>
-        <div id="phoneResult" class="result"></div>
-    </div>
-
-    <!-- DOMAIN PANEL -->
-    <div id="domain" class="panel">
-        <div class="input-group"><label>DOMAIN NAME</label><input type="text" id="domainInput" placeholder="example.com"><button id="domainBtn">WHOIS LOOKUP</button><button id="domainDnsBtn" class="secondary">DNS RECORDS</button></div>
-        <div id="domainResult" class="result"></div>
-    </div>
-
-    <div class="footer">aud.lol — osint tools · data from public sources · rate limits apply · no warranty</div>
+    <div class="stats-bar" id="statsBar">0 USERNAMES CLAIMED</div>
 </div>
 
 <script>
-    // ============= CONFIGURATION =============
-    // CHANGE THIS TO YOUR RENDER BACKEND URL
-    const API_BASE = 'https://your-backend.onrender.com/api';
+    // ============ PASSCODE ============
+    const CORRECT_PASSCODE = "ogu2024"; // CHANGE THIS TO YOUR PASSCODE
     
-    // ============= HELPER FUNCTIONS =============
-    async function callAPI(endpoint, resultId, renderFn, options = {}) {
-        const div = document.getElementById(resultId);
-        div.innerHTML = '<div><span class="loading"></span> [ loading... ]</div>';
-        try {
-            let url = `${API_BASE}${endpoint}`;
-            if (options.query) url += '?' + new URLSearchParams(options.query);
-            const res = await fetch(url, { method: options.method || 'GET' });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            if (renderFn) renderFn(data, div);
-            else div.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-        } catch(err) {
-            div.innerHTML = `<div class="error">[ ERROR ] ${err.message}<br><br>Make sure backend is running at ${API_BASE}</div>`;
+    // ============ STORAGE KEYS ============
+    const STORAGE_KEY = 'aud_claimed_usernames';
+    
+    // ============ GLOBALS ============
+    let claimedUsernames = [];
+    
+    // ============ LOAD SAVED DATA ============
+    function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            claimedUsernames = JSON.parse(saved);
+        } else {
+            // Default demo data - remove these for production
+            claimedUsernames = [];
         }
+        updateInventory();
+        updateStats();
     }
-
-    function setLoading(btn, isLoading) {
-        btn.disabled = isLoading;
-        btn.textContent = isLoading ? '...' : btn.dataset.originalText || btn.textContent;
-        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
+    
+    // ============ SAVE DATA ============
+    function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(claimedUsernames));
+        updateInventory();
+        updateStats();
     }
-
-    // ============= RENDER FUNCTIONS =============
-    function renderDiscord(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        div.innerHTML = `
-            <h3>DISCORD USER</h3>
-            <div class="flex">
-                <div><strong>ID</strong><br>${data.id || '?'}</div>
-                <div><strong>USERNAME</strong><br>${data.username || '?'}${data.discriminator && data.discriminator !== '0' ? '#'+data.discriminator : ''}</div>
-                <div><strong>GLOBAL NAME</strong><br>${data.global_name || 'None'}</div>
-                <div><strong>CREATED</strong><br>${data.created_at || '?'}</div>
-                <div><strong>FLAGS</strong><br>${data.public_flags || 0}</div>
-            </div>
-            ${data.bio ? `<hr><div><strong>BIO</strong><br>${data.bio}</div>` : ''}
-            ${data.avatar_url ? `<hr><img src="${data.avatar_url}" style="max-width:80px; border:1px solid #333;">` : ''}
-            ${data.banner_url ? `<hr><div><strong>BANNER</strong><br><img src="${data.banner_url}" style="max-width:200px; border:1px solid #333;"></div>` : ''}
-            ${data.mutual_guilds ? `<hr><div><strong>MUTUAL SERVERS</strong><br>${data.mutual_guilds.length}</div>` : ''}
-        `;
-    }
-
-    function renderBreach(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        if (!data.breaches || data.breaches.length === 0) {
-            div.innerHTML = `<h3>NO KNOWN BREACHES</h3><div class="success">✓ This email appears in no public data breaches.</div>`;
+    
+    // ============ UPDATE INVENTORY DISPLAY ============
+    function updateInventory() {
+        const inventoryDiv = document.getElementById('inventoryList');
+        
+        if (claimedUsernames.length === 0) {
+            inventoryDiv.innerHTML = '<div class="empty-inventory">⌀ NO USERNAMES CLAIMED YET</div>';
             return;
         }
-        let html = `<h3>${data.breaches.length} BREACH${data.breaches.length !== 1 ? 'ES' : ''} FOUND</h3>`;
-        data.breaches.forEach(b => {
-            html += `<div style="margin-bottom:16px; border-left:2px solid #ff4444; padding-left:12px;">
-                        <strong>${b.Name || b.name || '?'}</strong><br>
-                        <span style="color:#aaa;">Date: ${b.BreachDate || b.breachDate || 'unknown'}</span><br>
-                        <span style="color:#aaa;">Compromised data: ${(b.DataClasses || b.dataClasses || []).join(', ') || 'unknown'}</span><br>
-                        <span style="color:#aaa;">Accounts affected: ${b.PwnCount ? b.PwnCount.toLocaleString() : 'unknown'}</span>
-                     </div>`;
-        });
-        div.innerHTML = html;
-    }
-
-    function renderEmailOSINT(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        div.innerHTML = `
-            <h3>EMAIL OSINT</h3>
-            <div><strong>EMAIL</strong> ${data.email}</div>
-            <div><strong>BREACH COUNT</strong> ${data.breach_count || 0}</div>
-            <div><strong>SOCIAL PROFILES</strong> ${data.socials?.length || 0}</div>
-            ${data.socials && data.socials.length ? '<hr><div>' + data.socials.map(s => `<a href="${s.url}" target="_blank" class="badge">${s.platform}</a>`).join('') + '</div>' : ''}
-            ${data.breaches && data.breaches.length ? `<hr><div><strong>BREACHES</strong><br>${data.breaches.slice(0,5).map(b => b.Name).join(', ')}${data.breaches.length > 5 ? '...' : ''}</div>` : ''}
-        `;
-    }
-
-    function renderUsername(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        const found = (data.profiles || []).filter(p => p.exists);
-        const notFound = (data.profiles || []).filter(p => !p.exists);
-        div.innerHTML = `
-            <h3>USERNAME: ${data.username || '?'}</h3>
-            <div><strong>FOUND ON ${found.length}/${data.total || 0} PLATFORMS</strong></div>
-            <div style="margin-top:16px;">
-                ${found.map(p => `<a href="${p.url}" target="_blank" class="badge" style="background:#0a2a0a;">✓ ${p.name}</a>`).join('')}
+        
+        // Sort by date claimed (newest first)
+        const sorted = [...claimedUsernames].reverse();
+        
+        inventoryDiv.innerHTML = sorted.map(item => `
+            <div class="inventory-item">
+                <div class="username">${escapeHtml(item.username)}</div>
+                <div class="date">${item.date}</div>
             </div>
-            ${notFound.length ? `<details style="margin-top:16px;"><summary style="color:#888; cursor:pointer;">Not found on ${notFound.length} platforms (click to expand)</summary><div style="margin-top:10px;">${notFound.map(p => `<span class="badge" style="background:#2a0a0a; opacity:0.6;">✗ ${p.name}</span>`).join('')}</div></details>` : ''}
-        `;
+        `).join('');
     }
-
-    function renderIP(data, div) {
-        if (data.error || data.status === 'fail') { div.innerHTML = `<div class="error">${data.message || 'Invalid IP or lookup failed'}</div>`; return; }
-        div.innerHTML = `
-            <h3>IP GEOLOCATION</h3>
-            <div class="flex">
-                <div><strong>IP</strong><br>${data.ip || data.query || '?'}</div>
-                <div><strong>LOCATION</strong><br>${data.city || '?'}, ${data.regionName || data.region || '?'}, ${data.country || '?'}</div>
-                <div><strong>ISP</strong><br>${data.org || data.isp || '?'}</div>
-                <div><strong>COORDINATES</strong><br>${data.lat || data.latitude || '?'}, ${data.lon || data.longitude || '?'}</div>
-                <div><strong>TIMEZONE</strong><br>${data.timezone || '?'}</div>
-                <div><strong>ZIP CODE</strong><br>${data.zip || data.postalCode || '?'}</div>
-            </div>
-            <hr><div><strong>MAP</strong><br><a href="https://www.google.com/maps?q=${data.lat || data.latitude || 0},${data.lon || data.longitude || 0}" target="_blank">View on Google Maps →</a></div>
-        `;
+    
+    // ============ UPDATE STATS BAR ============
+    function updateStats() {
+        const statsBar = document.getElementById('statsBar');
+        statsBar.textContent = `${claimedUsernames.length} USERNAME${claimedUsernames.length !== 1 ? 'S' : ''} CLAIMED`;
     }
-
-    function renderPhone(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        div.innerHTML = `
-            <h3>PHONE NUMBER INFORMATION</h3>
-            <div class="flex">
-                <div><strong>NUMBER</strong><br>${data.number || '?'}</div>
-                <div><strong>COUNTRY</strong><br>${data.country || '?'}</div>
-                <div><strong>CARRIER</strong><br>${data.carrier || 'Unknown'}</div>
-                <div><strong>LINE TYPE</strong><br>${data.line_type || 'Unknown'}</div>
-                <div><strong>VALID</strong><br>${data.valid ? 'Yes' : 'No/Unknown'}</div>
-            </div>
-        `;
+    
+    // ============ CHECK IF USERNAME IS CLAIMED ============
+    function isUsernameClaimed(username) {
+        return claimedUsernames.some(item => item.username.toLowerCase() === username.toLowerCase());
     }
-
-    function renderDomain(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        div.innerHTML = `
-            <h3>DOMAIN WHOIS</h3>
-            <div><strong>DOMAIN</strong> ${data.domain || '?'}</div>
-            <div><strong>REGISTRAR</strong><br>${data.registrar || 'Unknown'}</div>
-            <div><strong>CREATION DATE</strong><br>${data.creation_date || 'Unknown'}</div>
-            <div><strong>EXPIRATION DATE</strong><br>${data.expiration_date || 'Unknown'}</div>
-            <div><strong>NAME SERVERS</strong><br>${data.name_servers ? data.name_servers.join('<br>') : 'Unknown'}</div>
-            ${data.registrant ? `<hr><div><strong>REGISTRANT</strong><br>${data.registrant}</div>` : ''}
-        `;
-    }
-
-    function renderDomainDNS(data, div) {
-        if (data.error) { div.innerHTML = `<div class="error">${data.error}</div>`; return; }
-        let html = `<h3>DNS RECORDS FOR ${data.domain || '?'}</h3>`;
-        for (const [type, records] of Object.entries(data.records || {})) {
-            if (records && records.length) {
-                html += `<h4>${type} RECORDS</h4><ul style="margin-left:20px; margin-bottom:15px;">`;
-                records.forEach(r => html += `<li><code>${r}</code></li>`);
-                html += `</ul>`;
-            }
+    
+    // ============ CLAIM USERNAME ============
+    function claimUsername(username) {
+        const normalized = username.toLowerCase().trim();
+        
+        // Validation
+        if (!normalized) {
+            showMessage('Enter a username', 'error');
+            return false;
         }
-        div.innerHTML = html;
-    }
-
-    // ============= EVENT HANDLERS =============
-    document.getElementById('discordBtn').onclick = () => {
-        const id = document.getElementById('discordId').value.trim();
-        if (id) callAPI(`/discord/${id}`, 'discordResult', renderDiscord);
-    };
-    document.getElementById('discordResetTokenBtn').onclick = () => {
-        callAPI('/discord/reset-token', 'discordResult', (data, div) => {
-            div.innerHTML = `<div class="success">${data.message || 'Token reset requested'}</div>`;
+        
+        if (normalized.length < 2) {
+            showMessage('Username must be at least 2 characters', 'error');
+            return false;
+        }
+        
+        if (normalized.length > 16) {
+            showMessage('Username too long (max 16 characters)', 'error');
+            return false;
+        }
+        
+        if (!/^[a-z0-9_]+$/.test(normalized)) {
+            showMessage('Only letters, numbers, and underscores allowed', 'error');
+            return false;
+        }
+        
+        if (isUsernameClaimed(normalized)) {
+            showMessage('User already claimed', 'error');
+            return false;
+        }
+        
+        // Claim the username
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        claimedUsernames.push({
+            username: normalized,
+            date: dateStr,
+            timestamp: now.getTime()
         });
-    };
-    document.getElementById('breachBtn').onclick = () => {
-        const email = document.getElementById('breachEmail').value.trim();
-        if (email) callAPI(`/breach/${email}`, 'breachResult', renderBreach);
-    };
-    document.getElementById('emailBtn').onclick = () => {
-        const email = document.getElementById('osintEmail').value.trim();
-        if (email) callAPI(`/email-osint/${email}`, 'emailResult', renderEmailOSINT);
-    };
-    document.getElementById('emailBreachBtn').onclick = () => {
-        const email = document.getElementById('osintEmail').value.trim();
-        if (email) callAPI(`/breach/${email}`, 'emailResult', renderBreach);
-    };
-    document.getElementById('usernameBtn').onclick = () => {
-        const user = document.getElementById('usernameInput').value.trim();
-        if (user) callAPI(`/username/${user}`, 'usernameResult', renderUsername);
-    };
-    document.getElementById('ipBtn').onclick = () => {
-        const ip = document.getElementById('ipInput').value.trim();
-        if (ip) callAPI(`/ip/${ip}`, 'ipResult', renderIP);
-    };
-    document.getElementById('ipMyBtn').onclick = () => {
-        callAPI('/ip/my', 'ipResult', renderIP);
-    };
-    document.getElementById('phoneBtn').onclick = () => {
-        const phone = document.getElementById('phoneInput').value.trim();
-        if (phone) callAPI(`/phone/${encodeURIComponent(phone)}`, 'phoneResult', renderPhone);
-    };
-    document.getElementById('domainBtn').onclick = () => {
-        const domain = document.getElementById('domainInput').value.trim();
-        if (domain) callAPI(`/domain/${domain}`, 'domainResult', renderDomain);
-    };
-    document.getElementById('domainDnsBtn').onclick = () => {
-        const domain = document.getElementById('domainInput').value.trim();
-        if (domain) callAPI(`/domain/${domain}/dns`, 'domainResult', renderDomainDNS);
-    };
-
+        
+        saveData();
+        showMessage(`✓ Successfully claimed @${normalized}!`, 'success');
+        
+        // Clear input
+        document.getElementById('claimUsername').value = '';
+        
+        // Switch to inventory tab to show new claim
+        setTimeout(() => {
+            switchTab('inventory');
+        }, 1500);
+        
+        return true;
+    }
+    
+    // ============ SHOW MESSAGE ============
+    function showMessage(msg, type) {
+        const msgDiv = document.getElementById('claimMessage');
+        msgDiv.textContent = msg;
+        msgDiv.className = `claim-message ${type}`;
+        setTimeout(() => {
+            if (document.getElementById('claimMessage').textContent === msg) {
+                msgDiv.textContent = '';
+                msgDiv.className = 'claim-message';
+            }
+        }, 3000);
+    }
+    
+    // ============ ESCAPE HTML ============
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ============ TAB SWITCHING ============
+    function switchTab(tabId) {
+        // Update nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.dataset.tab === tabId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+        
+        // Update panels
+        document.querySelectorAll('.panel').forEach(panel => {
+            if (panel.id === tabId) {
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        });
+    }
+    
+    // ============ PASSCODE HANDLER ============
+    function checkPasscode() {
+        const input = document.getElementById('passcodeInput');
+        const code = input.value.trim();
+        
+        if (code === CORRECT_PASSCODE) {
+            // Hide gate, show dashboard
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadData();
+        } else {
+            const errorDiv = document.getElementById('gateError');
+            errorDiv.textContent = 'INCORRECT PASSCODE';
+            input.value = '';
+            input.focus();
+            setTimeout(() => {
+                errorDiv.textContent = '';
+            }, 2000);
+        }
+    }
+    
+    // ============ EVENT LISTENERS ============
+    document.getElementById('passcodeInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') checkPasscode();
+    });
+    
+    document.getElementById('claimBtn').addEventListener('click', function() {
+        const username = document.getElementById('claimUsername').value.trim();
+        claimUsername(username);
+    });
+    
+    document.getElementById('claimUsername').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const username = document.getElementById('claimUsername').value.trim();
+            claimUsername(username);
+        }
+    });
+    
     // Tab switching
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+            switchTab(this.dataset.tab);
         });
     });
+    
+    // Enter key on passcode input focuses it
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('passcodeInput').focus();
+    });
 </script>
+
 </body>
 </html>
