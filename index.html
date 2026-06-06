@@ -155,7 +155,6 @@
             letter-spacing: 1px;
         }
 
-        /* Last updated text */
         .last-updated {
             margin-top: 28px;
             font-size: 9px;
@@ -498,11 +497,10 @@
             EMAIL
         </button>
         <button class="tab-btn" data-tab="roblox">
-            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <circle cx="15.5" cy="8.5" r="1.5"></circle>
-                <path d="M7 14c1 2 3 3 5 3s4-1 5-3"></path>
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M4 4h16v16H4z" fill="none"/>
+                <path d="M8 8h2v8H8zm6 0h2v8h-2z" fill="currentColor"/>
+                <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
             </svg>
             ROBLOX
         </button>
@@ -767,7 +765,7 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ ROBLOX LOOKUP ============
+    // ============ ROBLOX LOOKUP (FIXED) ============
     async function lookupRoblox() {
         const input = document.getElementById('robloxUsername').value.trim();
         const resultDiv = document.getElementById('robloxResult');
@@ -782,14 +780,18 @@
         try {
             let userId = input;
             
-            // If input is not a number (username), resolve it to userId first
-            if (isNaN(input)) {
-                const usernameRes = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+            // Check if input is numeric (user ID)
+            const isNumeric = /^\d+$/.test(input);
+            
+            if (!isNumeric) {
+                // Username resolution via API
+                const usernameRes = await fetch('https://users.roblox.com/v1/usernames/users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usernames: [input] })
                 });
                 const usernameData = await usernameRes.json();
+                
                 if (!usernameData.data || usernameData.data.length === 0) {
                     resultDiv.innerHTML = '<p class="error">username not found</p>';
                     return;
@@ -801,32 +803,63 @@
             const profileRes = await fetch(`https://users.roblox.com/v1/users/${userId}`);
             const profile = await profileRes.json();
             
-            if (!profile || profile.errors) {
+            if (!profile || profile.errors || !profile.id) {
                 resultDiv.innerHTML = '<p class="error">user not found</p>';
                 return;
             }
             
-            // Get follower/following counts
-            const socialRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`);
-            const socialData = await socialRes.json();
+            // Get follower count
+            let followers = 0;
+            try {
+                const followersRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`);
+                const followersData = await followersRes.json();
+                followers = followersData.count || 0;
+            } catch(e) { followers = 0; }
             
-            const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`);
-            const followingData = await followingRes.json();
+            // Get following count
+            let following = 0;
+            try {
+                const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`);
+                const followingData = await followingRes.json();
+                following = followingData.count || 0;
+            } catch(e) { following = 0; }
             
             // Get friend count
-            const friendsRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`);
-            const friendsData = await friendsRes.json();
+            let friends = 0;
+            try {
+                const friendsRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`);
+                const friendsData = await friendsRes.json();
+                friends = friendsData.count || 0;
+            } catch(e) { friends = 0; }
+            
+            // Get presence status (online/offline)
+            let presence = 'Unknown';
+            let lastOnline = '';
+            try {
+                const presenceRes = await fetch('https://presence.roblox.com/v1/presence/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userIds: [parseInt(userId)] })
+                });
+                const presenceData = await presenceRes.json();
+                if (presenceData.userPresences && presenceData.userPresences[0]) {
+                    const status = presenceData.userPresences[0].userPresenceType;
+                    if (status === 1) presence = 'Online';
+                    else if (status === 2) presence = 'In Game';
+                    else if (status === 3) presence = 'In Studio';
+                    else presence = 'Offline';
+                    lastOnline = presenceData.userPresences[0].lastOnline || '';
+                }
+            } catch(e) { presence = 'Unknown'; }
             
             // Get account age
             const createdDate = new Date(profile.created);
             const now = new Date();
             const accountAgeYears = now.getFullYear() - createdDate.getFullYear();
             const accountAgeDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
-            
-            // Get join date formatted
             const joinDate = createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             
-            // Get avatar image
+            // Avatar image URL
             const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
             
             resultDiv.innerHTML = `
@@ -839,9 +872,10 @@
                     <div><strong>User ID:</strong> ${profile.id}</div>
                     <div><strong>Join Date:</strong> ${joinDate}</div>
                     <div><strong>Account Age:</strong> ${accountAgeYears} years (${accountAgeDays} days)</div>
-                    <div><strong>Followers:</strong> ${socialData.count?.toLocaleString() || 0}</div>
-                    <div><strong>Following:</strong> ${followingData.count?.toLocaleString() || 0}</div>
-                    <div><strong>Friends:</strong> ${friendsData.count?.toLocaleString() || 0}</div>
+                    <div><strong>Followers:</strong> ${followers.toLocaleString()}</div>
+                    <div><strong>Following:</strong> ${following.toLocaleString()}</div>
+                    <div><strong>Friends:</strong> ${friends.toLocaleString()}</div>
+                    <div><strong>Status:</strong> ${presence}</div>
                     <div><strong>Profile Link:</strong> <a href="https://www.roblox.com/user.aspx?id=${profile.id}" target="_blank" style="color:#44aaff;">open in Roblox →</a></div>
                 </div>
                 ${profile.description ? `<hr><div><strong>Bio:</strong> ${profile.description}</div>` : ''}
