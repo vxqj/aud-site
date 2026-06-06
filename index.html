@@ -19,7 +19,7 @@
             color: #fff;
         }
 
-        /* PASSCODE GATE */
+        /* PASSCODE GATE - MINIMALISTIC */
         .gate {
             position: fixed;
             top: 0;
@@ -42,66 +42,69 @@
 
         .gate-box {
             text-align: center;
-            background: #050505;
-            padding: 48px;
-            border: 1px solid #1a1a1a;
-            width: 380px;
-            border-radius: 24px;
         }
 
         .gate-box h2 {
-            font-size: 32px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .gate-box .sub {
-            color: #666;
-            font-size: 13px;
-            margin-bottom: 32px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
         }
 
         .gate-box input {
-            width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
+            width: 240px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
             color: #fff;
-            padding: 14px 16px;
-            font-size: 15px;
-            border-radius: 12px;
+            padding: 12px 4px;
+            font-size: 16px;
             text-align: center;
+            font-family: monospace;
+            letter-spacing: 2px;
         }
 
         .gate-box input:focus {
             outline: none;
-            border-color: #fff;
+            border-bottom-color: #fff;
         }
 
         .gate-box button {
-            width: 100%;
-            background: #fff;
-            border: none;
-            color: #000;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 500;
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 400;
             cursor: pointer;
-            border-radius: 12px;
-            margin-top: 20px;
+            margin-top: 32px;
+            transition: all 0.2s;
+        }
+
+        .gate-box button:hover {
+            background: #fff;
+            color: #000;
         }
 
         .gate-error {
             color: #ff4444;
-            font-size: 12px;
-            margin-top: 12px;
+            font-size: 11px;
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        /* MAIN CONTENT - SCROLLABLE */
+        .main-content {
+            display: none;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 40px 24px;
-            height: 100%;
-            overflow-y: auto;
         }
 
         .header {
@@ -278,72 +281,91 @@
             color: #88ff88;
             text-align: center;
         }
+
+        /* Scrollbar styling */
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body>
 
-<!-- PASSCODE GATE -->
+<!-- PASSCODE GATE - MINIMALISTIC -->
 <div id="gate" class="gate">
     <div class="gate-box">
         <h2>aud.lol</h2>
-        <div class="sub">enter passcode to continue</div>
-        <input type="password" id="passcodeInput" placeholder="PASSCODE" autofocus>
-        <button id="unlockBtn">UNLOCK</button>
+        <input type="password" id="passcodeInput" placeholder="enter passcode" autofocus>
+        <div>
+            <button id="unlockBtn">unlock</button>
+        </div>
         <div id="gateError" class="gate-error"></div>
     </div>
 </div>
 
-<div id="mainContent" style="display: none;">
+<!-- MAIN CONTENT - SCROLLABLE -->
+<div id="mainContent" class="main-content">
 <div class="container">
     <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
-        <div class="sub">email delivery system / backend proxy</div>
+        <div class="sub">email delivery system</div>
     </div>
 
     <div id="backendStatus" class="backend-status">
-        🔌 Checking backend connection...
+        🔌 checking backend...
     </div>
 
     <div class="warning">
-        ⚠️ EDUCATIONAL PURPOSE ONLY - This tool is for testing your own email servers.<br>
-        Your backend is hosted on Render. API key is stored on the server.
+        ⚠️ educational purpose only — test your own servers only.
     </div>
 
     <div class="card">
-        <h3>📧 Send Emails</h3>
+        <h3>send emails</h3>
         
         <div class="row">
             <div class="input-group">
-                <label>FROM EMAIL</label>
+                <label>from email</label>
                 <input type="email" id="fromEmail" placeholder="noreply@aud.lol" value="noreply@aud.lol">
             </div>
             <div class="input-group">
-                <label>TO EMAIL</label>
+                <label>to email</label>
                 <input type="email" id="toEmail" placeholder="target@example.com">
             </div>
         </div>
 
         <div class="input-group">
-            <label>SUBJECT</label>
-            <input type="text" id="subject" placeholder="Your subject here">
+            <label>subject</label>
+            <input type="text" id="subject" placeholder="your subject here">
         </div>
 
         <div class="input-group">
-            <label>MESSAGE BODY</label>
-            <textarea id="body" placeholder="Enter your message here..."></textarea>
+            <label>message body</label>
+            <textarea id="body" placeholder="enter your message here..."></textarea>
         </div>
 
         <div class="row">
             <div class="input-group">
-                <label>DELAY (seconds between emails)</label>
+                <label>delay (seconds)</label>
                 <input type="number" id="delay" value="2" min="0.5" step="0.5">
             </div>
             <div class="input-group">
-                <label>BULK MODE</label>
+                <label>bulk mode</label>
                 <select id="bulkMode">
-                    <option value="single">Single Email</option>
-                    <option value="list">Bulk List (Targets)</option>
-                    <option value="spam">Spam Mode (Same email repeatedly)</option>
+                    <option value="single">single</option>
+                    <option value="list">bulk list</option>
+                    <option value="spam">spam mode</option>
                 </select>
             </div>
         </div>
@@ -351,42 +373,40 @@
         <!-- MESSAGE VARIATIONS FOR SPAM MODE -->
         <div id="variationsGroup" style="display: none;">
             <div class="input-group">
-                <label>MESSAGE VARIATIONS (one per line - random selection)</label>
-                <textarea id="messageVariations" rows="4" placeholder="Enter different message variations here...&#10;One per line&#10;Each email will get a random message"></textarea>
-                <div style="font-size: 11px; color: #555; margin-top: 5px;">Leave empty to use the main message body for all emails</div>
+                <label>subject variations (one per line)</label>
+                <textarea id="subjectVariations" rows="3" placeholder="enter different subjects here...&#10;one per line"></textarea>
             </div>
             <div class="input-group">
-                <label>SUBJECT VARIATIONS (one per line - random selection)</label>
-                <textarea id="subjectVariations" rows="3" placeholder="Enter different subject variations here...&#10;One per line"></textarea>
-                <div style="font-size: 11px; color: #555; margin-top: 5px;">Leave empty to use the main subject for all emails</div>
+                <label>message variations (one per line)</label>
+                <textarea id="messageVariations" rows="4" placeholder="enter different messages here...&#10;one per line"></textarea>
             </div>
         </div>
 
         <div class="input-group" id="bulkTargetsGroup" style="display: none;">
-            <label>BULK TARGETS (one email per line)</label>
-            <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com&#10;target3@example.com"></textarea>
+            <label>bulk targets (one per line)</label>
+            <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com"></textarea>
         </div>
 
         <div class="input-group" id="spamCountGroup" style="display: none;">
-            <label>SPAM COUNT (how many emails to send)</label>
+            <label>spam count</label>
             <input type="number" id="spamCount" value="10" min="1" max="1000">
         </div>
 
         <div class="flex">
             <div>
-                <button id="sendBtn">▶ SEND EMAIL</button>
-                <button id="stopBtn" class="danger" style="display: none;">⏹ STOP</button>
+                <button id="sendBtn">▶ send</button>
+                <button id="stopBtn" class="danger" style="display: none;">⏹ stop</button>
             </div>
             <div>
-                <button id="testBackendBtn" class="secondary">🔌 Test Backend</button>
+                <button id="testBackendBtn" class="secondary">🔌 test backend</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h3>📊 Status</h3>
+        <h3>status</h3>
         <div id="status" class="status">
-            <p>Ready. Backend URL: https://aud-email-backend-1.onrender.com</p>
+            <p>ready.</p>
         </div>
     </div>
 </div>
@@ -412,12 +432,12 @@
             document.getElementById('mainContent').style.display = 'block';
             checkBackend();
         } else {
-            document.getElementById('gateError').textContent = 'INCORRECT PASSCODE';
+            document.getElementById('gateError').textContent = 'incorrect';
             input.value = '';
             input.focus();
             setTimeout(() => {
                 document.getElementById('gateError').textContent = '';
-            }, 2000);
+            }, 1500);
         }
     }
     
@@ -430,15 +450,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ test: true })
             });
-            statusDiv.innerHTML = '✅ Backend connected! Ready to send emails.';
+            statusDiv.innerHTML = '✅ backend connected';
             statusDiv.style.background = '#0a2a0a';
-            statusDiv.style.borderColor = '#2a4a2a';
-            addStatus('Backend connected successfully', 'success');
+            addStatus('backend connected', 'success');
         } catch (error) {
-            statusDiv.innerHTML = '❌ Backend not reachable. Make sure Render is running.';
+            statusDiv.innerHTML = '❌ backend not reachable';
             statusDiv.style.background = '#2a0a0a';
-            statusDiv.style.borderColor = '#4a2a2a';
-            addStatus('Backend connection failed', 'error');
+            addStatus('backend connection failed', 'error');
         }
     }
     
@@ -458,7 +476,7 @@
     
     // ============ TEST BACKEND ============
     async function testBackend() {
-        addStatus('Testing backend connection...', 'info');
+        addStatus('testing backend...', 'info');
         try {
             const response = await fetch(`${BACKEND_URL}/send`, {
                 method: 'POST',
@@ -469,12 +487,12 @@
             const data = await response.json();
             
             if (data && data.success === true) {
-                addStatus('✓ Backend is reachable and /send endpoint is working!', 'success');
+                addStatus('✓ backend reachable', 'success');
             } else {
-                addStatus(`✗ Backend responded: ${data?.error || 'unknown'}`, 'error');
+                addStatus(`✗ backend error: ${data?.error || 'unknown'}`, 'error');
             }
         } catch (error) {
-            addStatus(`✗ Backend unreachable: ${error.message}`, 'error');
+            addStatus(`✗ backend unreachable: ${error.message}`, 'error');
         }
     }
     
@@ -519,7 +537,7 @@
     // ============ SEND LOOP ============
     async function startSending() {
         if (isSending) {
-            addStatus('Already sending. Stop first.', 'error');
+            addStatus('already sending. stop first.', 'error');
             return;
         }
         
@@ -536,7 +554,7 @@
         
         if (bulkMode === 'single') {
             if (!toEmail) {
-                addStatus('Please enter a target email address', 'error');
+                addStatus('enter a target email', 'error');
                 return;
             }
             targets = [toEmail];
@@ -544,27 +562,24 @@
             const bulkText = document.getElementById('bulkTargets').value;
             targets = bulkText.split('\n').filter(e => e.trim() && e.includes('@'));
             if (targets.length === 0) {
-                addStatus('Please enter at least one email in bulk list', 'error');
+                addStatus('enter at least one email in bulk list', 'error');
                 return;
             }
-            addStatus(`Loaded ${targets.length} target email addresses`, 'info');
+            addStatus(`loaded ${targets.length} targets`, 'info');
         } else if (bulkMode === 'spam') {
             const spamCount = parseInt(document.getElementById('spamCount').value);
             if (!toEmail) {
-                addStatus('Please enter a target email address for spam mode', 'error');
+                addStatus('enter a target email for spam mode', 'error');
                 return;
             }
             for (let i = 0; i < spamCount; i++) {
                 targets.push(toEmail);
             }
-            addStatus(`Spam mode: will send ${spamCount} emails to ${toEmail}`, 'info');
-            if (subjectVariations.trim() || messageVariations.trim()) {
-                addStatus(`Using variations: ${subjectVariations.split('\n').filter(l=>l.trim()).length || 0} subjects, ${messageVariations.split('\n').filter(l=>l.trim()).length || 0} messages`, 'info');
-            }
+            addStatus(`spam mode: ${spamCount} emails to ${toEmail}`, 'info');
         }
         
         if (!mainSubject && !mainBody && !subjectVariations && !messageVariations) {
-            addStatus('Please enter a subject and message body', 'error');
+            addStatus('enter a subject and message', 'error');
             return;
         }
         
@@ -579,7 +594,6 @@
         for (let i = 0; i < targets.length && !stopRequested; i++) {
             const target = targets[i];
             
-            // Pick random variations if in spam mode
             let currentSubject = mainSubject;
             let currentBody = mainBody;
             
@@ -592,16 +606,16 @@
                 }
             }
             
-            addStatus(`Sending ${i+1}/${targets.length} to ${target}...`, 'info');
+            addStatus(`sending ${i+1}/${targets.length} to ${target}...`, 'info');
             
             const result = await sendEmailViaBackend(target, currentSubject, currentBody, fromEmail);
             
             if (result.success) {
                 successCount++;
-                addStatus(`✓ Email ${i+1} sent to ${target}`, 'success');
+                addStatus(`✓ sent ${i+1} to ${target}`, 'success');
             } else {
                 failCount++;
-                addStatus(`✗ Email ${i+1} failed to ${target}: ${result.error}`, 'error');
+                addStatus(`✗ failed ${i+1} to ${target}: ${result.error}`, 'error');
             }
             
             if (i < targets.length - 1 && !stopRequested) {
@@ -609,7 +623,7 @@
             }
         }
         
-        addStatus(`=== SEND COMPLETE: ${successCount} sent, ${failCount} failed ===`, successCount > 0 ? 'success' : 'error');
+        addStatus(`=== complete: ${successCount} sent, ${failCount} failed ===`, successCount > 0 ? 'success' : 'error');
         
         isSending = false;
         stopRequested = false;
@@ -620,7 +634,7 @@
     function stopSending() {
         if (isSending) {
             stopRequested = true;
-            addStatus('Stopping after current email...', 'info');
+            addStatus('stopping after current email...', 'info');
         }
     }
     
@@ -651,8 +665,7 @@
     
     // ============ INIT ============
     updateBulkMode();
-    addStatus('Backend URL: https://aud-email-backend-1.onrender.com', 'info');
-    addStatus('Passcode required to access the tool', 'info');
+    addStatus('ready. passcode required.', 'info');
 </script>
 </body>
 </html>
