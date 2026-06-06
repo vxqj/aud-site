@@ -74,12 +74,13 @@
             background: transparent;
             border: 1px solid #fff;
             color: #fff;
-            padding: 8px 24px;
+            padding: 8px 28px;
             font-size: 12px;
             font-weight: 400;
             cursor: pointer;
             margin-top: 32px;
             transition: all 0.2s;
+            border-radius: 0px;
         }
 
         .gate-box button:hover {
@@ -303,7 +304,7 @@
 </head>
 <body>
 
-<!-- PASSCODE GATE - MINIMALISTIC -->
+<!-- PASSCODE GATE -->
 <div id="gate" class="gate">
     <div class="gate-box">
         <h2>aud.lol</h2>
@@ -315,7 +316,7 @@
     </div>
 </div>
 
-<!-- MAIN CONTENT - SCROLLABLE -->
+<!-- MAIN CONTENT -->
 <div id="mainContent" class="main-content">
 <div class="container">
     <div class="header">
@@ -413,21 +414,26 @@
 </div>
 
 <script>
-    // ============ PASSCODE ============
-    const CORRECT_PASSCODE = "factor-access132";
+    // ============ OBFUSCATED PASSCODE ============
+    // Original: factor-access132
+    // Obfuscated - harder to find in source
     
-    // ============ BACKEND URL ============
-    const BACKEND_URL = 'https://aud-email-backend-1.onrender.com';
-    
-    let isSending = false;
-    let stopRequested = false;
-    
-    // ============ PASSCODE HANDLER ============
     function checkPasscode() {
         const input = document.getElementById('passcodeInput');
         const code = input.value.trim();
         
-        if (code === CORRECT_PASSCODE) {
+        // Part 1: "factor" - ASCII codes
+        const p1 = String.fromCharCode(102, 97, 99, 116, 111, 114);
+        // Part 2: "-"
+        const p2 = String.fromCharCode(45);
+        // Part 3: "access"
+        const p3 = String.fromCharCode(97, 99, 99, 101, 115, 115);
+        // Part 4: "132"
+        const p4 = String.fromCharCode(49, 51, 50);
+        
+        const correctCode = p1 + p2 + p3 + p4;
+        
+        if (code === correctCode) {
             document.getElementById('gate').classList.add('hidden');
             document.getElementById('mainContent').style.display = 'block';
             checkBackend();
@@ -440,6 +446,12 @@
             }, 1500);
         }
     }
+    
+    // ============ BACKEND URL ============
+    const BACKEND_URL = 'https://aud-email-backend-1.onrender.com';
+    
+    let isSending = false;
+    let stopRequested = false;
     
     // ============ CHECK BACKEND STATUS ============
     async function checkBackend() {
@@ -665,7 +677,7 @@
     
     // ============ INIT ============
     updateBulkMode();
-    addStatus('ready. passcode required.', 'info');
+    addStatus('ready.', 'info');
 </script>
 </body>
 </html>
