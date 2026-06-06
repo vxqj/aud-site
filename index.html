@@ -33,6 +33,23 @@
             height: 100vh;
             overflow: hidden;
             color: #fff;
+            position: relative;
+        }
+
+        /* Canvas for particle animation */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
+        }
+
+        .gate, .main-content {
+            position: relative;
+            z-index: 1;
         }
 
         /* PASSCODE GATE - MINIMALISTIC */
@@ -42,7 +59,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000000;
+            background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -58,6 +75,11 @@
 
         .gate-box {
             text-align: center;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 48px 64px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
         }
 
         .gate-box h2 {
@@ -146,8 +168,9 @@
         }
 
         .card {
-            background: #050505;
-            border: 1px solid #1a1a1a;
+            background: rgba(5,5,5,0.85);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 20px;
             padding: 28px;
             margin-bottom: 24px;
@@ -177,8 +200,8 @@
         .input-group textarea,
         .input-group select {
             width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
             padding: 12px 14px;
             font-size: 14px;
@@ -230,14 +253,14 @@
         }
 
         button.secondary {
-            background: #0a0a0a;
+            background: rgba(10,10,10,0.9);
             color: #fff;
-            border: 1px solid #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .status {
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
             padding: 16px;
             margin-top: 20px;
@@ -274,13 +297,14 @@
 
         hr {
             border: none;
-            border-top: 1px solid #1a1a1a;
+            border-top: 1px solid rgba(255,255,255,0.08);
             margin: 20px 0;
         }
 
         .warning {
-            background: #1a0a0a;
-            border: 1px solid #442222;
+            background: rgba(26,10,10,0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(68,34,34,0.5);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 24px;
@@ -289,8 +313,9 @@
         }
 
         .backend-status {
-            background: #0a2a0a;
-            border: 1px solid #2a4a2a;
+            background: rgba(10,42,10,0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(42,74,42,0.5);
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 20px;
@@ -319,6 +344,9 @@
     </style>
 </head>
 <body>
+
+<!-- CANVAS FOR BACKGROUND ANIMATION -->
+<canvas id="bgCanvas"></canvas>
 
 <!-- PASSCODE GATE -->
 <div id="gate" class="gate">
@@ -430,6 +458,105 @@
 </div>
 
 <script>
+    // ============ CANVAS BACKGROUND ANIMATION ============
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let particles = [];
+    let particleCount = 80;
+    
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = (Math.random() - 0.5) * 0.3;
+            this.speedY = (Math.random() - 0.5) * 0.3;
+            this.opacity = Math.random() * 0.3 + 0.1;
+        }
+        
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            if (this.x < 0) this.x = width;
+            if (this.x > width) this.x = 0;
+            if (this.y < 0) this.y = height;
+            if (this.y > height) this.y = 0;
+        }
+        
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.fill();
+        }
+    }
+    
+    function initCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+    
+    function animateCanvas() {
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw gradient background
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#0a0a0a');
+        gradient.addColorStop(0.5, '#050505');
+        gradient.addColorStop(1, '#000000');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Draw connecting lines between nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - distance / 120)})`;
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        // Draw and update particles
+        for (let particle of particles) {
+            particle.update();
+            particle.draw();
+        }
+        
+        requestAnimationFrame(animateCanvas);
+    }
+    
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    });
+    
+    initCanvas();
+    animateCanvas();
+    
     // ============ OBFUSCATED PASSCODE ============
     function checkPasscode() {
         const input = document.getElementById('passcodeInput');
@@ -472,11 +599,11 @@
                 body: JSON.stringify({ test: true })
             });
             statusDiv.innerHTML = '✅ backend connected';
-            statusDiv.style.background = '#0a2a0a';
+            statusDiv.style.background = 'rgba(10,42,10,0.8)';
             addStatus('backend connected', 'success');
         } catch (error) {
             statusDiv.innerHTML = '❌ backend not reachable';
-            statusDiv.style.background = '#2a0a0a';
+            statusDiv.style.background = 'rgba(42,10,10,0.8)';
             addStatus('backend connection failed', 'error');
         }
     }
