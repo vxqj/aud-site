@@ -19,6 +19,83 @@
             color: #fff;
         }
 
+        /* PASSCODE GATE */
+        .gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.4s ease;
+        }
+
+        .gate.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .gate-box {
+            text-align: center;
+            background: #050505;
+            padding: 48px;
+            border: 1px solid #1a1a1a;
+            width: 380px;
+            border-radius: 24px;
+        }
+
+        .gate-box h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .gate-box .sub {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 32px;
+        }
+
+        .gate-box input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #fff;
+            padding: 14px 16px;
+            font-size: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .gate-box input:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        .gate-box button {
+            width: 100%;
+            background: #fff;
+            border: none;
+            color: #000;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .gate-error {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -204,6 +281,19 @@
     </style>
 </head>
 <body>
+
+<!-- PASSCODE GATE -->
+<div id="gate" class="gate">
+    <div class="gate-box">
+        <h2>aud.lol</h2>
+        <div class="sub">enter passcode to continue</div>
+        <input type="password" id="passcodeInput" placeholder="PASSCODE" autofocus>
+        <button id="unlockBtn">UNLOCK</button>
+        <div id="gateError" class="gate-error"></div>
+    </div>
+</div>
+
+<div id="mainContent" style="display: none;">
 <div class="container">
     <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
@@ -258,6 +348,20 @@
             </div>
         </div>
 
+        <!-- MESSAGE VARIATIONS FOR SPAM MODE -->
+        <div id="variationsGroup" style="display: none;">
+            <div class="input-group">
+                <label>MESSAGE VARIATIONS (one per line - random selection)</label>
+                <textarea id="messageVariations" rows="4" placeholder="Enter different message variations here...&#10;One per line&#10;Each email will get a random message"></textarea>
+                <div style="font-size: 11px; color: #555; margin-top: 5px;">Leave empty to use the main message body for all emails</div>
+            </div>
+            <div class="input-group">
+                <label>SUBJECT VARIATIONS (one per line - random selection)</label>
+                <textarea id="subjectVariations" rows="3" placeholder="Enter different subject variations here...&#10;One per line"></textarea>
+                <div style="font-size: 11px; color: #555; margin-top: 5px;">Leave empty to use the main subject for all emails</div>
+            </div>
+        </div>
+
         <div class="input-group" id="bulkTargetsGroup" style="display: none;">
             <label>BULK TARGETS (one email per line)</label>
             <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com&#10;target3@example.com"></textarea>
@@ -286,13 +390,36 @@
         </div>
     </div>
 </div>
+</div>
 
 <script>
+    // ============ PASSCODE ============
+    const CORRECT_PASSCODE = "factor-access132";
+    
     // ============ BACKEND URL ============
-    const BACKEND_URL = 'https://aud-email-backend.onrender.com';
+    const BACKEND_URL = 'https://aud-email-backend-1.onrender.com';
     
     let isSending = false;
     let stopRequested = false;
+    
+    // ============ PASSCODE HANDLER ============
+    function checkPasscode() {
+        const input = document.getElementById('passcodeInput');
+        const code = input.value.trim();
+        
+        if (code === CORRECT_PASSCODE) {
+            document.getElementById('gate').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+            checkBackend();
+        } else {
+            document.getElementById('gateError').textContent = 'INCORRECT PASSCODE';
+            input.value = '';
+            input.focus();
+            setTimeout(() => {
+                document.getElementById('gateError').textContent = '';
+            }, 2000);
+        }
+    }
     
     // ============ CHECK BACKEND STATUS ============
     async function checkBackend() {
@@ -339,10 +466,12 @@
                 body: JSON.stringify({ test: true })
             });
             
-            if (response.ok || response.status === 400) {
-                addStatus('✓ Backend is reachable', 'success');
+            const data = await response.json();
+            
+            if (data && data.success === true) {
+                addStatus('✓ Backend is reachable and /send endpoint is working!', 'success');
             } else {
-                addStatus(`✗ Backend returned status ${response.status}`, 'error');
+                addStatus(`✗ Backend responded: ${data?.error || 'unknown'}`, 'error');
             }
         } catch (error) {
             addStatus(`✗ Backend unreachable: ${error.message}`, 'error');
@@ -375,6 +504,18 @@
         }
     }
     
+    // ============ HELPER: GET RANDOM VARIATION ============
+    function getRandomVariation(variationsText, defaultValue) {
+        if (!variationsText || !variationsText.trim()) {
+            return defaultValue;
+        }
+        const lines = variationsText.split('\n').filter(line => line.trim().length > 0);
+        if (lines.length === 0) {
+            return defaultValue;
+        }
+        return lines[Math.floor(Math.random() * lines.length)];
+    }
+    
     // ============ SEND LOOP ============
     async function startSending() {
         if (isSending) {
@@ -384,10 +525,12 @@
         
         const fromEmail = document.getElementById('fromEmail').value.trim();
         const toEmail = document.getElementById('toEmail').value.trim();
-        const subject = document.getElementById('subject').value.trim();
-        const body = document.getElementById('body').value;
+        const mainSubject = document.getElementById('subject').value.trim();
+        const mainBody = document.getElementById('body').value;
         const delay = parseFloat(document.getElementById('delay').value);
         const bulkMode = document.getElementById('bulkMode').value;
+        const subjectVariations = document.getElementById('subjectVariations').value;
+        const messageVariations = document.getElementById('messageVariations').value;
         
         let targets = [];
         
@@ -415,9 +558,12 @@
                 targets.push(toEmail);
             }
             addStatus(`Spam mode: will send ${spamCount} emails to ${toEmail}`, 'info');
+            if (subjectVariations.trim() || messageVariations.trim()) {
+                addStatus(`Using variations: ${subjectVariations.split('\n').filter(l=>l.trim()).length || 0} subjects, ${messageVariations.split('\n').filter(l=>l.trim()).length || 0} messages`, 'info');
+            }
         }
         
-        if (!subject && !body) {
+        if (!mainSubject && !mainBody && !subjectVariations && !messageVariations) {
             addStatus('Please enter a subject and message body', 'error');
             return;
         }
@@ -432,9 +578,23 @@
         
         for (let i = 0; i < targets.length && !stopRequested; i++) {
             const target = targets[i];
+            
+            // Pick random variations if in spam mode
+            let currentSubject = mainSubject;
+            let currentBody = mainBody;
+            
+            if (bulkMode === 'spam') {
+                if (subjectVariations.trim()) {
+                    currentSubject = getRandomVariation(subjectVariations, mainSubject);
+                }
+                if (messageVariations.trim()) {
+                    currentBody = getRandomVariation(messageVariations, mainBody);
+                }
+            }
+            
             addStatus(`Sending ${i+1}/${targets.length} to ${target}...`, 'info');
             
-            const result = await sendEmailViaBackend(target, subject, body, fromEmail);
+            const result = await sendEmailViaBackend(target, currentSubject, currentBody, fromEmail);
             
             if (result.success) {
                 successCount++;
@@ -469,6 +629,7 @@
         const mode = document.getElementById('bulkMode').value;
         document.getElementById('bulkTargetsGroup').style.display = mode === 'list' ? 'block' : 'none';
         document.getElementById('spamCountGroup').style.display = mode === 'spam' ? 'block' : 'none';
+        document.getElementById('variationsGroup').style.display = mode === 'spam' ? 'block' : 'none';
         
         if (mode !== 'single') {
             document.getElementById('toEmail').disabled = mode !== 'spam';
@@ -478,6 +639,11 @@
     }
     
     // ============ EVENT LISTENERS ============
+    document.getElementById('unlockBtn').addEventListener('click', checkPasscode);
+    document.getElementById('passcodeInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') checkPasscode();
+    });
+    
     document.getElementById('sendBtn').addEventListener('click', startSending);
     document.getElementById('stopBtn').addEventListener('click', stopSending);
     document.getElementById('testBackendBtn').addEventListener('click', testBackend);
@@ -485,9 +651,8 @@
     
     // ============ INIT ============
     updateBulkMode();
-    checkBackend();
-    addStatus('Backend URL: https://aud-email-backend.onrender.com', 'info');
-    addStatus('Click "Test Backend" to verify connection', 'info');
+    addStatus('Backend URL: https://aud-email-backend-1.onrender.com', 'info');
+    addStatus('Passcode required to access the tool', 'info');
 </script>
 </body>
 </html>
