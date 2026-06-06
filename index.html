@@ -428,18 +428,71 @@
             background: #555;
         }
 
-        .result-grid {
+        .stat-cards {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .avatar-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 1px solid #333;
-            margin-bottom: 10px;
+        .stat-card {
+            background: rgba(10,10,10,0.9);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 42px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+        }
+
+        .stat-card.user .stat-value { color: #44aaff; }
+        .stat-card.total .stat-value { color: #44ff44; }
+
+        .chart-container {
+            background: rgba(10,10,10,0.9);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .bar {
+            flex: 1;
+            background: #fff;
+            opacity: 0.8;
+            transition: height 0.3s ease;
+            min-width: 30px;
+        }
+
+        .bar:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -477,7 +530,7 @@
 <div class="container">
     <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
-        <div class="sub">email delivery system / roblox lookup</div>
+        <div class="sub">email delivery system / statistics</div>
     </div>
 
     <div id="backendStatus" class="backend-status">
@@ -489,25 +542,26 @@
     </div>
 
     <div class="tabs-container">
-        <button class="tab-btn active" data-tab="email">
+        <button class="tab-btn" data-tab="email">
             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                 <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
                 <polyline points="22,7 12,13 2,7"></polyline>
             </svg>
             EMAIL
         </button>
-        <button class="tab-btn" data-tab="roblox">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                <path d="M4 4h16v16H4z" fill="none"/>
-                <path d="M8 8h2v8H8zm6 0h2v8h-2z" fill="currentColor"/>
-                <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <button class="tab-btn active" data-tab="stats">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <line x1="21" y1="16" x2="15" y2="10"></line>
+                <line x1="3" y1="16" x2="9" y2="10"></line>
+                <line x1="12" y1="21" x2="12" y2="4"></line>
+                <path d="M8 10L12 6 16 10"></path>
             </svg>
-            ROBLOX
+            STATISTICS
         </button>
     </div>
 
     <!-- EMAIL PANEL -->
-    <div id="emailPanel" class="panel active">
+    <div id="emailPanel" class="panel">
         <div class="card">
             <h3>send emails</h3>
             
@@ -587,22 +641,28 @@
         </div>
     </div>
 
-    <!-- ROBLOX PANEL -->
-    <div id="robloxPanel" class="panel">
+    <!-- STATISTICS PANEL -->
+    <div id="statsPanel" class="panel active">
+        <div class="stat-cards">
+            <div class="stat-card user">
+                <div class="stat-value" id="userSentCount">0</div>
+                <div class="stat-label">EMAILS YOU HAVE SENT</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-value" id="totalSentCount">0</div>
+                <div class="stat-label">TOTAL EMAILS SENT (ALL USERS)</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">SENDING ACTIVITY (LAST 10 DAYS)</div>
+            <div id="barChart" class="bar-chart"></div>
+        </div>
+
         <div class="card">
-            <h3>roblox profile lookup</h3>
-            
-            <div class="input-group">
-                <label>roblox username or user ID</label>
-                <input type="text" id="robloxUsername" placeholder="e.g., Roblox or 123456789">
-            </div>
-            
-            <div class="flex">
-                <button id="lookupRobloxBtn">lookup profile</button>
-            </div>
-            
-            <div id="robloxResult" class="status">
-                <p>enter a Roblox username or user ID to get profile information.</p>
+            <h3>recent activity</h3>
+            <div id="recentActivity" class="status">
+                <p>no recent activity.</p>
             </div>
         </div>
     </div>
@@ -765,131 +825,126 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ ROBLOX LOOKUP (FIXED) ============
-    async function lookupRoblox() {
-        const input = document.getElementById('robloxUsername').value.trim();
-        const resultDiv = document.getElementById('robloxResult');
+    // ============ STATISTICS ============
+    // Storage keys
+    const USER_KEY = 'aud_user_email';
+    const USER_STATS_KEY = 'aud_user_stats';
+    const GLOBAL_STATS_KEY = 'aud_global_stats';
+    
+    let currentUser = null;
+    let userStats = { sent: 0, daily: {} };
+    let globalStats = { totalSent: 0, daily: {}, recentActivity: [] };
+    
+    function loadStats() {
+        // Load or create user ID
+        let userId = localStorage.getItem(USER_KEY);
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem(USER_KEY, userId);
+        }
+        currentUser = userId;
         
-        if (!input) {
-            resultDiv.innerHTML = '<p class="error">enter a Roblox username or user ID</p>';
-            return;
+        // Load user stats
+        const savedUserStats = localStorage.getItem(USER_STATS_KEY);
+        if (savedUserStats) {
+            userStats = JSON.parse(savedUserStats);
+        } else {
+            userStats = { sent: 0, daily: {} };
         }
         
-        resultDiv.innerHTML = '<p>looking up...</p>';
-        
-        try {
-            let userId = input;
-            
-            // Check if input is numeric (user ID)
-            const isNumeric = /^\d+$/.test(input);
-            
-            if (!isNumeric) {
-                // Username resolution via API
-                const usernameRes = await fetch('https://users.roblox.com/v1/usernames/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usernames: [input] })
-                });
-                const usernameData = await usernameRes.json();
-                
-                if (!usernameData.data || usernameData.data.length === 0) {
-                    resultDiv.innerHTML = '<p class="error">username not found</p>';
-                    return;
-                }
-                userId = usernameData.data[0].id;
-            }
-            
-            // Get user profile
-            const profileRes = await fetch(`https://users.roblox.com/v1/users/${userId}`);
-            const profile = await profileRes.json();
-            
-            if (!profile || profile.errors || !profile.id) {
-                resultDiv.innerHTML = '<p class="error">user not found</p>';
-                return;
-            }
-            
-            // Get follower count
-            let followers = 0;
-            try {
-                const followersRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`);
-                const followersData = await followersRes.json();
-                followers = followersData.count || 0;
-            } catch(e) { followers = 0; }
-            
-            // Get following count
-            let following = 0;
-            try {
-                const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`);
-                const followingData = await followingRes.json();
-                following = followingData.count || 0;
-            } catch(e) { following = 0; }
-            
-            // Get friend count
-            let friends = 0;
-            try {
-                const friendsRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`);
-                const friendsData = await friendsRes.json();
-                friends = friendsData.count || 0;
-            } catch(e) { friends = 0; }
-            
-            // Get presence status (online/offline)
-            let presence = 'Unknown';
-            let lastOnline = '';
-            try {
-                const presenceRes = await fetch('https://presence.roblox.com/v1/presence/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userIds: [parseInt(userId)] })
-                });
-                const presenceData = await presenceRes.json();
-                if (presenceData.userPresences && presenceData.userPresences[0]) {
-                    const status = presenceData.userPresences[0].userPresenceType;
-                    if (status === 1) presence = 'Online';
-                    else if (status === 2) presence = 'In Game';
-                    else if (status === 3) presence = 'In Studio';
-                    else presence = 'Offline';
-                    lastOnline = presenceData.userPresences[0].lastOnline || '';
-                }
-            } catch(e) { presence = 'Unknown'; }
-            
-            // Get account age
-            const createdDate = new Date(profile.created);
-            const now = new Date();
-            const accountAgeYears = now.getFullYear() - createdDate.getFullYear();
-            const accountAgeDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
-            const joinDate = createdDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            // Avatar image URL
-            const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
-            
-            resultDiv.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${avatarUrl}" class="avatar-img" style="width: 100px; height: 100px; border-radius: 50%;" onerror="this.src='https://www.roblox.com/favicon.ico'">
-                </div>
-                <div class="result-grid">
-                    <div><strong>Username:</strong> ${profile.name}</div>
-                    <div><strong>Display Name:</strong> ${profile.displayName || profile.name}</div>
-                    <div><strong>User ID:</strong> ${profile.id}</div>
-                    <div><strong>Join Date:</strong> ${joinDate}</div>
-                    <div><strong>Account Age:</strong> ${accountAgeYears} years (${accountAgeDays} days)</div>
-                    <div><strong>Followers:</strong> ${followers.toLocaleString()}</div>
-                    <div><strong>Following:</strong> ${following.toLocaleString()}</div>
-                    <div><strong>Friends:</strong> ${friends.toLocaleString()}</div>
-                    <div><strong>Status:</strong> ${presence}</div>
-                    <div><strong>Profile Link:</strong> <a href="https://www.roblox.com/user.aspx?id=${profile.id}" target="_blank" style="color:#44aaff;">open in Roblox →</a></div>
-                </div>
-                ${profile.description ? `<hr><div><strong>Bio:</strong> ${profile.description}</div>` : ''}
-            `;
-            
-        } catch (error) {
-            resultDiv.innerHTML = `<p class="error">lookup failed: ${error.message}</p>`;
+        // Load global stats
+        const savedGlobalStats = localStorage.getItem(GLOBAL_STATS_KEY);
+        if (savedGlobalStats) {
+            globalStats = JSON.parse(savedGlobalStats);
+        } else {
+            globalStats = { totalSent: 0, daily: {}, recentActivity: [] };
         }
+        
+        updateStatsDisplay();
     }
     
-    document.getElementById('lookupRobloxBtn').addEventListener('click', lookupRoblox);
-    document.getElementById('robloxUsername').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') lookupRoblox();
-    });
+    function updateStatsDisplay() {
+        document.getElementById('userSentCount').innerText = userStats.sent.toLocaleString();
+        document.getElementById('totalSentCount').innerText = globalStats.totalSent.toLocaleString();
+        updateBarChart();
+        updateRecentActivity();
+    }
+    
+    function updateBarChart() {
+        const chartDiv = document.getElementById('barChart');
+        const today = new Date();
+        const days = [];
+        for (let i = 9; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(today.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            days.push({ date: dateStr, label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) });
+        }
+        
+        const maxCount = Math.max(1, ...Object.values(globalStats.daily), ...Object.values(userStats.daily));
+        const maxHeight = 150;
+        
+        let html = '';
+        for (const day of days) {
+            const globalCount = globalStats.daily[day.date] || 0;
+            const userCount = userStats.daily[day.date] || 0;
+            const userHeight = (userCount / maxCount) * maxHeight;
+            const globalHeight = (globalCount / maxCount) * maxHeight;
+            html += `
+                <div style="flex:1; text-align: center;">
+                    <div style="height: ${maxHeight}px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
+                        <div style="height: ${userHeight}px; background: #44aaff; width: 100%; opacity: 0.7;"></div>
+                        <div style="height: ${globalHeight}px; background: #44ff44; width: 100%; opacity: 0.7;"></div>
+                    </div>
+                    <div style="font-size: 9px; color: #555; margin-top: 8px;">${day.label}</div>
+                </div>
+            `;
+        }
+        chartDiv.innerHTML = html;
+    }
+    
+    function updateRecentActivity() {
+        const activityDiv = document.getElementById('recentActivity');
+        if (!globalStats.recentActivity || globalStats.recentActivity.length === 0) {
+            activityDiv.innerHTML = '<p>no recent activity.</p>';
+            return;
+        }
+        activityDiv.innerHTML = globalStats.recentActivity.slice(0, 10).map(activity => 
+            `<p>[${activity.time}] ${activity.message}</p>`
+        ).join('');
+    }
+    
+    function addToGlobalStats(count, email) {
+        const today = new Date().toISOString().split('T')[0];
+        
+        globalStats.totalSent += count;
+        globalStats.daily[today] = (globalStats.daily[today] || 0) + count;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString();
+        globalStats.recentActivity.unshift({
+            time: timeStr,
+            message: `${count} email${count !== 1 ? 's' : ''} sent to ${email}`
+        });
+        if (globalStats.recentActivity.length > 20) globalStats.recentActivity.pop();
+        
+        localStorage.setItem(GLOBAL_STATS_KEY, JSON.stringify(globalStats));
+    }
+    
+    function addToUserStats(count) {
+        const today = new Date().toISOString().split('T')[0];
+        
+        userStats.sent += count;
+        userStats.daily[today] = (userStats.daily[today] || 0) + count;
+        
+        localStorage.setItem(USER_STATS_KEY, JSON.stringify(userStats));
+    }
+    
+    function recordEmailSent(count, targetEmail) {
+        addToUserStats(count);
+        addToGlobalStats(count, targetEmail);
+        updateStatsDisplay();
+    }
     
     // ============ OBFUSCATED PASSCODE ============
     function checkPasscode() {
@@ -907,6 +962,7 @@
             document.getElementById('gate').classList.add('hidden');
             document.getElementById('mainContent').style.display = 'block';
             checkBackend();
+            loadStats();
         } else {
             document.getElementById('gateError').textContent = 'incorrect';
             input.value = '';
@@ -1097,6 +1153,10 @@
             if (i < targets.length - 1 && !stopRequested) {
                 await new Promise(resolve => setTimeout(resolve, delay * 1000));
             }
+        }
+        
+        if (successCount > 0) {
+            recordEmailSent(successCount, targets[0] || 'unknown');
         }
         
         addStatus(`=== complete: ${successCount} sent, ${failCount} failed ===`, successCount > 0 ? 'success' : 'error');
