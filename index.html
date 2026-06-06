@@ -188,7 +188,6 @@
             font-size: 13px;
         }
 
-        /* SIDEBAR TABS */
         .tabs-container {
             display: flex;
             justify-content: center;
@@ -472,7 +471,6 @@
         ⚠️ educational purpose only — test your own servers only.
     </div>
 
-    <!-- TABS -->
     <div class="tabs-container">
         <button class="tab-btn active" data-tab="email">
             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -490,7 +488,6 @@
         </button>
     </div>
 
-    <!-- EMAIL PANEL -->
     <div id="emailPanel" class="panel active">
         <div class="card">
             <h3>send emails</h3>
@@ -571,7 +568,6 @@
         </div>
     </div>
 
-    <!-- IP GEOLOCATION PANEL -->
     <div id="ipPanel" class="panel">
         <div class="card">
             <h3>ip geolocation</h3>
@@ -750,34 +746,32 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ IP GEOLOCATION ============
+    // ============ IP GEOLOCATION (FIXED - USING ipwho.is) ============
     async function lookupIP(ip = '') {
         const resultDiv = document.getElementById('ipResult');
         resultDiv.innerHTML = '<p>looking up...</p>';
         
-        let url = 'http://ip-api.com/json/';
+        let url = 'https://ipwho.is/';
         if (ip && ip.trim() !== '') {
             url += encodeURIComponent(ip.trim());
-        } else {
-            url += 'me';
         }
         
         try {
             const response = await fetch(url);
             const data = await response.json();
             
-            if (data.status === 'success') {
+            if (data.success === true) {
                 resultDiv.innerHTML = `
                     <div class="result-grid">
-                        <div><strong>IP:</strong> ${data.query}</div>
+                        <div><strong>IP:</strong> ${data.ip}</div>
                         <div><strong>Country:</strong> ${data.country}</div>
-                        <div><strong>Region:</strong> ${data.regionName}</div>
+                        <div><strong>Region:</strong> ${data.region}</div>
                         <div><strong>City:</strong> ${data.city}</div>
-                        <div><strong>ISP:</strong> ${data.isp}</div>
-                        <div><strong>Organization:</strong> ${data.org || 'N/A'}</div>
-                        <div><strong>Timezone:</strong> ${data.timezone}</div>
-                        <div><strong>Coordinates:</strong> ${data.lat}, ${data.lon}</div>
-                        <div><strong>ZIP Code:</strong> ${data.zip || 'N/A'}</div>
+                        <div><strong>ISP:</strong> ${data.connection?.isp || 'N/A'}</div>
+                        <div><strong>Organization:</strong> ${data.connection?.org || 'N/A'}</div>
+                        <div><strong>Timezone:</strong> ${data.timezone?.name || 'N/A'}</div>
+                        <div><strong>Coordinates:</strong> ${data.latitude}, ${data.longitude}</div>
+                        <div><strong>ZIP Code:</strong> ${data.postal || 'N/A'}</div>
                     </div>
                 `;
             } else {
@@ -794,6 +788,7 @@
     });
     
     document.getElementById('myIpBtn').addEventListener('click', () => {
+        document.getElementById('ipAddress').value = '';
         lookupIP('');
     });
     
