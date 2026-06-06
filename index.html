@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>aud.lol | OG User Vault</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,7 +20,6 @@
             color: #fff;
         }
 
-        /* SIGN UP PAGE */
         .signup-container {
             position: fixed;
             top: 0;
@@ -104,7 +104,6 @@
             margin-top: 12px;
         }
 
-        /* CODE VERIFICATION PAGE */
         .code-container {
             position: fixed;
             top: 0;
@@ -205,13 +204,11 @@
             color: #fff;
         }
 
-        /* DASHBOARD */
         .dashboard {
             display: none;
             height: 100vh;
         }
 
-        /* TOP NAV */
         .top-nav {
             display: flex;
             justify-content: space-between;
@@ -252,13 +249,11 @@
             opacity: 0.6;
         }
 
-        /* MAIN LAYOUT */
         .main-layout {
             display: flex;
             height: calc(100vh - 73px);
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 280px;
             background: #000000;
@@ -302,7 +297,6 @@
             filter: brightness(1);
         }
 
-        /* CONTENT */
         .content {
             flex: 1;
             overflow-y: auto;
@@ -323,7 +317,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* CLAIM SECTION */
         .claim-title {
             font-size: 32px;
             margin-bottom: 20px;
@@ -398,7 +391,6 @@
             color: #44ff44;
         }
 
-        /* INVENTORY */
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -453,7 +445,6 @@
             line-height: 1.5;
         }
 
-        /* NOTIFICATION DROPDOWN */
         .notification-dropdown {
             position: absolute;
             top: 70px;
@@ -483,7 +474,6 @@
             border-bottom: none;
         }
 
-        /* SEARCH MODAL */
         .search-modal {
             position: fixed;
             top: 0;
@@ -530,11 +520,45 @@
             text-align: center;
             padding: 10px;
         }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            visibility: hidden;
+        }
+
+        .loading-overlay.show {
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
-<!-- SIGN UP PAGE -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+</div>
+
 <div id="signupContainer" class="signup-container">
     <div class="signup-box">
         <h2>aud.lol</h2>
@@ -546,7 +570,6 @@
     </div>
 </div>
 
-<!-- CODE VERIFICATION PAGE -->
 <div id="codeContainer" class="code-container hidden">
     <div class="code-box">
         <h2>Verify Your Email</h2>
@@ -565,7 +588,6 @@
     </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="dashboard">
     <div class="top-nav">
         <div class="logo">aud<span>.</span>lol</div>
@@ -651,6 +673,14 @@
 </div>
 
 <script>
+    // ============ EMAILJS CONFIGURATION (YOUR KEYS) ============
+    const EMAILJS_PUBLIC_KEY = "uH9D43wu6u8jD2OA3";
+    const EMAILJS_SERVICE_ID = "service_vtq6747";
+    const EMAILJS_TEMPLATE_ID = "template_ks5phpm";
+    
+    // Initialize EmailJS
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    
     // ============ STORAGE KEYS ============
     const USERS_KEY = 'aud_users';
     const SESSIONS_KEY = 'aud_sessions';
@@ -681,6 +711,7 @@
         
         if (currentUser) {
             updateInventory();
+            updateNotifications();
         }
     }
     
@@ -703,24 +734,38 @@
         updateInventory();
     }
     
+    // ============ VALID EMAIL CHECK ============
+    function isValidEmail(email) {
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return re.test(email);
+    }
+    
+    // ============ SEND REAL EMAIL VIA EMAILJS ============
+    async function sendVerificationCode(email, code) {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.classList.add('show');
+        
+        try {
+            const templateParams = {
+                to_email: email,
+                verification_code: code
+            };
+            
+            const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+            console.log("Email sent!", response);
+            loadingOverlay.classList.remove('show');
+            return true;
+        } catch (error) {
+            console.error("Email failed:", error);
+            loadingOverlay.classList.remove('show');
+            alert(`Failed to send email. Please try again.\n\nError: ${error.text || error.message}`);
+            return false;
+        }
+    }
+    
     // ============ GENERATE 6-DIGIT CODE ============
     function generateCode() {
         return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-    
-    // ============ SIMULATE SENDING EMAIL ============
-    function sendVerificationCode(email, code) {
-        // In production, this would call a backend email API
-        // For demo, we'll just log to console
-        console.log(`[EMAIL SIMULATION] To: ${email} | Code: ${code}`);
-        alert(`[TEST MODE] Your verification code is: ${code}\n\nIn production, this would be sent to ${email}`);
-        return true;
-    }
-    
-    // ============ VALIDATE EMAIL FORMAT ============
-    function isValidEmail(email) {
-        const re = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-        return re.test(email);
     }
     
     // ============ VALIDATE USERNAME ============
@@ -728,12 +773,10 @@
         return /^[a-zA-Z0-9_]{2,16}$/.test(username);
     }
     
-    // ============ CHECK USERNAME CLAIMED ============
     function isUsernameClaimed(username) {
         return claimedUsernames.some(item => item.username.toLowerCase() === username.toLowerCase());
     }
     
-    // ============ UPDATE INVENTORY ============
     function updateInventory() {
         const inventoryDiv = document.getElementById('inventoryList');
         const userClaims = claimedUsernames.filter(c => c.claimedBy === currentUser?.email);
@@ -751,7 +794,6 @@
         `).join('');
     }
     
-    // ============ ADD NOTIFICATION ============
     function addNotification(message) {
         const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
         if (users[currentUser.email]) {
@@ -783,7 +825,6 @@
         `).join('');
     }
     
-    // ============ CLAIM USERNAME ============
     function claimUsername(username) {
         const normalized = username.toLowerCase().trim();
         
@@ -847,7 +888,6 @@
         }
     }
     
-    // ============ UI ACTIONS ============
     function switchTab(tabId) {
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.dataset.tab === tabId) {
@@ -876,8 +916,7 @@
         document.getElementById('signupError').textContent = '';
     }
     
-    // ============ SIGN UP FLOW ============
-    function startSignUp() {
+    async function startSignUp() {
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value.trim();
         
@@ -896,7 +935,6 @@
             return;
         }
         
-        // Check if email already exists
         const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
         if (users[email]) {
             document.getElementById('signupError').textContent = 'Email already registered. Sign in instead.';
@@ -907,13 +945,13 @@
         pendingPassword = password;
         pendingCode = generateCode();
         
-        sendVerificationCode(pendingEmail, pendingCode);
+        const emailSent = await sendVerificationCode(pendingEmail, pendingCode);
+        if (!emailSent) return;
         
         document.getElementById('verifyEmail').textContent = pendingEmail;
         document.getElementById('signupContainer').classList.add('hidden');
         document.getElementById('codeContainer').classList.remove('hidden');
         
-        // Auto-focus first code input
         document.getElementById('code1').focus();
     }
     
@@ -937,7 +975,6 @@
             return;
         }
         
-        // Create account
         saveUser(pendingEmail, { 
             password: pendingPassword,
             createdAt: new Date().toISOString(),
@@ -946,30 +983,29 @@
         saveSession(pendingEmail);
         currentUser = { email: pendingEmail };
         
-        // Clear pending
         pendingEmail = null;
         pendingPassword = null;
         pendingCode = null;
         
-        // Show dashboard
         document.getElementById('codeContainer').classList.add('hidden');
         document.getElementById('dashboard').style.display = 'block';
         updateInventory();
         updateNotifications();
     }
     
-    function resendCode() {
+    async function resendCode() {
         if (pendingEmail) {
             pendingCode = generateCode();
-            sendVerificationCode(pendingEmail, pendingCode);
-            document.getElementById('codeError').textContent = 'New code sent!';
-            setTimeout(() => {
-                document.getElementById('codeError').textContent = '';
-            }, 3000);
+            const emailSent = await sendVerificationCode(pendingEmail, pendingCode);
+            if (emailSent) {
+                document.getElementById('codeError').textContent = 'New code sent!';
+                setTimeout(() => {
+                    document.getElementById('codeError').textContent = '';
+                }, 3000);
+            }
         }
     }
     
-    // ============ AUTO-TAB CODE INPUTS ============
     function setupCodeInputs() {
         const inputs = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'];
         inputs.forEach((id, index) => {
@@ -985,7 +1021,6 @@
         });
     }
     
-    // ============ EVENT LISTENERS ============
     document.getElementById('signupBtn').addEventListener('click', startSignUp);
     document.getElementById('signupPassword').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') startSignUp();
@@ -995,13 +1030,10 @@
     document.getElementById('resendCode').addEventListener('click', resendCode);
     
     document.getElementById('claimBtn').addEventListener('click', () => {
-        const username = document.getElementById('claimUsername').value.trim();
-        claimUsername(username);
+        claimUsername(document.getElementById('claimUsername').value.trim());
     });
     document.getElementById('claimUsername').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            claimUsername(this.value.trim());
-        }
+        if (e.key === 'Enter') claimUsername(this.value.trim());
     });
     
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1010,7 +1042,6 @@
     
     document.getElementById('signoutBtn').addEventListener('click', signOut);
     
-    // Search modal
     const searchModal = document.getElementById('searchModal');
     document.getElementById('searchBtn').addEventListener('click', () => {
         searchModal.classList.add('show');
@@ -1025,7 +1056,6 @@
         if (e.key === 'Enter') searchUsername(this.value);
     });
     
-    // Notifications dropdown
     const notifDropdown = document.getElementById('notificationDropdown');
     let notifOpen = false;
     document.getElementById('notificationsBtn').addEventListener('click', () => {
@@ -1053,7 +1083,6 @@
         });
     }
     
-    // ============ INIT ============
     setupCodeInputs();
     loadData();
     
