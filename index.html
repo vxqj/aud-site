@@ -36,7 +36,6 @@
             position: relative;
         }
 
-        /* Canvas for particle animation */
         canvas {
             position: fixed;
             top: 0;
@@ -324,7 +323,6 @@
             text-align: center;
         }
 
-        /* Scrollbar styling */
         .main-content::-webkit-scrollbar {
             width: 6px;
         }
@@ -345,10 +343,8 @@
 </head>
 <body>
 
-<!-- CANVAS FOR BACKGROUND ANIMATION -->
 <canvas id="bgCanvas"></canvas>
 
-<!-- PASSCODE GATE -->
 <div id="gate" class="gate">
     <div class="gate-box">
         <h2>aud.lol</h2>
@@ -360,7 +356,6 @@
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="mainContent" class="main-content">
 <div class="container">
     <div class="header">
@@ -415,7 +410,6 @@
             </div>
         </div>
 
-        <!-- MESSAGE VARIATIONS FOR SPAM MODE -->
         <div id="variationsGroup" style="display: none;">
             <div class="input-group">
                 <label>subject variations (one per line)</label>
@@ -458,38 +452,82 @@
 </div>
 
 <script>
-    // ============ CANVAS BACKGROUND ANIMATION ============
+    // ============ MOUSE-REACTIVE CANVAS BACKGROUND ============
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     
     let width, height;
     let particles = [];
-    let particleCount = 80;
+    let particleCount = 120;
+    let mouseX = -1000, mouseY = -1000;
+    
+    // Track mouse position
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
     
     class Particle {
         constructor() {
             this.x = Math.random() * width;
             this.y = Math.random() * height;
-            this.size = Math.random() * 2 + 0.5;
-            this.speedX = (Math.random() - 0.5) * 0.3;
-            this.speedY = (Math.random() - 0.5) * 0.3;
-            this.opacity = Math.random() * 0.3 + 0.1;
+            this.originalX = this.x;
+            this.originalY = this.y;
+            this.size = Math.random() * 2.5 + 0.8;
+            this.baseOpacity = Math.random() * 0.4 + 0.1;
+            this.speedX = (Math.random() - 0.5) * 0.2;
+            this.speedY = (Math.random() - 0.5) * 0.2;
         }
         
         update() {
+            // Calculate distance to mouse
+            const dx = this.x - mouseX;
+            const dy = this.y - mouseY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Mouse repulsion effect
+            if (distance < 150) {
+                const angle = Math.atan2(dy, dx);
+                const force = (150 - distance) / 150 * 3;
+                this.x += Math.cos(angle) * force;
+                this.y += Math.sin(angle) * force;
+            } else {
+                // Slowly return to original position
+                this.x += (this.originalX - this.x) * 0.02;
+                this.y += (this.originalY - this.y) * 0.02;
+            }
+            
+            // Add slight wandering movement
             this.x += this.speedX;
             this.y += this.speedY;
             
-            if (this.x < 0) this.x = width;
-            if (this.x > width) this.x = 0;
-            if (this.y < 0) this.y = height;
-            if (this.y > height) this.y = 0;
+            // Boundary check - teleport to other side if needed
+            if (this.x < -50) this.x = width + 50;
+            if (this.x > width + 50) this.x = -50;
+            if (this.y < -50) this.y = height + 50;
+            if (this.y > height + 50) this.y = -50;
+            
+            // Update original position if particle drifts too far (for return target)
+            if (Math.abs(this.x - this.originalX) > 200) {
+                this.originalX = this.x;
+                this.originalY = this.y;
+            }
         }
         
         draw() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            
+            // Increase opacity if near mouse
+            const dx = this.x - mouseX;
+            const dy = this.y - mouseY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            let opacity = this.baseOpacity;
+            if (distance < 100) {
+                opacity = 0.8;
+            }
+            
+            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
             ctx.fill();
         }
     }
@@ -509,7 +547,7 @@
     function animateCanvas() {
         ctx.clearRect(0, 0, width, height);
         
-        // Draw gradient background
+        // Gradient background
         const gradient = ctx.createLinearGradient(0, 0, width, height);
         gradient.addColorStop(0, '#0a0a0a');
         gradient.addColorStop(0.5, '#050505');
@@ -524,11 +562,11 @@
                 const dy = particles[i].y - particles[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < 120) {
+                if (distance < 100) {
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - distance / 120)})`;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.06 * (1 - distance / 100)})`;
                     ctx.stroke();
                 }
             }
@@ -538,6 +576,19 @@
         for (let particle of particles) {
             particle.update();
             particle.draw();
+        }
+        
+        // Draw a subtle glow around mouse cursor
+        if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, 80, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, 40, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fill();
         }
         
         requestAnimationFrame(animateCanvas);
@@ -562,7 +613,6 @@
         const input = document.getElementById('passcodeInput');
         const code = input.value.trim();
         
-        // Obfuscated: "factor-access132"
         const p1 = String.fromCharCode(102, 97, 99, 116, 111, 114);
         const p2 = String.fromCharCode(45);
         const p3 = String.fromCharCode(97, 99, 99, 101, 115, 115);
