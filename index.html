@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aud.lol | Email Delivery System</title>
+    <title>aud.lol | Multi Tool System</title>
     
     <!-- Discord Embed Meta Tags -->
     <meta property="og:title" content="aud.lol | Email Delivery System">
@@ -746,45 +746,107 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ IP GEOLOCATION (WORKING - ipapi.co) ============
+    // ============ IP GEOLOCATION (WITH RATE LIMIT HANDLING & FALLBACK APIS) ============
+    let lastLookupTime = 0;
+    const MIN_DELAY_MS = 2000; // 2 second minimum between lookups
+    
     async function lookupIP(ip = '') {
         const resultDiv = document.getElementById('ipResult');
+        
+        // Rate limiting to prevent API blocks
+        const now = Date.now();
+        if (now - lastLookupTime < MIN_DELAY_MS) {
+            const waitTime = Math.ceil((MIN_DELAY_MS - (now - lastLookupTime)) / 1000);
+            resultDiv.innerHTML = `<p class="error">please wait ${waitTime} seconds between lookups</p>`;
+            return;
+        }
+        lastLookupTime = now;
+        
         resultDiv.innerHTML = '<p>looking up...</p>';
         
-        let url = 'https://ipapi.co/json/';
-        if (ip && ip.trim() !== '') {
-            url = `https://ipapi.co/${encodeURIComponent(ip.trim())}/json/`;
+        // Multiple APIs to try in order
+        const apis = [
+            {
+                url: ip ? `https://ipapi.co/${encodeURIComponent(ip.trim())}/json/` : 'https://ipapi.co/json/',
+                parser: (data) => data.ip ? {
+                    ip: data.ip,
+                    country: data.country_name,
+                    region: data.region,
+                    city: data.city,
+                    isp: data.org,
+                    timezone: data.timezone,
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    zip: data.postal
+                } : null
+            },
+            {
+                url: `https://ipwho.is/${ip ? encodeURIComponent(ip.trim()) : ''}`,
+                parser: (data) => data.success ? {
+                    ip: data.ip,
+                    country: data.country,
+                    region: data.region,
+                    city: data.city,
+                    isp: data.connection?.isp,
+                    timezone: data.timezone?.name,
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    zip: data.postal
+                } : null
+            },
+            {
+                url: `https://freeipapi.com/api/json/${ip ? encodeURIComponent(ip.trim()) : ''}`,
+                parser: (data) => data.ipAddress ? {
+                    ip: data.ipAddress,
+                    country: data.countryName,
+                    region: data.regionName,
+                    city: data.cityName,
+                    isp: null,
+                    timezone: null,
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    zip: null
+                } : null
+            }
+        ];
+        
+        for (const api of apis) {
+            try {
+                const response = await fetch(api.url);
+                const data = await response.json();
+                const parsed = api.parser(data);
+                
+                if (parsed && parsed.ip) {
+                    resultDiv.innerHTML = `
+                        <div class="result-grid">
+                            <div><strong>IP:</strong> ${parsed.ip}</div>
+                            <div><strong>Country:</strong> ${parsed.country || 'N/A'}</div>
+                            <div><strong>Region:</strong> ${parsed.region || 'N/A'}</div>
+                            <div><strong>City:</strong> ${parsed.city || 'N/A'}</div>
+                            <div><strong>ISP:</strong> ${parsed.isp || 'N/A'}</div>
+                            <div><strong>Timezone:</strong> ${parsed.timezone || 'N/A'}</div>
+                            <div><strong>Coordinates:</strong> ${parsed.lat || 'N/A'}, ${parsed.lon || 'N/A'}</div>
+                            <div><strong>ZIP Code:</strong> ${parsed.zip || 'N/A'}</div>
+                        </div>
+                    `;
+                    return;
+                }
+            } catch (e) {
+                // Try next API
+                continue;
+            }
         }
         
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.ip) {
-                resultDiv.innerHTML = `
-                    <div class="result-grid">
-                        <div><strong>IP:</strong> ${data.ip}</div>
-                        <div><strong>Country:</strong> ${data.country_name || 'N/A'}</div>
-                        <div><strong>Region:</strong> ${data.region || 'N/A'}</div>
-                        <div><strong>City:</strong> ${data.city || 'N/A'}</div>
-                        <div><strong>ISP:</strong> ${data.org || 'N/A'}</div>
-                        <div><strong>Organization:</strong> ${data.org || 'N/A'}</div>
-                        <div><strong>Timezone:</strong> ${data.timezone || 'N/A'}</div>
-                        <div><strong>Coordinates:</strong> ${data.latitude || 'N/A'}, ${data.longitude || 'N/A'}</div>
-                        <div><strong>ZIP Code:</strong> ${data.postal || 'N/A'}</div>
-                    </div>
-                `;
-            } else {
-                resultDiv.innerHTML = `<p class="error">invalid IP address or lookup failed</p>`;
-            }
-        } catch (error) {
-            resultDiv.innerHTML = `<p class="error">lookup failed: ${error.message}</p>`;
-        }
+        resultDiv.innerHTML = `<p class="error">all lookup services failed. please try again in a few minutes.</p>`;
     }
     
     document.getElementById('lookupIpBtn').addEventListener('click', () => {
         const ip = document.getElementById('ipAddress').value;
-        lookupIP(ip);
+        if (ip && ip.trim()) {
+            lookupIP(ip);
+        } else {
+            document.getElementById('ipResult').innerHTML = '<p class="error">enter an IP address</p>';
+        }
     });
     
     document.getElementById('myIpBtn').addEventListener('click', () => {
