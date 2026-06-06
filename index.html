@@ -31,7 +31,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.4s ease;
         }
 
         .signup-container.hidden {
@@ -45,14 +45,15 @@
             background: #050505;
             padding: 48px;
             border: 1px solid #1a1a1a;
-            width: 400px;
-            border-radius: 20px;
+            width: 420px;
+            border-radius: 24px;
         }
 
         .signup-box h2 {
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 8px;
             font-weight: 500;
+            letter-spacing: -0.5px;
         }
 
         .signup-box .sub {
@@ -67,9 +68,9 @@
             border: 1px solid #1a1a1a;
             color: #fff;
             padding: 14px 16px;
-            font-size: 14px;
+            font-size: 15px;
             font-family: inherit;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 16px;
             transition: border-color 0.2s;
         }
@@ -85,16 +86,16 @@
             border: none;
             color: #000;
             padding: 14px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-top: 8px;
             transition: opacity 0.2s;
         }
 
         .signup-box button:hover {
-            opacity: 0.8;
+            opacity: 0.85;
         }
 
         .signup-error {
@@ -103,13 +104,114 @@
             margin-top: 12px;
         }
 
+        /* CODE VERIFICATION PAGE */
+        .code-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            transition: opacity 0.4s ease;
+        }
+
+        .code-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .code-box {
+            text-align: center;
+            background: #050505;
+            padding: 48px;
+            border: 1px solid #1a1a1a;
+            width: 420px;
+            border-radius: 24px;
+        }
+
+        .code-box h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .code-box .sub {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 32px;
+        }
+
+        .code-inputs {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .code-inputs input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #fff;
+            border-radius: 12px;
+            font-family: monospace;
+        }
+
+        .code-inputs input:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        .code-box button {
+            width: 100%;
+            background: #fff;
+            border: none;
+            color: #000;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .code-box button:hover {
+            opacity: 0.85;
+        }
+
+        .code-error {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .resend-link {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .resend-link:hover {
+            color: #fff;
+        }
+
         /* DASHBOARD */
         .dashboard {
             display: none;
             height: 100vh;
         }
 
-        /* TOP NAV BAR */
+        /* TOP NAV */
         .top-nav {
             display: flex;
             justify-content: space-between;
@@ -120,7 +222,7 @@
         }
 
         .logo {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 500;
             letter-spacing: -0.5px;
         }
@@ -131,7 +233,7 @@
 
         .nav-icons {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             align-items: center;
         }
 
@@ -150,12 +252,6 @@
             opacity: 0.6;
         }
 
-        .icon-btn img {
-            width: 20px;
-            height: 20px;
-            filter: invert(1);
-        }
-
         /* MAIN LAYOUT */
         .main-layout {
             display: flex;
@@ -164,14 +260,14 @@
 
         /* SIDEBAR */
         .sidebar {
-            width: 260px;
+            width: 280px;
             background: #000000;
             border-right: 1px solid #1a1a1a;
-            padding: 24px 0;
+            padding: 32px 16px;
         }
 
         .nav-item {
-            padding: 12px 24px;
+            padding: 14px 20px;
             color: #888;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -180,8 +276,8 @@
             gap: 14px;
             font-size: 14px;
             font-weight: 450;
-            margin: 0 12px;
-            border-radius: 10px;
+            margin-bottom: 8px;
+            border-radius: 12px;
         }
 
         .nav-item:hover {
@@ -195,22 +291,22 @@
         }
 
         .nav-icon {
-            width: 24px;
-            height: 24px;
-            filter: invert(0.5);
+            width: 22px;
+            height: 22px;
+            filter: brightness(0.5);
             transition: filter 0.2s;
         }
 
-        .nav-item.active .nav-icon,
-        .nav-item:hover .nav-icon {
-            filter: invert(1);
+        .nav-item:hover .nav-icon,
+        .nav-item.active .nav-icon {
+            filter: brightness(1);
         }
 
-        /* CONTENT AREA */
+        /* CONTENT */
         .content {
             flex: 1;
             overflow-y: auto;
-            padding: 32px 40px;
+            padding: 40px 48px;
         }
 
         .panel {
@@ -223,21 +319,16 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* CLAIM SECTION */
         .claim-title {
-            font-size: 28px;
-            margin-bottom: 24px;
+            font-size: 32px;
+            margin-bottom: 20px;
             font-weight: 500;
+            letter-spacing: -0.5px;
         }
 
         .claim-title small {
@@ -247,7 +338,7 @@
         }
 
         .input-group {
-            margin: 20px 0;
+            margin: 24px 0;
         }
 
         .input-group label {
@@ -256,7 +347,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 500;
         }
 
@@ -269,7 +360,7 @@
             padding: 14px 16px;
             font-size: 15px;
             font-family: inherit;
-            border-radius: 10px;
+            border-radius: 12px;
         }
 
         .input-group input:focus {
@@ -283,15 +374,15 @@
             color: #000;
             padding: 12px 28px;
             font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: opacity 0.2s;
         }
 
         button:hover {
-            opacity: 0.8;
+            opacity: 0.85;
         }
 
         .claim-message {
@@ -307,7 +398,7 @@
             color: #44ff44;
         }
 
-        /* INVENTORY GRID */
+        /* INVENTORY */
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -320,7 +411,7 @@
             border: 1px solid #1a1a1a;
             padding: 20px;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 16px;
             transition: all 0.2s ease;
         }
 
@@ -345,7 +436,7 @@
             text-align: center;
             padding: 60px;
             border: 1px dashed #1a1a1a;
-            border-radius: 16px;
+            border-radius: 20px;
             margin-top: 24px;
             font-size: 13px;
         }
@@ -369,9 +460,9 @@
             right: 100px;
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
-            border-radius: 12px;
-            width: 280px;
-            max-height: 300px;
+            border-radius: 16px;
+            width: 300px;
+            max-height: 350px;
             overflow-y: auto;
             z-index: 200;
             display: none;
@@ -382,7 +473,7 @@
         }
 
         .notification-item {
-            padding: 12px 16px;
+            padding: 14px 16px;
             border-bottom: 1px solid #1a1a1a;
             font-size: 12px;
             color: #ccc;
@@ -399,7 +490,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -417,9 +508,9 @@
         .search-box {
             background: #050505;
             border: 1px solid #1a1a1a;
-            border-radius: 20px;
-            width: 400px;
-            padding: 20px;
+            border-radius: 24px;
+            width: 450px;
+            padding: 28px;
         }
 
         .search-box input {
@@ -428,8 +519,9 @@
             border: 1px solid #1a1a1a;
             color: #fff;
             padding: 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 16px;
+            font-size: 15px;
         }
 
         .search-result {
@@ -454,26 +546,44 @@
     </div>
 </div>
 
+<!-- CODE VERIFICATION PAGE -->
+<div id="codeContainer" class="code-container hidden">
+    <div class="code-box">
+        <h2>Verify Your Email</h2>
+        <div class="sub">Enter the 6-digit code sent to <span id="verifyEmail"></span></div>
+        <div class="code-inputs">
+            <input type="text" maxlength="1" id="code1" class="code-input">
+            <input type="text" maxlength="1" id="code2" class="code-input">
+            <input type="text" maxlength="1" id="code3" class="code-input">
+            <input type="text" maxlength="1" id="code4" class="code-input">
+            <input type="text" maxlength="1" id="code5" class="code-input">
+            <input type="text" maxlength="1" id="code6" class="code-input">
+        </div>
+        <button id="verifyBtn">Verify</button>
+        <div id="codeError" class="code-error"></div>
+        <div class="resend-link" id="resendCode">Didn't get a code? Resend</div>
+    </div>
+</div>
+
 <!-- DASHBOARD -->
 <div id="dashboard" class="dashboard">
-    <!-- TOP NAV -->
     <div class="top-nav">
         <div class="logo">aud<span>.</span>lol</div>
         <div class="nav-icons">
             <button class="icon-btn" id="searchBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
             <button class="icon-btn" id="notificationsBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
             </button>
             <button class="icon-btn" id="signoutBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -482,9 +592,7 @@
         </div>
     </div>
 
-    <!-- MAIN LAYOUT -->
     <div class="main-layout">
-        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="nav-item active" data-tab="inventory">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -502,9 +610,7 @@
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
-            <!-- INVENTORY PANEL -->
             <div id="inventory" class="panel active">
                 <div class="claim-title">INVENTORY <small>// claimed usernames</small></div>
                 <div id="inventoryList" class="inventory-grid">
@@ -512,7 +618,6 @@
                 </div>
             </div>
 
-            <!-- CLAIM PANEL -->
             <div id="claim" class="panel">
                 <div class="claim-box">
                     <div class="claim-title">CLAIM YOUR <br>UNIQUE USERNAME</div>
@@ -525,7 +630,8 @@
                     <hr>
                     <div class="info-text">
                         ⚠️ Once claimed, username is permanently yours.<br>
-                        🔥 OG usernames are first come, first served.
+                        🔥 OG usernames are first come, first served.<br>
+                        📝 Only letters a-z, numbers 0-9, and underscores allowed.
                     </div>
                 </div>
             </div>
@@ -533,12 +639,10 @@
     </div>
 </div>
 
-<!-- NOTIFICATION DROPDOWN -->
 <div id="notificationDropdown" class="notification-dropdown">
     <div id="notificationList"></div>
 </div>
 
-<!-- SEARCH MODAL -->
 <div id="searchModal" class="search-modal">
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search username...">
@@ -548,20 +652,26 @@
 
 <script>
     // ============ STORAGE KEYS ============
-    const USER_KEY = 'aud_user';
+    const USERS_KEY = 'aud_users';
+    const SESSIONS_KEY = 'aud_sessions';
     const CLAIMED_KEY = 'aud_claimed';
-    const NOTIFICATIONS_KEY = 'aud_notifications';
     
     // ============ GLOBALS ============
+    let pendingEmail = null;
+    let pendingPassword = null;
+    let pendingCode = null;
     let currentUser = null;
     let claimedUsernames = [];
-    let notifications = [];
     
     // ============ LOAD DATA ============
     function loadData() {
-        const savedUser = localStorage.getItem(USER_KEY);
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
+        const savedUsers = localStorage.getItem(USERS_KEY);
+        if (savedUsers) {
+            const users = JSON.parse(savedUsers);
+            const sessionEmail = localStorage.getItem(SESSIONS_KEY);
+            if (sessionEmail && users[sessionEmail]) {
+                currentUser = { email: sessionEmail, ...users[sessionEmail] };
+            }
         }
         
         const savedClaims = localStorage.getItem(CLAIMED_KEY);
@@ -569,19 +679,23 @@
             claimedUsernames = JSON.parse(savedClaims);
         }
         
-        const savedNotifs = localStorage.getItem(NOTIFICATIONS_KEY);
-        if (savedNotifs) {
-            notifications = JSON.parse(savedNotifs);
+        if (currentUser) {
+            updateInventory();
         }
-        
-        updateInventory();
-        updateNotifications();
     }
     
-    function saveUser() {
-        if (currentUser) {
-            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-        }
+    function saveUser(email, data) {
+        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+        users[email] = data;
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
+    
+    function saveSession(email) {
+        localStorage.setItem(SESSIONS_KEY, email);
+    }
+    
+    function clearSession() {
+        localStorage.removeItem(SESSIONS_KEY);
     }
     
     function saveClaims() {
@@ -589,23 +703,37 @@
         updateInventory();
     }
     
-    function saveNotifications() {
-        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
-        updateNotifications();
+    // ============ GENERATE 6-DIGIT CODE ============
+    function generateCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
     }
     
-    function addNotification(message) {
-        notifications.unshift({
-            message: message,
-            time: new Date().toLocaleTimeString(),
-            date: new Date().toLocaleDateString()
-        });
-        // Keep only last 20 notifications
-        if (notifications.length > 20) notifications.pop();
-        saveNotifications();
+    // ============ SIMULATE SENDING EMAIL ============
+    function sendVerificationCode(email, code) {
+        // In production, this would call a backend email API
+        // For demo, we'll just log to console
+        console.log(`[EMAIL SIMULATION] To: ${email} | Code: ${code}`);
+        alert(`[TEST MODE] Your verification code is: ${code}\n\nIn production, this would be sent to ${email}`);
+        return true;
     }
     
-    // ============ UPDATE UI ============
+    // ============ VALIDATE EMAIL FORMAT ============
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    // ============ VALIDATE USERNAME ============
+    function isValidUsername(username) {
+        return /^[a-zA-Z0-9_]{2,16}$/.test(username);
+    }
+    
+    // ============ CHECK USERNAME CLAIMED ============
+    function isUsernameClaimed(username) {
+        return claimedUsernames.some(item => item.username.toLowerCase() === username.toLowerCase());
+    }
+    
+    // ============ UPDATE INVENTORY ============
     function updateInventory() {
         const inventoryDiv = document.getElementById('inventoryList');
         const userClaims = claimedUsernames.filter(c => c.claimedBy === currentUser?.email);
@@ -617,28 +745,45 @@
         
         inventoryDiv.innerHTML = userClaims.map(item => `
             <div class="inventory-item">
-                <div class="username">@${escapeHtml(item.username)}</div>
+                <div class="username">${escapeHtml(item.username)}</div>
                 <div class="date">${item.date}</div>
             </div>
         `).join('');
     }
     
+    // ============ ADD NOTIFICATION ============
+    function addNotification(message) {
+        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+        if (users[currentUser.email]) {
+            const notifs = users[currentUser.email].notifications || [];
+            notifs.unshift({
+                message: message,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString()
+            });
+            if (notifs.length > 20) notifs.pop();
+            users[currentUser.email].notifications = notifs;
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+            updateNotifications();
+        }
+    }
+    
     function updateNotifications() {
+        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+        const notifs = users[currentUser?.email]?.notifications || [];
         const notifList = document.getElementById('notificationList');
-        if (notifications.length === 0) {
+        
+        if (notifs.length === 0) {
             notifList.innerHTML = '<div class="notification-item">No notifications</div>';
             return;
         }
-        notifList.innerHTML = notifications.map(n => `
+        
+        notifList.innerHTML = notifs.map(n => `
             <div class="notification-item">📢 ${escapeHtml(n.message)}<br><span style="font-size:9px;color:#555;">${n.date} ${n.time}</span></div>
         `).join('');
     }
     
-    // ============ CHECK USERNAME ============
-    function isUsernameClaimed(username) {
-        return claimedUsernames.some(item => item.username.toLowerCase() === username.toLowerCase());
-    }
-    
+    // ============ CLAIM USERNAME ============
     function claimUsername(username) {
         const normalized = username.toLowerCase().trim();
         
@@ -646,16 +791,8 @@
             showMessage('Enter a username', 'error');
             return false;
         }
-        if (normalized.length < 2) {
-            showMessage('Username must be at least 2 characters', 'error');
-            return false;
-        }
-        if (normalized.length > 16) {
-            showMessage('Username too long (max 16 characters)', 'error');
-            return false;
-        }
-        if (!/^[a-z0-9_]+$/.test(normalized)) {
-            showMessage('Only letters, numbers, and underscores allowed', 'error');
+        if (!isValidUsername(normalized)) {
+            showMessage('Only letters a-z, numbers 0-9, and underscores. 2-16 characters.', 'error');
             return false;
         }
         if (isUsernameClaimed(normalized)) {
@@ -674,8 +811,6 @@
         });
         
         saveClaims();
-        
-        // Add notification
         addNotification(`You claimed @${normalized}!`);
         
         showMessage(`✓ Successfully claimed @${normalized}!`, 'success');
@@ -732,7 +867,7 @@
     }
     
     function signOut() {
-        localStorage.removeItem(USER_KEY);
+        clearSession();
         currentUser = null;
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('signupContainer').classList.remove('hidden');
@@ -741,8 +876,8 @@
         document.getElementById('signupError').textContent = '';
     }
     
-    // ============ SIGN UP ============
-    function signUp() {
+    // ============ SIGN UP FLOW ============
+    function startSignUp() {
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value.trim();
         
@@ -751,8 +886,8 @@
             return;
         }
         
-        if (!email.includes('@')) {
-            document.getElementById('signupError').textContent = 'Enter a valid email';
+        if (!isValidEmail(email)) {
+            document.getElementById('signupError').textContent = 'Enter a valid email address';
             return;
         }
         
@@ -761,19 +896,103 @@
             return;
         }
         
-        currentUser = { email: email, password: password };
-        saveUser();
+        // Check if email already exists
+        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+        if (users[email]) {
+            document.getElementById('signupError').textContent = 'Email already registered. Sign in instead.';
+            return;
+        }
         
+        pendingEmail = email;
+        pendingPassword = password;
+        pendingCode = generateCode();
+        
+        sendVerificationCode(pendingEmail, pendingCode);
+        
+        document.getElementById('verifyEmail').textContent = pendingEmail;
         document.getElementById('signupContainer').classList.add('hidden');
+        document.getElementById('codeContainer').classList.remove('hidden');
+        
+        // Auto-focus first code input
+        document.getElementById('code1').focus();
+    }
+    
+    function verifyCode() {
+        const code1 = document.getElementById('code1').value;
+        const code2 = document.getElementById('code2').value;
+        const code3 = document.getElementById('code3').value;
+        const code4 = document.getElementById('code4').value;
+        const code5 = document.getElementById('code5').value;
+        const code6 = document.getElementById('code6').value;
+        
+        const enteredCode = code1 + code2 + code3 + code4 + code5 + code6;
+        
+        if (enteredCode.length !== 6) {
+            document.getElementById('codeError').textContent = 'Enter all 6 digits';
+            return;
+        }
+        
+        if (enteredCode !== pendingCode) {
+            document.getElementById('codeError').textContent = 'Invalid code. Try again.';
+            return;
+        }
+        
+        // Create account
+        saveUser(pendingEmail, { 
+            password: pendingPassword,
+            createdAt: new Date().toISOString(),
+            notifications: []
+        });
+        saveSession(pendingEmail);
+        currentUser = { email: pendingEmail };
+        
+        // Clear pending
+        pendingEmail = null;
+        pendingPassword = null;
+        pendingCode = null;
+        
+        // Show dashboard
+        document.getElementById('codeContainer').classList.add('hidden');
         document.getElementById('dashboard').style.display = 'block';
         updateInventory();
+        updateNotifications();
+    }
+    
+    function resendCode() {
+        if (pendingEmail) {
+            pendingCode = generateCode();
+            sendVerificationCode(pendingEmail, pendingCode);
+            document.getElementById('codeError').textContent = 'New code sent!';
+            setTimeout(() => {
+                document.getElementById('codeError').textContent = '';
+            }, 3000);
+        }
+    }
+    
+    // ============ AUTO-TAB CODE INPUTS ============
+    function setupCodeInputs() {
+        const inputs = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'];
+        inputs.forEach((id, index) => {
+            const input = document.getElementById(id);
+            input.addEventListener('keyup', (e) => {
+                if (e.target.value.length === 1 && index < 5) {
+                    document.getElementById(inputs[index + 1]).focus();
+                }
+                if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+                    document.getElementById(inputs[index - 1]).focus();
+                }
+            });
+        });
     }
     
     // ============ EVENT LISTENERS ============
-    document.getElementById('signupBtn').addEventListener('click', signUp);
-    document.getElementById('signupPassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') signUp();
+    document.getElementById('signupBtn').addEventListener('click', startSignUp);
+    document.getElementById('signupPassword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') startSignUp();
     });
+    
+    document.getElementById('verifyBtn').addEventListener('click', verifyCode);
+    document.getElementById('resendCode').addEventListener('click', resendCode);
     
     document.getElementById('claimBtn').addEventListener('click', () => {
         const username = document.getElementById('claimUsername').value.trim();
@@ -825,23 +1044,25 @@
         }
     });
     
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
     // ============ INIT ============
+    setupCodeInputs();
     loadData();
+    
     if (currentUser) {
         document.getElementById('signupContainer').classList.add('hidden');
         document.getElementById('dashboard').style.display = 'block';
     } else {
         document.getElementById('signupContainer').classList.remove('hidden');
         document.getElementById('dashboard').style.display = 'none';
-    }
-    
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
     }
 </script>
 </body>
