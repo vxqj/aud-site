@@ -3,7 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aud.lol | Email Tool</title>
+    <title>aud.lol | Email Delivery System</title>
+    
+    <!-- Discord Embed Meta Tags -->
+    <meta property="og:title" content="aud.lol | Email Delivery System">
+    <meta property="og:description" content="Educational email testing tool. Send bulk emails, spam mode, subject/message variations, and real-time delivery reports. For authorized use only.">
+    <meta property="og:image" content="https://files.catbox.moe/iobm1a.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://aud.lol">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="aud.lol">
+    <meta name="theme-color" content="#000000">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="aud.lol | Email Delivery System">
+    <meta name="twitter:description" content="Educational email testing tool. Send bulk emails, spam mode, subject/message variations, and real-time delivery reports.">
+    <meta name="twitter:image" content="https://files.catbox.moe/iobm1a.png">
+    
     <style>
         * {
             margin: 0;
@@ -415,20 +431,14 @@
 
 <script>
     // ============ OBFUSCATED PASSCODE ============
-    // Original: factor-access132
-    // Obfuscated - harder to find in source
-    
     function checkPasscode() {
         const input = document.getElementById('passcodeInput');
         const code = input.value.trim();
         
-        // Part 1: "factor" - ASCII codes
+        // Obfuscated: "factor-access132"
         const p1 = String.fromCharCode(102, 97, 99, 116, 111, 114);
-        // Part 2: "-"
         const p2 = String.fromCharCode(45);
-        // Part 3: "access"
         const p3 = String.fromCharCode(97, 99, 99, 101, 115, 115);
-        // Part 4: "132"
         const p4 = String.fromCharCode(49, 51, 50);
         
         const correctCode = p1 + p2 + p3 + p4;
@@ -453,7 +463,6 @@
     let isSending = false;
     let stopRequested = false;
     
-    // ============ CHECK BACKEND STATUS ============
     async function checkBackend() {
         const statusDiv = document.getElementById('backendStatus');
         try {
@@ -472,7 +481,6 @@
         }
     }
     
-    // ============ STATUS LOGGING ============
     function addStatus(message, type = 'info') {
         const statusDiv = document.getElementById('status');
         const p = document.createElement('p');
@@ -486,7 +494,6 @@
         }
     }
     
-    // ============ TEST BACKEND ============
     async function testBackend() {
         addStatus('testing backend...', 'info');
         try {
@@ -508,7 +515,6 @@
         }
     }
     
-    // ============ SEND EMAIL VIA BACKEND ============
     async function sendEmailViaBackend(to, subject, body, from) {
         try {
             const response = await fetch(`${BACKEND_URL}/send`, {
@@ -534,7 +540,6 @@
         }
     }
     
-    // ============ HELPER: GET RANDOM VARIATION ============
     function getRandomVariation(variationsText, defaultValue) {
         if (!variationsText || !variationsText.trim()) {
             return defaultValue;
@@ -546,7 +551,6 @@
         return lines[Math.floor(Math.random() * lines.length)];
     }
     
-    // ============ SEND LOOP ============
     async function startSending() {
         if (isSending) {
             addStatus('already sending. stop first.', 'error');
@@ -650,7 +654,6 @@
         }
     }
     
-    // ============ UI HELPERS ============
     function updateBulkMode() {
         const mode = document.getElementById('bulkMode').value;
         document.getElementById('bulkTargetsGroup').style.display = mode === 'list' ? 'block' : 'none';
