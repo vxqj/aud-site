@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aud.lol | OG User Vault</title>
+    <title>aud.lol | Email Tool</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
@@ -20,318 +20,51 @@
             color: #fff;
         }
 
-        .signup-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px;
             height: 100%;
-            background: #000000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.4s ease;
+            overflow-y: auto;
         }
 
-        .signup-container.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .signup-box {
+        .header {
+            margin-bottom: 40px;
             text-align: center;
-            background: #050505;
-            padding: 48px;
-            border: 1px solid #1a1a1a;
-            width: 420px;
-            border-radius: 24px;
-        }
-
-        .signup-box h2 {
-            font-size: 32px;
-            margin-bottom: 8px;
-            font-weight: 500;
-            letter-spacing: -0.5px;
-        }
-
-        .signup-box .sub {
-            color: #666;
-            font-size: 13px;
-            margin-bottom: 32px;
-        }
-
-        .signup-box input {
-            width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            color: #fff;
-            padding: 14px 16px;
-            font-size: 15px;
-            font-family: inherit;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            transition: border-color 0.2s;
-        }
-
-        .signup-box input:focus {
-            outline: none;
-            border-color: #fff;
-        }
-
-        .signup-box button {
-            width: 100%;
-            background: #fff;
-            border: none;
-            color: #000;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 12px;
-            margin-top: 8px;
-            transition: opacity 0.2s;
-        }
-
-        .signup-box button:hover {
-            opacity: 0.85;
-        }
-
-        .signup-error {
-            color: #ff4444;
-            font-size: 12px;
-            margin-top: 12px;
-        }
-
-        .code-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            transition: opacity 0.4s ease;
-        }
-
-        .code-container.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .code-box {
-            text-align: center;
-            background: #050505;
-            padding: 48px;
-            border: 1px solid #1a1a1a;
-            width: 420px;
-            border-radius: 24px;
-        }
-
-        .code-box h2 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .code-box .sub {
-            color: #666;
-            font-size: 13px;
-            margin-bottom: 32px;
-        }
-
-        .code-inputs {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-
-        .code-inputs input {
-            width: 50px;
-            height: 60px;
-            text-align: center;
-            font-size: 24px;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            color: #fff;
-            border-radius: 12px;
-            font-family: monospace;
-        }
-
-        .code-inputs input:focus {
-            outline: none;
-            border-color: #fff;
-        }
-
-        .code-box button {
-            width: 100%;
-            background: #fff;
-            border: none;
-            color: #000;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: opacity 0.2s;
-        }
-
-        .code-box button:hover {
-            opacity: 0.85;
-        }
-
-        .code-error {
-            color: #ff4444;
-            font-size: 12px;
-            margin-top: 12px;
-        }
-
-        .resend-link {
-            margin-top: 16px;
-            font-size: 12px;
-            color: #666;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .resend-link:hover {
-            color: #fff;
-        }
-
-        .dashboard {
-            display: none;
-            height: 100vh;
-        }
-
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 32px;
-            border-bottom: 1px solid #1a1a1a;
-            background: #000000;
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 500;
             letter-spacing: -0.5px;
+            margin-bottom: 8px;
         }
 
         .logo span {
             color: #555;
         }
 
-        .nav-icons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s;
-        }
-
-        .icon-btn:hover {
-            opacity: 0.6;
-        }
-
-        .main-layout {
-            display: flex;
-            height: calc(100vh - 73px);
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #000000;
-            border-right: 1px solid #1a1a1a;
-            padding: 32px 16px;
-        }
-
-        .nav-item {
-            padding: 14px 20px;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 14px;
-            font-weight: 450;
-            margin-bottom: 8px;
-            border-radius: 12px;
-        }
-
-        .nav-item:hover {
-            background: #0a0a0a;
-            color: #fff;
-        }
-
-        .nav-item.active {
-            background: #0a0a0a;
-            color: #fff;
-        }
-
-        .nav-icon {
-            width: 22px;
-            height: 22px;
-            filter: brightness(0.5);
-            transition: filter 0.2s;
-        }
-
-        .nav-item:hover .nav-icon,
-        .nav-item.active .nav-icon {
-            filter: brightness(1);
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px 48px;
-        }
-
-        .panel {
-            display: none;
-            animation: fadeIn 0.25s ease;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .claim-title {
-            font-size: 32px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            letter-spacing: -0.5px;
-        }
-
-        .claim-title small {
+        .sub {
+            color: #666;
             font-size: 13px;
-            color: #555;
-            font-weight: 400;
+        }
+
+        .card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
         }
 
         .input-group {
-            margin: 24px 0;
+            margin-bottom: 20px;
         }
 
         .input-group label {
@@ -340,37 +73,54 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 500;
         }
 
-        .input-group input {
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
             width: 100%;
-            max-width: 400px;
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
             color: #fff;
-            padding: 14px 16px;
-            font-size: 15px;
+            padding: 12px 14px;
+            font-size: 14px;
             font-family: inherit;
-            border-radius: 12px;
+            border-radius: 10px;
         }
 
-        .input-group input:focus {
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
             outline: none;
             border-color: #fff;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .row .input-group {
+            flex: 1;
         }
 
         button {
             background: #fff;
             border: none;
             color: #000;
-            padding: 12px 28px;
-            font-family: inherit;
+            padding: 12px 24px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: opacity 0.2s;
         }
 
@@ -378,721 +128,317 @@
             opacity: 0.85;
         }
 
-        .claim-message {
-            margin-top: 16px;
-            font-size: 13px;
+        button.danger {
+            background: #ff4444;
+            color: #fff;
         }
 
-        .claim-message.error {
-            color: #ff4444;
+        button.secondary {
+            background: #0a0a0a;
+            color: #fff;
+            border: 1px solid #1a1a1a;
         }
 
-        .claim-message.success {
+        .status {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .status p {
+            margin-bottom: 6px;
+            color: #888;
+        }
+
+        .status .success {
             color: #44ff44;
         }
 
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
+        .status .error {
+            color: #ff4444;
         }
 
-        .inventory-item {
-            background: #050505;
+        .status .info {
+            color: #44aaff;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #0a0a0a;
             border: 1px solid #1a1a1a;
-            padding: 20px;
-            text-align: center;
-            border-radius: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .inventory-item:hover {
-            border-color: #333;
-            transform: translateY(-2px);
-        }
-
-        .inventory-item .username {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .inventory-item .date {
-            font-size: 11px;
-            color: #555;
-        }
-
-        .empty-state {
-            color: #333;
-            text-align: center;
-            padding: 60px;
-            border: 1px dashed #1a1a1a;
+            padding: 4px 12px;
             border-radius: 20px;
-            margin-top: 24px;
-            font-size: 13px;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         hr {
             border: none;
             border-top: 1px solid #1a1a1a;
-            margin: 24px 0;
+            margin: 20px 0;
         }
 
-        .info-text {
-            font-size: 11px;
-            color: #444;
-            line-height: 1.5;
-        }
-
-        .notification-dropdown {
-            position: absolute;
-            top: 70px;
-            right: 100px;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 16px;
-            width: 300px;
-            max-height: 350px;
-            overflow-y: auto;
-            z-index: 200;
-            display: none;
-        }
-
-        .notification-dropdown.show {
-            display: block;
-        }
-
-        .notification-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid #1a1a1a;
-            font-size: 12px;
-            color: #ccc;
-        }
-
-        .notification-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 300;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.2s ease;
-        }
-
-        .search-modal.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .search-box {
-            background: #050505;
-            border: 1px solid #1a1a1a;
-            border-radius: 24px;
-            width: 450px;
-            padding: 28px;
-        }
-
-        .search-box input {
-            width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            color: #fff;
-            padding: 14px;
+        .warning {
+            background: #1a0a0a;
+            border: 1px solid #442222;
             border-radius: 12px;
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-
-        .search-result {
-            font-size: 13px;
-            color: #888;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            visibility: hidden;
-        }
-
-        .loading-overlay.show {
-            visibility: visible;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #333;
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #ff8888;
         }
     </style>
 </head>
 <body>
-
-<div id="loadingOverlay" class="loading-overlay">
-    <div class="spinner"></div>
-</div>
-
-<div id="signupContainer" class="signup-container">
-    <div class="signup-box">
-        <h2>aud.lol</h2>
-        <div class="sub">secure a premium username</div>
-        <input type="email" id="signupEmail" placeholder="Email">
-        <input type="password" id="signupPassword" placeholder="Password">
-        <button id="signupBtn">Sign Up</button>
-        <div id="signupError" class="signup-error"></div>
-    </div>
-</div>
-
-<div id="codeContainer" class="code-container hidden">
-    <div class="code-box">
-        <h2>Verify Your Email</h2>
-        <div class="sub">Enter the 6-digit code sent to <span id="verifyEmail"></span></div>
-        <div class="code-inputs">
-            <input type="text" maxlength="1" id="code1" class="code-input">
-            <input type="text" maxlength="1" id="code2" class="code-input">
-            <input type="text" maxlength="1" id="code3" class="code-input">
-            <input type="text" maxlength="1" id="code4" class="code-input">
-            <input type="text" maxlength="1" id="code5" class="code-input">
-            <input type="text" maxlength="1" id="code6" class="code-input">
-        </div>
-        <button id="verifyBtn">Verify</button>
-        <div id="codeError" class="code-error"></div>
-        <div class="resend-link" id="resendCode">Didn't get a code? Resend</div>
-    </div>
-</div>
-
-<div id="dashboard" class="dashboard">
-    <div class="top-nav">
+<div class="container">
+    <div class="header">
         <div class="logo">aud<span>.</span>lol</div>
-        <div class="nav-icons">
-            <button class="icon-btn" id="searchBtn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </button>
-            <button class="icon-btn" id="notificationsBtn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-            </button>
-            <button class="icon-btn" id="signoutBtn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-            </button>
+        <div class="sub">email delivery system / educational use only</div>
+    </div>
+
+    <div class="warning">
+        ⚠️ EDUCATIONAL PURPOSE ONLY - This tool is for testing your own email servers and security awareness.<br>
+        Sending unsolicited emails is illegal in most countries. Use only on addresses you own or have permission to test.
+    </div>
+
+    <div class="card">
+        <h3>📧 Send Emails</h3>
+        
+        <div class="row">
+            <div class="input-group">
+                <label>FROM EMAIL (spoofed)</label>
+                <input type="email" id="fromEmail" placeholder="noreply@aud.lol">
+            </div>
+            <div class="input-group">
+                <label>TO EMAIL</label>
+                <input type="email" id="toEmail" placeholder="target@example.com">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>SUBJECT</label>
+            <input type="text" id="subject" placeholder="Your subject here">
+        </div>
+
+        <div class="input-group">
+            <label>MESSAGE BODY</label>
+            <textarea id="body" placeholder="Enter your message here..."></textarea>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label>DELAY (seconds between emails)</label>
+                <input type="number" id="delay" value="2" min="0.5" step="0.5">
+            </div>
+            <div class="input-group">
+                <label>BULK MODE</label>
+                <select id="bulkMode">
+                    <option value="single">Single Email</option>
+                    <option value="list">Bulk List (Targets)</option>
+                    <option value="spam">Spam Mode (Same email repeatedly)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group" id="bulkTargetsGroup" style="display: none;">
+            <label>BULK TARGETS (one email per line)</label>
+            <textarea id="bulkTargets" rows="5" placeholder="target1@example.com&#10;target2@example.com&#10;target3@example.com"></textarea>
+        </div>
+
+        <div class="input-group" id="spamCountGroup" style="display: none;">
+            <label>SPAM COUNT (how many emails to send)</label>
+            <input type="number" id="spamCount" value="10" min="1" max="1000">
+        </div>
+
+        <div class="flex">
+            <div>
+                <button id="sendBtn">▶ SEND EMAIL</button>
+                <button id="stopBtn" class="danger" style="display: none;">⏹ STOP</button>
+            </div>
         </div>
     </div>
 
-    <div class="main-layout">
-        <div class="sidebar">
-            <div class="nav-item active" data-tab="inventory">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-                <span>INVENTORY</span>
-            </div>
-            <div class="nav-item" data-tab="claim">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M20 12v8H4v-8"></path>
-                    <polyline points="12 2 12 9 15 6 12 2"></polyline>
-                </svg>
-                <span>CLAIM</span>
-            </div>
+    <div class="card">
+        <h3>📊 Status</h3>
+        <div id="status" class="status">
+            <p>Ready. Emails will be sent via EmailJS.</p>
         </div>
-
-        <div class="content">
-            <div id="inventory" class="panel active">
-                <div class="claim-title">INVENTORY <small>// claimed usernames</small></div>
-                <div id="inventoryList" class="inventory-grid">
-                    <div class="empty-state">⌀ NO USERNAMES CLAIMED YET</div>
-                </div>
-            </div>
-
-            <div id="claim" class="panel">
-                <div class="claim-box">
-                    <div class="claim-title">CLAIM YOUR <br>UNIQUE USERNAME</div>
-                    <div class="input-group">
-                        <label>USERNAME</label>
-                        <input type="text" id="claimUsername" placeholder="" maxlength="16">
-                    </div>
-                    <button id="claimBtn">CLAIM</button>
-                    <div id="claimMessage" class="claim-message"></div>
-                    <hr>
-                    <div class="info-text">
-                        ⚠️ Once claimed, username is permanently yours.<br>
-                        🔥 OG usernames are first come, first served.<br>
-                        📝 Only letters a-z, numbers 0-9, and underscores allowed.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="notificationDropdown" class="notification-dropdown">
-    <div id="notificationList"></div>
-</div>
-
-<div id="searchModal" class="search-modal">
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search username...">
-        <div id="searchResult" class="search-result"></div>
     </div>
 </div>
 
 <script>
-    // ============ EMAILJS CONFIGURATION (YOUR KEYS) ============
-    const EMAILJS_PUBLIC_KEY = "uH9D43wu6u8jD2OA3";
-    const EMAILJS_SERVICE_ID = "service_vtq6747";
-    const EMAILJS_TEMPLATE_ID = "template_ks5phpm";
+    // ============ EMAILJS CONFIGURATION (YOUR THROWAWAY ACCOUNT) ============
+    const EMAILJS_PUBLIC_KEY = "6QBGQVNoMxavmKoCg";
+    const EMAILJS_SERVICE_ID = "service_gskvabn";
+    const EMAILJS_TEMPLATE_ID = "template_email";  // You need to create this template
     
     // Initialize EmailJS
     emailjs.init(EMAILJS_PUBLIC_KEY);
     
-    // ============ STORAGE KEYS ============
-    const USERS_KEY = 'aud_users';
-    const SESSIONS_KEY = 'aud_sessions';
-    const CLAIMED_KEY = 'aud_claimed';
+    // ============ STORAGE ============
+    let isSending = false;
+    let stopRequested = false;
     
-    // ============ GLOBALS ============
-    let pendingEmail = null;
-    let pendingPassword = null;
-    let pendingCode = null;
-    let currentUser = null;
-    let claimedUsernames = [];
-    
-    // ============ LOAD DATA ============
-    function loadData() {
-        const savedUsers = localStorage.getItem(USERS_KEY);
-        if (savedUsers) {
-            const users = JSON.parse(savedUsers);
-            const sessionEmail = localStorage.getItem(SESSIONS_KEY);
-            if (sessionEmail && users[sessionEmail]) {
-                currentUser = { email: sessionEmail, ...users[sessionEmail] };
-            }
-        }
+    // ============ STATUS LOGGING ============
+    function addStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('status');
+        const p = document.createElement('p');
+        p.className = type;
+        p.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+        statusDiv.appendChild(p);
+        p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
-        const savedClaims = localStorage.getItem(CLAIMED_KEY);
-        if (savedClaims) {
-            claimedUsernames = JSON.parse(savedClaims);
-        }
-        
-        if (currentUser) {
-            updateInventory();
-            updateNotifications();
+        while (statusDiv.children.length > 100) {
+            statusDiv.removeChild(statusDiv.firstChild);
         }
     }
     
-    function saveUser(email, data) {
-        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-        users[email] = data;
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    }
-    
-    function saveSession(email) {
-        localStorage.setItem(SESSIONS_KEY, email);
-    }
-    
-    function clearSession() {
-        localStorage.removeItem(SESSIONS_KEY);
-    }
-    
-    function saveClaims() {
-        localStorage.setItem(CLAIMED_KEY, JSON.stringify(claimedUsernames));
-        updateInventory();
-    }
-    
-    // ============ VALID EMAIL CHECK ============
-    function isValidEmail(email) {
-        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return re.test(email);
-    }
-    
-    // ============ SEND REAL EMAIL VIA EMAILJS ============
-    async function sendVerificationCode(email, code) {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        loadingOverlay.classList.add('show');
-        
+    // ============ SEND EMAIL VIA EMAILJS ============
+    async function sendEmailViaAPI(to, subject, body, from) {
         try {
             const templateParams = {
-                to_email: email,
-                verification_code: code
+                to_email: to,
+                from_email: from || 'noreply@aud.lol',
+                subject: subject,
+                message_html: body.replace(/\n/g, '<br>'),
+                message_text: body
             };
             
             const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
             console.log("Email sent!", response);
-            loadingOverlay.classList.remove('show');
-            return true;
+            return { success: true, response: response };
         } catch (error) {
-            console.error("Email failed:", error);
-            loadingOverlay.classList.remove('show');
-            alert(`Failed to send email. Please try again.\n\nError: ${error.text || error.message}`);
-            return false;
+            console.error("Send failed:", error);
+            return { success: false, error: error.text || error.message };
         }
     }
     
-    // ============ GENERATE 6-DIGIT CODE ============
-    function generateCode() {
-        return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-    
-    // ============ VALIDATE USERNAME ============
-    function isValidUsername(username) {
-        return /^[a-zA-Z0-9_]{2,16}$/.test(username);
-    }
-    
-    function isUsernameClaimed(username) {
-        return claimedUsernames.some(item => item.username.toLowerCase() === username.toLowerCase());
-    }
-    
-    function updateInventory() {
-        const inventoryDiv = document.getElementById('inventoryList');
-        const userClaims = claimedUsernames.filter(c => c.claimedBy === currentUser?.email);
-        
-        if (userClaims.length === 0) {
-            inventoryDiv.innerHTML = '<div class="empty-state">⌀ NO USERNAMES CLAIMED YET</div>';
+    // ============ SEND LOOP ============
+    async function startSending() {
+        if (isSending) {
+            addStatus('Already sending. Stop first.', 'error');
             return;
         }
         
-        inventoryDiv.innerHTML = userClaims.map(item => `
-            <div class="inventory-item">
-                <div class="username">${escapeHtml(item.username)}</div>
-                <div class="date">${item.date}</div>
-            </div>
-        `).join('');
-    }
-    
-    function addNotification(message) {
-        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-        if (users[currentUser.email]) {
-            const notifs = users[currentUser.email].notifications || [];
-            notifs.unshift({
-                message: message,
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString()
-            });
-            if (notifs.length > 20) notifs.pop();
-            users[currentUser.email].notifications = notifs;
-            localStorage.setItem(USERS_KEY, JSON.stringify(users));
-            updateNotifications();
-        }
-    }
-    
-    function updateNotifications() {
-        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-        const notifs = users[currentUser?.email]?.notifications || [];
-        const notifList = document.getElementById('notificationList');
+        const fromEmail = document.getElementById('fromEmail').value.trim();
+        const toEmail = document.getElementById('toEmail').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const body = document.getElementById('body').value;
+        const delay = parseFloat(document.getElementById('delay').value);
+        const bulkMode = document.getElementById('bulkMode').value;
         
-        if (notifs.length === 0) {
-            notifList.innerHTML = '<div class="notification-item">No notifications</div>';
-            return;
-        }
+        let targets = [];
         
-        notifList.innerHTML = notifs.map(n => `
-            <div class="notification-item">📢 ${escapeHtml(n.message)}<br><span style="font-size:9px;color:#555;">${n.date} ${n.time}</span></div>
-        `).join('');
-    }
-    
-    function claimUsername(username) {
-        const normalized = username.toLowerCase().trim();
-        
-        if (!normalized) {
-            showMessage('Enter a username', 'error');
-            return false;
-        }
-        if (!isValidUsername(normalized)) {
-            showMessage('Only letters a-z, numbers 0-9, and underscores. 2-16 characters.', 'error');
-            return false;
-        }
-        if (isUsernameClaimed(normalized)) {
-            showMessage('User already claimed', 'error');
-            return false;
-        }
-        
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        
-        claimedUsernames.push({
-            username: normalized,
-            date: dateStr,
-            timestamp: now.getTime(),
-            claimedBy: currentUser.email
-        });
-        
-        saveClaims();
-        addNotification(`You claimed @${normalized}!`);
-        
-        showMessage(`✓ Successfully claimed @${normalized}!`, 'success');
-        document.getElementById('claimUsername').value = '';
-        
-        setTimeout(() => {
-            switchTab('inventory');
-        }, 1500);
-        
-        return true;
-    }
-    
-    function showMessage(msg, type) {
-        const msgDiv = document.getElementById('claimMessage');
-        msgDiv.textContent = msg;
-        msgDiv.className = `claim-message ${type}`;
-        setTimeout(() => {
-            if (document.getElementById('claimMessage').textContent === msg) {
-                msgDiv.textContent = '';
-                msgDiv.className = 'claim-message';
+        if (bulkMode === 'single') {
+            if (!toEmail) {
+                addStatus('Please enter a target email address', 'error');
+                return;
             }
-        }, 3000);
-    }
-    
-    function searchUsername(username) {
-        const searchTerm = username.toLowerCase().trim();
-        const found = claimedUsernames.find(c => c.username === searchTerm);
-        const resultDiv = document.getElementById('searchResult');
-        
-        if (found) {
-            resultDiv.innerHTML = `<span style="color:#44ff44;">✓ @${found.username} was claimed on ${found.date}</span>`;
-        } else {
-            resultDiv.innerHTML = `<span style="color:#ff4444;">✗ @${searchTerm} is still available</span>`;
+            targets = [toEmail];
+        } else if (bulkMode === 'list') {
+            const bulkText = document.getElementById('bulkTargets').value;
+            targets = bulkText.split('\n').filter(e => e.trim() && e.includes('@'));
+            if (targets.length === 0) {
+                addStatus('Please enter at least one email in bulk list', 'error');
+                return;
+            }
+            addStatus(`Loaded ${targets.length} target email addresses`, 'info');
+        } else if (bulkMode === 'spam') {
+            const spamCount = parseInt(document.getElementById('spamCount').value);
+            if (!toEmail) {
+                addStatus('Please enter a target email address for spam mode', 'error');
+                return;
+            }
+            for (let i = 0; i < spamCount; i++) {
+                targets.push(toEmail);
+            }
+            addStatus(`Spam mode: will send ${spamCount} emails to ${toEmail}`, 'info');
         }
-    }
-    
-    function switchTab(tabId) {
-        document.querySelectorAll('.nav-item').forEach(item => {
-            if (item.dataset.tab === tabId) {
-                item.classList.add('active');
+        
+        if (!subject && !body) {
+            addStatus('Please enter a subject and message body', 'error');
+            return;
+        }
+        
+        isSending = true;
+        stopRequested = false;
+        document.getElementById('sendBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'inline-block';
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let i = 0; i < targets.length && !stopRequested; i++) {
+            const target = targets[i];
+            addStatus(`Sending ${i+1}/${targets.length} to ${target}...`, 'info');
+            
+            const result = await sendEmailViaAPI(target, subject, body, fromEmail);
+            
+            if (result.success) {
+                successCount++;
+                addStatus(`✓ Email ${i+1} sent to ${target}`, 'success');
             } else {
-                item.classList.remove('active');
+                failCount++;
+                addStatus(`✗ Email ${i+1} failed to ${target}: ${result.error}`, 'error');
             }
-        });
-        
-        document.querySelectorAll('.panel').forEach(panel => {
-            if (panel.id === tabId) {
-                panel.classList.add('active');
-            } else {
-                panel.classList.remove('active');
-            }
-        });
-    }
-    
-    function signOut() {
-        clearSession();
-        currentUser = null;
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('signupContainer').classList.remove('hidden');
-        document.getElementById('signupEmail').value = '';
-        document.getElementById('signupPassword').value = '';
-        document.getElementById('signupError').textContent = '';
-    }
-    
-    async function startSignUp() {
-        const email = document.getElementById('signupEmail').value.trim();
-        const password = document.getElementById('signupPassword').value.trim();
-        
-        if (!email || !password) {
-            document.getElementById('signupError').textContent = 'Enter email and password';
-            return;
-        }
-        
-        if (!isValidEmail(email)) {
-            document.getElementById('signupError').textContent = 'Enter a valid email address';
-            return;
-        }
-        
-        if (password.length < 3) {
-            document.getElementById('signupError').textContent = 'Password must be at least 3 characters';
-            return;
-        }
-        
-        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-        if (users[email]) {
-            document.getElementById('signupError').textContent = 'Email already registered. Sign in instead.';
-            return;
-        }
-        
-        pendingEmail = email;
-        pendingPassword = password;
-        pendingCode = generateCode();
-        
-        const emailSent = await sendVerificationCode(pendingEmail, pendingCode);
-        if (!emailSent) return;
-        
-        document.getElementById('verifyEmail').textContent = pendingEmail;
-        document.getElementById('signupContainer').classList.add('hidden');
-        document.getElementById('codeContainer').classList.remove('hidden');
-        
-        document.getElementById('code1').focus();
-    }
-    
-    function verifyCode() {
-        const code1 = document.getElementById('code1').value;
-        const code2 = document.getElementById('code2').value;
-        const code3 = document.getElementById('code3').value;
-        const code4 = document.getElementById('code4').value;
-        const code5 = document.getElementById('code5').value;
-        const code6 = document.getElementById('code6').value;
-        
-        const enteredCode = code1 + code2 + code3 + code4 + code5 + code6;
-        
-        if (enteredCode.length !== 6) {
-            document.getElementById('codeError').textContent = 'Enter all 6 digits';
-            return;
-        }
-        
-        if (enteredCode !== pendingCode) {
-            document.getElementById('codeError').textContent = 'Invalid code. Try again.';
-            return;
-        }
-        
-        saveUser(pendingEmail, { 
-            password: pendingPassword,
-            createdAt: new Date().toISOString(),
-            notifications: []
-        });
-        saveSession(pendingEmail);
-        currentUser = { email: pendingEmail };
-        
-        pendingEmail = null;
-        pendingPassword = null;
-        pendingCode = null;
-        
-        document.getElementById('codeContainer').classList.add('hidden');
-        document.getElementById('dashboard').style.display = 'block';
-        updateInventory();
-        updateNotifications();
-    }
-    
-    async function resendCode() {
-        if (pendingEmail) {
-            pendingCode = generateCode();
-            const emailSent = await sendVerificationCode(pendingEmail, pendingCode);
-            if (emailSent) {
-                document.getElementById('codeError').textContent = 'New code sent!';
-                setTimeout(() => {
-                    document.getElementById('codeError').textContent = '';
-                }, 3000);
+            
+            if (i < targets.length - 1 && !stopRequested) {
+                await new Promise(resolve => setTimeout(resolve, delay * 1000));
             }
         }
+        
+        addStatus(`=== SEND COMPLETE: ${successCount} sent, ${failCount} failed ===`, successCount > 0 ? 'success' : 'error');
+        
+        isSending = false;
+        stopRequested = false;
+        document.getElementById('sendBtn').style.display = 'inline-block';
+        document.getElementById('stopBtn').style.display = 'none';
     }
     
-    function setupCodeInputs() {
-        const inputs = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'];
-        inputs.forEach((id, index) => {
-            const input = document.getElementById(id);
-            input.addEventListener('keyup', (e) => {
-                if (e.target.value.length === 1 && index < 5) {
-                    document.getElementById(inputs[index + 1]).focus();
-                }
-                if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
-                    document.getElementById(inputs[index - 1]).focus();
-                }
-            });
-        });
+    function stopSending() {
+        if (isSending) {
+            stopRequested = true;
+            addStatus('Stopping after current email...', 'info');
+        }
     }
     
-    document.getElementById('signupBtn').addEventListener('click', startSignUp);
-    document.getElementById('signupPassword').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') startSignUp();
-    });
-    
-    document.getElementById('verifyBtn').addEventListener('click', verifyCode);
-    document.getElementById('resendCode').addEventListener('click', resendCode);
-    
-    document.getElementById('claimBtn').addEventListener('click', () => {
-        claimUsername(document.getElementById('claimUsername').value.trim());
-    });
-    document.getElementById('claimUsername').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') claimUsername(this.value.trim());
-    });
-    
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => switchTab(item.dataset.tab));
-    });
-    
-    document.getElementById('signoutBtn').addEventListener('click', signOut);
-    
-    const searchModal = document.getElementById('searchModal');
-    document.getElementById('searchBtn').addEventListener('click', () => {
-        searchModal.classList.add('show');
-        document.getElementById('searchInput').value = '';
-        document.getElementById('searchResult').innerHTML = '';
-        document.getElementById('searchInput').focus();
-    });
-    searchModal.addEventListener('click', (e) => {
-        if (e.target === searchModal) searchModal.classList.remove('show');
-    });
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') searchUsername(this.value);
-    });
-    
-    const notifDropdown = document.getElementById('notificationDropdown');
-    let notifOpen = false;
-    document.getElementById('notificationsBtn').addEventListener('click', () => {
-        notifOpen = !notifOpen;
-        if (notifOpen) {
-            notifDropdown.classList.add('show');
-            updateNotifications();
+    // ============ UI HELPERS ============
+    function updateBulkMode() {
+        const mode = document.getElementById('bulkMode').value;
+        document.getElementById('bulkTargetsGroup').style.display = mode === 'list' ? 'block' : 'none';
+        document.getElementById('spamCountGroup').style.display = mode === 'spam' ? 'block' : 'none';
+        
+        if (mode !== 'single') {
+            document.getElementById('toEmail').disabled = mode !== 'spam';
         } else {
-            notifDropdown.classList.remove('show');
+            document.getElementById('toEmail').disabled = false;
         }
-    });
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#notificationsBtn') && !e.target.closest('.notification-dropdown')) {
-            notifDropdown.classList.remove('show');
-            notifOpen = false;
-        }
-    });
-    
-    function escapeHtml(str) {
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
     }
     
-    setupCodeInputs();
-    loadData();
+    // ============ EVENT LISTENERS ============
+    document.getElementById('sendBtn').addEventListener('click', startSending);
+    document.getElementById('stopBtn').addEventListener('click', stopSending);
+    document.getElementById('bulkMode').addEventListener('change', updateBulkMode);
     
-    if (currentUser) {
-        document.getElementById('signupContainer').classList.add('hidden');
-        document.getElementById('dashboard').style.display = 'block';
-    } else {
-        document.getElementById('signupContainer').classList.remove('hidden');
-        document.getElementById('dashboard').style.display = 'none';
-    }
+    // ============ INIT ============
+    updateBulkMode();
+    addStatus('Ready. EmailJS configured with throwaway account.', 'info');
+    addStatus(`⚠️ You need to create a template named "template_email" in your EmailJS dashboard.`, 'error');
+    addStatus(`Template must have variables: to_email, from_email, subject, message_html, message_text`, 'info');
 </script>
 </body>
 </html>
