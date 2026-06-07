@@ -483,16 +483,35 @@
             margin-top: 20px;
         }
 
-        .bar {
+        .bar-container {
             flex: 1;
+            text-align: center;
+        }
+
+        .bar {
             background: #fff;
             opacity: 0.8;
             transition: height 0.3s ease;
-            min-width: 30px;
+            width: 100%;
+            margin-bottom: 4px;
         }
+
+        .bar.user-bar { background: #44aaff; }
+        .bar.global-bar { background: #44ff44; }
 
         .bar:hover {
             opacity: 1;
+        }
+
+        .bar-label {
+            font-size: 9px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        .redacted-email {
+            font-family: monospace;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -825,47 +844,95 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
     
-    // ============ STATISTICS ============
-    // Storage keys
-    const USER_KEY = 'aud_user_email';
-    const USER_STATS_KEY = 'aud_user_stats';
-    const GLOBAL_STATS_KEY = 'aud_global_stats';
+    // ============ REDACT EMAIL FUNCTION ============
+    function redactEmail(email) {
+        if (!email) return 'unknown';
+        const atIndex = email.indexOf('@');
+        if (atIndex <= 0) return '***@***';
+        const domain = email.substring(atIndex);
+        return '******' + domain;
+    }
     
-    let currentUser = null;
-    let userStats = { sent: 0, daily: {} };
-    let globalStats = { totalSent: 0, daily: {}, recentActivity: [] };
+    // ============ STATISTICS (Backend-synced) ============
+    const USER_KEY = 'aud_user_id';
+    const BACKEND_STATS_URL = 'https://aud-email-backend-1.onrender.com';
     
-    function loadStats() {
-        // Load or create user ID
+    let currentUserId = null;
+    let userSent = 0;
+    let globalTotal = 0;
+    let globalDaily = {};
+    let recentActivity = [];
+    
+    async function registerUser() {
         let userId = localStorage.getItem(USER_KEY);
         if (!userId) {
-            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            userId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
             localStorage.setItem(USER_KEY, userId);
         }
-        currentUser = userId;
-        
-        // Load user stats
-        const savedUserStats = localStorage.getItem(USER_STATS_KEY);
-        if (savedUserStats) {
-            userStats = JSON.parse(savedUserStats);
-        } else {
-            userStats = { sent: 0, daily: {} };
+        currentUserId = userId;
+        return userId;
+    }
+    
+    async function fetchStats() {
+        try {
+            const response = await fetch(`${BACKEND_STATS_URL}/stats?userId=${currentUserId}`);
+            const data = await response.json();
+            if (data.success) {
+                userSent = data.userSent || 0;
+                globalTotal = data.globalTotal || 0;
+                globalDaily = data.globalDaily || {};
+                recentActivity = data.recentActivity || [];
+                updateStatsDisplay();
+            }
+        } catch (error) {
+            console.log('Stats fetch failed, using localStorage fallback');
+            // Fallback to localStorage
+            const savedUserSent = localStorage.getItem('aud_user_sent');
+            const savedGlobalTotal = localStorage.getItem('aud_global_total');
+            userSent = savedUserSent ? parseInt(savedUserSent) : 0;
+            globalTotal = savedGlobalTotal ? parseInt(savedGlobalTotal) : 0;
+            updateStatsDisplay();
         }
-        
-        // Load global stats
-        const savedGlobalStats = localStorage.getItem(GLOBAL_STATS_KEY);
-        if (savedGlobalStats) {
-            globalStats = JSON.parse(savedGlobalStats);
-        } else {
-            globalStats = { totalSent: 0, daily: {}, recentActivity: [] };
+    }
+    
+    async function recordEmailSent(count, targetEmail) {
+        const redactedEmail = redactEmail(targetEmail);
+        try {
+            const response = await fetch(`${BACKEND_STATS_URL}/record`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: currentUserId,
+                    count: count,
+                    email: redactedEmail
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                userSent = data.userSent;
+                globalTotal = data.globalTotal;
+                globalDaily = data.globalDaily;
+                recentActivity = data.recentActivity;
+                updateStatsDisplay();
+            }
+        } catch (error) {
+            // Fallback to localStorage
+            userSent += count;
+            globalTotal += count;
+            localStorage.setItem('aud_user_sent', userSent);
+            localStorage.setItem('aud_global_total', globalTotal);
+            recentActivity.unshift({
+                time: new Date().toLocaleTimeString(),
+                message: `${count} email${count !== 1 ? 's' : ''} sent to ${redactedEmail}`
+            });
+            if (recentActivity.length > 20) recentActivity.pop();
+            updateStatsDisplay();
         }
-        
-        updateStatsDisplay();
     }
     
     function updateStatsDisplay() {
-        document.getElementById('userSentCount').innerText = userStats.sent.toLocaleString();
-        document.getElementById('totalSentCount').innerText = globalStats.totalSent.toLocaleString();
+        document.getElementById('userSentCount').innerText = userSent.toLocaleString();
+        document.getElementById('totalSentCount').innerText = globalTotal.toLocaleString();
         updateBarChart();
         updateRecentActivity();
     }
@@ -881,22 +948,19 @@
             days.push({ date: dateStr, label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) });
         }
         
-        const maxCount = Math.max(1, ...Object.values(globalStats.daily), ...Object.values(userStats.daily));
+        const maxCount = Math.max(1, ...Object.values(globalDaily), 10);
         const maxHeight = 150;
         
         let html = '';
         for (const day of days) {
-            const globalCount = globalStats.daily[day.date] || 0;
-            const userCount = userStats.daily[day.date] || 0;
-            const userHeight = (userCount / maxCount) * maxHeight;
+            const globalCount = globalDaily[day.date] || 0;
             const globalHeight = (globalCount / maxCount) * maxHeight;
             html += `
-                <div style="flex:1; text-align: center;">
-                    <div style="height: ${maxHeight}px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
-                        <div style="height: ${userHeight}px; background: #44aaff; width: 100%; opacity: 0.7;"></div>
-                        <div style="height: ${globalHeight}px; background: #44ff44; width: 100%; opacity: 0.7;"></div>
+                <div class="bar-container">
+                    <div style="height: ${maxHeight}px; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <div style="height: ${globalHeight}px; background: #44ff44; width: 100%; opacity: 0.7; border-radius: 2px;"></div>
                     </div>
-                    <div style="font-size: 9px; color: #555; margin-top: 8px;">${day.label}</div>
+                    <div class="bar-label">${day.label}</div>
                 </div>
             `;
         }
@@ -905,45 +969,13 @@
     
     function updateRecentActivity() {
         const activityDiv = document.getElementById('recentActivity');
-        if (!globalStats.recentActivity || globalStats.recentActivity.length === 0) {
+        if (!recentActivity || recentActivity.length === 0) {
             activityDiv.innerHTML = '<p>no recent activity.</p>';
             return;
         }
-        activityDiv.innerHTML = globalStats.recentActivity.slice(0, 10).map(activity => 
+        activityDiv.innerHTML = recentActivity.slice(0, 10).map(activity => 
             `<p>[${activity.time}] ${activity.message}</p>`
         ).join('');
-    }
-    
-    function addToGlobalStats(count, email) {
-        const today = new Date().toISOString().split('T')[0];
-        
-        globalStats.totalSent += count;
-        globalStats.daily[today] = (globalStats.daily[today] || 0) + count;
-        
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString();
-        globalStats.recentActivity.unshift({
-            time: timeStr,
-            message: `${count} email${count !== 1 ? 's' : ''} sent to ${email}`
-        });
-        if (globalStats.recentActivity.length > 20) globalStats.recentActivity.pop();
-        
-        localStorage.setItem(GLOBAL_STATS_KEY, JSON.stringify(globalStats));
-    }
-    
-    function addToUserStats(count) {
-        const today = new Date().toISOString().split('T')[0];
-        
-        userStats.sent += count;
-        userStats.daily[today] = (userStats.daily[today] || 0) + count;
-        
-        localStorage.setItem(USER_STATS_KEY, JSON.stringify(userStats));
-    }
-    
-    function recordEmailSent(count, targetEmail) {
-        addToUserStats(count);
-        addToGlobalStats(count, targetEmail);
-        updateStatsDisplay();
     }
     
     // ============ OBFUSCATED PASSCODE ============
@@ -962,7 +994,7 @@
             document.getElementById('gate').classList.add('hidden');
             document.getElementById('mainContent').style.display = 'block';
             checkBackend();
-            loadStats();
+            registerUser().then(() => fetchStats());
         } else {
             document.getElementById('gateError').textContent = 'incorrect';
             input.value = '';
@@ -1155,8 +1187,8 @@
             }
         }
         
-        if (successCount > 0) {
-            recordEmailSent(successCount, targets[0] || 'unknown');
+        if (successCount > 0 && currentUserId) {
+            await recordEmailSent(successCount, targets[0] || 'unknown');
         }
         
         addStatus(`=== complete: ${successCount} sent, ${failCount} failed ===`, successCount > 0 ? 'success' : 'error');
